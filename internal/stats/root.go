@@ -1,7 +1,6 @@
 package stats
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,7 +47,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 			dir, _ := filepath.Split(curFileName)
 			if !strings.HasSuffix(dir, `www\`) {
 				if _, err := os.Stat(filename); err == nil {
-					log.Printf("%s not found", filename)
+					// log.Printf("%s not found", filename)
 				}
 			}
 			return

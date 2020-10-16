@@ -89,7 +89,7 @@ func (fi *Functions) GetFuncsThatCalledFunc(name string) ([]*Function, error) {
 		return nil, fmt.Errorf("function %s not found", name)
 	}
 
-	return fn.CalledBy.GetAll(false, false, true, -1, false), nil
+	return fn.CalledBy.GetAll(false, false, true, -1, 0, false), nil
 }
 
 func (fi *Functions) GetFuncsThatCalledInFunc(name string) ([]*Function, error) {
@@ -99,16 +99,20 @@ func (fi *Functions) GetFuncsThatCalledInFunc(name string) ([]*Function, error) 
 		return nil, fmt.Errorf("function %s not found", name)
 	}
 
-	return fn.Called.GetAll(false, false, true, -1, false), nil
+	return fn.Called.GetAll(false, false, true, -1, 0, false), nil
 }
 
-func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int, sorted bool) []*Function {
+func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool) []*Function {
 	var res []*Function
-	var index int
+	var index int64
+
+	if offset < 0 {
+		offset = 0
+	}
 
 	for key, fn := range fi.Funcs {
 		if !sorted {
-			if index > count && count != -1 {
+			if index > count+offset && count != -1 {
 				break
 			}
 		}
@@ -131,8 +135,15 @@ func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int, sorted 
 		sort.Slice(res, func(i, j int) bool {
 			return res[i].UsesCount > res[j].UsesCount
 		})
-		if count < len(res) {
-			res = res[:count]
+
+		if count != -1 {
+			if count+offset < int64(len(res)) {
+				res = res[:count+offset]
+			}
+
+			if offset < int64(len(res)) {
+				res = res[offset:]
+			}
 		}
 	}
 
@@ -246,7 +257,7 @@ func (fi *Function) ShortString() string {
 	return res
 }
 
-func (fi *Function) String() string {
+func (fi *Function) FullString() string {
 	var res string
 
 	res += "\n"

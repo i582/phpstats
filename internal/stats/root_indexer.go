@@ -99,13 +99,15 @@ func (r *rootIndexer) getElementPos(n ir.Node) meta.ElementPosition {
 }
 
 func (r *rootIndexer) parseStartPos(pos *position.Position) (startLn []byte, startChar int) {
-	if pos.StartLine >= 1 && len(r.ctx.Walker().Lines) > pos.StartLine {
-		startLn = r.ctx.Walker().Lines[pos.StartLine-1]
-		p := r.ctx.Walker().LinesPositions[pos.StartLine-1]
-		if pos.StartPos > p {
-			startChar = pos.StartPos - p
-		}
-	}
+	return []byte{}, 0
 
-	return startLn, startChar
+	// if pos.StartLine >= 1 && len(r.ctx.Walker().Lines) > pos.StartLine {
+	// 	startLn = r.ctx.Walker().Lines[pos.StartLine-1]
+	// 	p := r.ctx.Walker().LinesPositions[pos.StartLine-1]
+	// 	if pos.StartPos > p {
+	// 		startChar = pos.StartPos - p
+	// 	}
+	// }
+	//
+	// return startLn, startChar
 }
