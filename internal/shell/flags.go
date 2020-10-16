@@ -39,19 +39,6 @@ func (f *Flag) String() string {
 	return res
 }
 
-func NewFlag(name string) *Flag {
-	return &Flag{
-		Name: name,
-	}
-}
-
-func NewFlagWithValue(name string) *Flag {
-	return &Flag{
-		Name:      name,
-		WithValue: true,
-	}
-}
-
 type Flags struct {
 	Flags map[string]*Flag
 }

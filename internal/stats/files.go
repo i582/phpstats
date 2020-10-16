@@ -111,11 +111,11 @@ func (f *Files) GetAll(count int64, offset int64, sorted bool) []*File {
 
 	if sorted {
 		sort.Slice(res, func(i, j int) bool {
-			if len(res[i].RequiredBy.Files) == len(res[j].RequiredBy.Files) {
+			if res[i].RequiredBy.Len() == res[j].RequiredBy.Len() {
 				return res[i].Name < res[j].Name
 			}
 
-			return len(res[i].RequiredBy.Files) > len(res[j].RequiredBy.Files)
+			return res[i].RequiredBy.Len() > res[j].RequiredBy.Len()
 		})
 
 		if count != -1 {
@@ -187,7 +187,7 @@ func GenIndent(level int) string {
 	return res
 }
 
-func GraphvizRecursive(file *File, level int, visited map[string]struct{}, maxRecursive int, isRootRequire bool) string {
+func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, maxRecursive int64, isRootRequire bool) string {
 	if level > maxRecursive {
 		return ""
 	}
@@ -223,7 +223,7 @@ func GraphvizRecursive(file *File, level int, visited map[string]struct{}, maxRe
 	return res
 }
 
-func (f *File) GraphvizRecursive(maxRecursive int) string {
+func (f *File) GraphvizRecursive(maxRecursive int64) string {
 	var res string
 
 	res += "digraph test{\n"
