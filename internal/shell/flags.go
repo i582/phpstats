@@ -1,21 +1,70 @@
 package shell
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 )
 
 type Flag struct {
 	Name  string
 	Value string
+
+	Help    string
+	Default string
+
+	Required  bool
+	WithValue bool
+}
+
+func (f *Flag) String() string {
+	var res string
+
+	var withValueSpan string
+	if f.WithValue {
+		withValueSpan = " <value>"
+	}
+
+	var defaultSpan string
+	if f.Default != "" {
+		defaultSpan = fmt.Sprintf(" (default: %s)", f.Default)
+	}
+
+	if f.Required {
+		res += fmt.Sprintf(" %s%-*s  %s%s", f.Name, 14-len(f.Name)-1, withValueSpan, f.Help, defaultSpan)
+	} else {
+		res += fmt.Sprintf("[%s%s]%-*s %s%s", f.Name, withValueSpan, 14-len(f.Name)-len(withValueSpan)-1, "", f.Help, defaultSpan)
+	}
+
+	return res
+}
+
+func NewFlag(name string) *Flag {
+	return &Flag{
+		Name: name,
+	}
+}
+
+func NewFlagWithValue(name string) *Flag {
+	return &Flag{
+		Name:      name,
+		WithValue: true,
+	}
 }
 
 type Flags struct {
-	Flags map[string]Flag
+	Flags map[string]*Flag
 }
 
-func NewFlags() *Flags {
+func NewFlags(flags ...*Flag) *Flags {
+	flagsMap := make(map[string]*Flag, len(flags))
+
+	for _, flag := range flags {
+		flagsMap[flag.Name] = flag
+	}
+
 	return &Flags{
-		Flags: map[string]Flag{},
+		Flags: flagsMap,
 	}
 }
 
@@ -24,29 +73,49 @@ func (f *Flags) Contains(flagName string) bool {
 	return ok
 }
 
-func (f *Flags) Get(flagName string) (Flag, bool) {
+func (f *Flags) Get(flagName string) (*Flag, bool) {
 	flag, ok := f.Flags[flagName]
 	return flag, ok
 }
 
 func isFlag(arg string) bool {
-	return strings.HasPrefix(arg, "-") || strings.HasPrefix(arg, "--")
+	if !strings.HasPrefix(arg, "-") && !strings.HasPrefix(arg, "--") {
+		return false
+	}
+
+	argV := strings.TrimLeft(arg, "-")
+
+	_, err := strconv.ParseInt(argV, 0, 64)
+	if err == nil {
+		return false
+	}
+
+	return true
 }
 
-func getFlags(args []string) (flags *Flags, argsWithoutFlags []string) {
-	flags = NewFlags()
+func getFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags []string) {
+	flags = &Flags{
+		Flags: map[string]*Flag{},
+	}
 
 	for i := 0; i < len(args); i++ {
 		if isFlag(args[i]) {
 			var val string
 			name := args[i]
 
-			if i+1 < len(args) && !isFlag(args[i+1]) {
-				val = args[i+1]
-				i++
+			var needValue bool
+			if f, ok := allowed.Get(name); ok {
+				needValue = f.WithValue
 			}
 
-			flag := Flag{
+			if needValue {
+				if i+1 < len(args) && !isFlag(args[i+1]) {
+					val = args[i+1]
+					i++
+				}
+			}
+
+			flag := &Flag{
 				Name:  name,
 				Value: val,
 			}

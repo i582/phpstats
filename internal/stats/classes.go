@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
 
@@ -23,6 +24,62 @@ func NewClasses() *Classes {
 }
 
 var AlreadyShown = map[string]struct{}{}
+
+func (c *Classes) GetAllInterfaces(count int64, offset int64, sorted bool) []*Class {
+	return c.GetAll(true, count, offset, sorted)
+}
+
+func (c *Classes) GetAllClasses(count int64, offset int64, sorted bool) []*Class {
+	return c.GetAll(false, count, offset, sorted)
+}
+
+func (c *Classes) GetAll(onlyInterface bool, count int64, offset int64, sorted bool) []*Class {
+	var res []*Class
+	var index int64
+
+	if offset < 0 {
+		offset = 0
+	}
+
+	for _, class := range c.Classes {
+		if !sorted {
+			if index+offset > count && count != -1 {
+				break
+			}
+		}
+
+		if onlyInterface {
+			if !class.IsInterface {
+				continue
+			}
+		}
+
+		res = append(res, class)
+		index++
+	}
+
+	if sorted {
+		sort.Slice(res, func(i, j int) bool {
+			if res[i].Deps.Len() == res[j].Deps.Len() {
+				return res[i].Name < res[j].Name
+			}
+
+			return res[i].Deps.Len() > res[j].Deps.Len()
+		})
+
+		if count != -1 {
+			if count+offset < int64(len(res)) {
+				res = res[:count+offset]
+			}
+
+			if offset < int64(len(res)) {
+				res = res[offset:]
+			}
+		}
+	}
+
+	return res
+}
 
 func (c *Classes) Len() int {
 	return len(c.Classes)
@@ -207,6 +264,14 @@ func (c *Class) FullString(level int) string {
 	res += fmt.Sprintf(" Эфферентность: %.2f\n", efferent)
 	res += fmt.Sprintf(" Стабильность:  %.2f\n", stability)
 
+	return res
+}
+
+func (c *Class) ExtraFullString(level int) string {
+	var res string
+
+	res += c.FullString(level)
+
 	if c.Implements.Len() != 0 {
 		res += fmt.Sprintf(" Реализует:\n")
 	}
@@ -240,16 +305,16 @@ func (c *Class) ShortStringWithPrefix(level int, prefix string) string {
 	var res string
 
 	if c.IsInterface {
-		res += fmt.Sprintf("%s%sИнтерфейс %s\n", prefix, genIndent(level-1), c.Name)
+		res += fmt.Sprintf("%s%sИнтерфейс %s\n", prefix, GenIndent(level-1), c.Name)
 	} else {
 		if c.IsAbstract {
-			res += fmt.Sprintf("%s%sАбстрактный класс %s\n", prefix, genIndent(level-1), c.Name)
+			res += fmt.Sprintf("%s%sАбстрактный класс %s\n", prefix, GenIndent(level-1), c.Name)
 		} else {
-			res += fmt.Sprintf("%s%sКласс %s\n", prefix, genIndent(level-1), c.Name)
+			res += fmt.Sprintf("%s%sКласс %s\n", prefix, GenIndent(level-1), c.Name)
 		}
 	}
-	res += fmt.Sprintf("%s Имя:  %s\n", genIndent(level), c.Name)
-	res += fmt.Sprintf("%s Файл: %s:0\n", genIndent(level), c.File.Path)
+	res += fmt.Sprintf("%s Имя:  %s\n", GenIndent(level), c.Name)
+	res += fmt.Sprintf("%s Файл: %s:0\n", GenIndent(level), c.File.Path)
 
 	return res
 }

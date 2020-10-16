@@ -195,10 +195,10 @@ func CollectMain() error {
 	// 	fmt.Println(class.Name)
 	// }
 
-	// cmd := exec.Command( "dot","-Tsvg",`test.gv` )
+	// cmd := exec.Name( "dot","-Tsvg",`test.gv` )
 	// cmd.Run()
 	//
-	// cmd = exec.Command( "open",`test.svg` )
+	// cmd = exec.Name( "open",`test.svg` )
 	// cmd.Run()
 
 	// path, err := GlobalCtx.Files.GetFullFileName("member.lib.php")

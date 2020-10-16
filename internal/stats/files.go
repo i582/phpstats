@@ -87,16 +87,20 @@ func (f *Files) GetFilesIncludedFile(name string) ([]*File, error) {
 		return nil, fmt.Errorf("function %s not found", name)
 	}
 
-	return file.RequiredBy.GetAll(-1, false), nil
+	return file.RequiredBy.GetAll(-1, 0, false), nil
 }
 
-func (f *Files) GetAll(count int, sorted bool) []*File {
+func (f *Files) GetAll(count int64, offset int64, sorted bool) []*File {
 	var res []*File
-	var index int
+	var index int64
+
+	if offset < 0 {
+		offset = 0
+	}
 
 	for _, fn := range f.Files {
 		if !sorted {
-			if index > count && count != -1 {
+			if index+offset > count && count != -1 {
 				break
 			}
 		}
@@ -107,10 +111,21 @@ func (f *Files) GetAll(count int, sorted bool) []*File {
 
 	if sorted {
 		sort.Slice(res, func(i, j int) bool {
+			if len(res[i].RequiredBy.Files) == len(res[j].RequiredBy.Files) {
+				return res[i].Name < res[j].Name
+			}
+
 			return len(res[i].RequiredBy.Files) > len(res[j].RequiredBy.Files)
 		})
-		if count < len(res) {
-			res = res[:count]
+
+		if count != -1 {
+			if count+offset < int64(len(res)) {
+				res = res[:count+offset]
+			}
+
+			if offset < int64(len(res)) {
+				res = res[offset:]
+			}
 		}
 	}
 
@@ -164,7 +179,7 @@ func NewFile(path string) *File {
 	}
 }
 
-func genIndent(level int) string {
+func GenIndent(level int) string {
 	var res string
 	for i := 0; i < level; i++ {
 		res += "   "
@@ -179,7 +194,7 @@ func GraphvizRecursive(file *File, level int, visited map[string]struct{}, maxRe
 
 	if _, ok := visited[file.Path]; ok {
 		return ""
-		// return fmt.Sprintf("%s<цикл, файл был подключен выше по иерархии> %s", genIndent(level), file.ExtraShortString(0))
+		// return fmt.Sprintf("%s<цикл, файл был подключен выше по иерархии> %s", GenIndent(level), file.ExtraShortString(0))
 	}
 	visited[file.Path] = struct{}{}
 
@@ -227,7 +242,7 @@ func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRec
 
 	if _, ok := visited[file.Path]; ok {
 		return ""
-		// return fmt.Sprintf("%s<цикл, файл был подключен выше по иерархии> %s", genIndent(level), file.ExtraShortString(0))
+		// return fmt.Sprintf("%s<цикл, файл был подключен выше по иерархии> %s", GenIndent(level), file.ExtraShortString(0))
 	}
 	visited[file.Path] = struct{}{}
 
@@ -256,7 +271,7 @@ func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRec
 
 	// used-in file TicketAuthorRights.php
 	if countNonLoopRequiredRoot != 0 && level < maxRecursive {
-		// res += fmt.Sprintf("%s   (R) Подключаемые файлы в корне:\n", genIndent(level))
+		// res += fmt.Sprintf("%s   (R) Подключаемые файлы в корне:\n", GenIndent(level))
 	}
 	for _, f := range file.RequiredRoot.Files {
 		res += RequireRecursive(f, level+1, visited, maxRecursive, true)
@@ -270,7 +285,7 @@ func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRec
 	}
 
 	if countNonLoopRequiredBlock != 0 && level < maxRecursive {
-		// res += fmt.Sprintf("%s   (F) Подключаемые файлы в функциях:\n", genIndent(level))
+		// res += fmt.Sprintf("%s   (F) Подключаемые файлы в функциях:\n", GenIndent(level))
 	}
 	for _, f := range file.RequiredBlock.Files {
 		res += RequireRecursive(f, level+1, visited, maxRecursive, false)
@@ -293,18 +308,18 @@ func (f *File) FullString(level int) string {
 	res += f.ShortString(level)
 
 	if f.RequiredRoot.Len() != 0 {
-		res += fmt.Sprintf("%sПодключаемые файлы в корне:\n", genIndent(level))
+		res += fmt.Sprintf("%sПодключаемые файлы в корне:\n", GenIndent(level))
 	} else {
-		res += fmt.Sprintf("%sПодключаемых файлов в корне нет\n", genIndent(level))
+		res += fmt.Sprintf("%sПодключаемых файлов в корне нет\n", GenIndent(level))
 	}
 	for _, f := range f.RequiredRoot.Files {
 		res += f.ExtraShortString(level + 1)
 	}
 
 	if f.RequiredBlock.Len() != 0 {
-		res += fmt.Sprintf("%sПодключаемые файлы в функциях:\n", genIndent(level))
+		res += fmt.Sprintf("%sПодключаемые файлы в функциях:\n", GenIndent(level))
 	} else {
-		res += fmt.Sprintf("%sПодключаемых файлов в функциях нет\n", genIndent(level))
+		res += fmt.Sprintf("%sПодключаемых файлов в функциях нет\n", GenIndent(level))
 	}
 	for _, f := range f.RequiredBlock.Files {
 		res += f.ExtraShortString(level + 1)
@@ -318,8 +333,8 @@ func (f *File) FullString(level int) string {
 func (f *File) ShortString(level int) string {
 	var res string
 
-	res += fmt.Sprintf("%sИмя:  %s\n", genIndent(level), f.Name)
-	res += fmt.Sprintf("%sПуть: %s\n", genIndent(level), f.Path)
+	res += fmt.Sprintf("%sИмя:  %s\n", GenIndent(level), f.Name)
+	res += fmt.Sprintf("%sПуть: %s\n", GenIndent(level), f.Path)
 
 	return res
 }
@@ -331,7 +346,7 @@ func (f *File) ExtraShortString(level int) string {
 func (f *File) ExtraShortStringWithPrefix(level int, prefix string) string {
 	var res string
 
-	res += fmt.Sprintf("%s%s%-30s (%s)\n", genIndent(level), prefix, f.Name, f.Path)
+	res += fmt.Sprintf("%s%s%-30s (%s)\n", GenIndent(level), prefix, f.Name, f.Path)
 
 	return res
 }
