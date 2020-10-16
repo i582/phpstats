@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/VKCOM/noverify/src/meta"
@@ -25,6 +26,22 @@ var AlreadyShown = map[string]struct{}{}
 
 func (c *Classes) Len() int {
 	return len(c.Classes)
+}
+
+func (c *Classes) GetFullClassName(name string) ([]string, error) {
+	var res []string
+
+	for _, class := range c.Classes {
+		if strings.Contains(class.Name, name) {
+			res = append(res, class.Name)
+		}
+	}
+
+	if len(res) == 0 {
+		return res, fmt.Errorf("class %s not found", name)
+	}
+
+	return res, nil
 }
 
 func (c *Classes) GetUsedClassesInClass(name string) (*Classes, bool) {

@@ -99,7 +99,7 @@ func NewShell() *Shell {
 				fmt.Printf("Файл %s не найден!\n", args[1])
 				return
 			}
-			file, _ := stats.GlobalCtx.Files.Get(path)
+			file, _ := stats.GlobalCtx.Files.Get(path[0])
 
 			if recursive {
 				fmt.Println(file.FullStringRecursive(5))
@@ -287,7 +287,7 @@ func NewShell() *Shell {
 
 			var res string
 
-			file, _ := stats.GlobalCtx.Files.Get(path)
+			file, _ := stats.GlobalCtx.Files.Get(path[0])
 
 			count, ok := tryEatCount(args)
 			if ok {
@@ -323,7 +323,7 @@ func NewShell() *Shell {
 
 			var res string
 
-			file, _ := stats.GlobalCtx.Files.Get(path)
+			file, _ := stats.GlobalCtx.Files.Get(path[0])
 
 			output := args[2]
 			outputFile, err := os.OpenFile(output, os.O_CREATE|os.O_RDWR, os.ModePerm)

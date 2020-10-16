@@ -246,7 +246,7 @@ func (fi *Function) ShortString() string {
 	return res
 }
 
-func (fi *Function) String() string {
+func (fi *Function) FullString() string {
 	var res string
 
 	res += "\n"

@@ -36,14 +36,20 @@ func (f *Files) Len() int {
 	return len(f.Files)
 }
 
-func (f *Files) GetFullFileName(name string) (string, error) {
+func (f *Files) GetFullFileName(name string) ([]string, error) {
+	var res []string
+
 	for _, file := range f.Files {
 		if strings.Contains(file.Path, name) {
-			return file.Path, nil
+			res = append(res, file.Path)
 		}
 	}
 
-	return "", fmt.Errorf("file %s not found", name)
+	if len(res) == 0 {
+		return res, fmt.Errorf("class %s not found", name)
+	}
+
+	return res, nil
 }
 
 func (f *Files) Graphviz() string {
