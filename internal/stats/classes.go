@@ -55,7 +55,7 @@ func (c *Classes) CalculateClassDeps() {
 	for _, class := range c.Classes {
 		for _, method := range class.Methods.Funcs {
 			for _, called := range method.Called.Funcs {
-				if called.Class != nil && method.Class != nil && called.Class.String() != method.Class.String() {
+				if called.Class != nil && method.Class != nil && called.Class.ShortString(0) != method.Class.ShortString(0) {
 					class.Deps.Add(called.Class)
 					called.Class.DepsBy.Add(class)
 				}
@@ -233,40 +233,6 @@ func (c *Class) ShortStringWithPrefix(level int, prefix string) string {
 	}
 	res += fmt.Sprintf("%s Имя:  %s\n", genIndent(level), c.Name)
 	res += fmt.Sprintf("%s Файл: %s:0\n", genIndent(level), c.File.Path)
-
-	return res
-}
-
-func (c Class) String() string {
-	var res string
-
-	if c.IsInterface {
-		res += fmt.Sprintf("Interface %s\n", c.Name)
-	} else {
-		res += fmt.Sprintf("Class %s\n", c.Name)
-	}
-
-	res += fmt.Sprintf("Name: %s\n", c.Name)
-	res += fmt.Sprintf("File: %s:0\n", c.File.Path)
-
-	res += fmt.Sprintf("Abstract: %t\n", c.IsAbstract)
-
-	res += fmt.Sprintf("Implements:\n")
-	for _, class := range c.Implements.Classes {
-		res += fmt.Sprintf("   %s\n", class.Name)
-	}
-
-	res += fmt.Sprintf("Extends:\n")
-	for _, class := range c.Extends.Classes {
-		res += fmt.Sprintf("   %s\n", class.Name)
-	}
-
-	res += fmt.Sprintf("Methods (%d):\n", c.Methods.Len())
-	for _, method := range c.Methods.Funcs {
-		res += fmt.Sprintf("   %s\n", method.Name.Name)
-	}
-
-	res += "\n"
 
 	return res
 }

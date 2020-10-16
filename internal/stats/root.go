@@ -122,25 +122,6 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		r.CurClass = iface
 		r.CurFile.AddClass(iface)
 
-	case *ir.ClassMethodStmt:
-		// if r.CurClass == nil {
-		// 	return
-		// }
-		// currentClassName := r.ctx.ClassParseState().CurrentClass
-		//
-		// methodName := n.MethodName.Value
-		//
-		// methodInfo, ok := solver.FindMethod(currentClassName, methodName)
-		// if !ok {
-		// 	return
-		// }
-		//
-		// method := r.CurClass.GetOrCreateMethod(NewMethodKey(methodName, currentClassName), methodInfo.Info.Pos)
-		// r.CurMethod = method
-		//
-		// // добавляем метод для текущего класса
-		// r.CurClass.AddMethod(method)
-
 	case *ir.PropertyListStmt:
 
 	}
@@ -148,19 +129,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 
 func (r *rootChecker) BeforeLeaveNode(n ir.Node) {
 	switch n.(type) {
-	case *ir.ImportExpr:
-
 	case *ir.ClassStmt:
 		r.CurClass = nil
-
-	case *ir.ClassMethodStmt:
-		// r.CurMethod = nil
-
-	case *ir.FunctionStmt:
-		// r.CurFunc = nil
 	}
-}
-
-func (r *rootChecker) AfterLeaveFile() {
-
 }

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
@@ -136,32 +135,7 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 	default:
 		return
 	}
-
 }
-
-func (b *blockChecker) AfterLeaveNode(n ir.Node) {
-
-	switch n.(type) {
-	case *ir.FunctionCallExpr:
-		// b.root.CurMethod = nil
-	case *ir.MethodCallExpr:
-		// b.root.CurMethod = nil
-	case *ir.StaticCallExpr:
-		// b.root.CurMethod = nil
-
-	case *ir.ImportExpr:
-
-	default:
-		return
-	}
-
-}
-
-var countCurrent int64 = 0
-var countCurrentMapMtx = sync.Mutex{}
-var countCurrentMap = map[*Function]struct{}{}
-var countCurrentMapFuncKeyMtx = sync.Mutex{}
-var countCurrentMapFuncKey = map[FuncKey]struct{}{}
 
 func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 	var calledMethodInfo solver.FindMethodResult
@@ -176,9 +150,6 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 	})
 
 	if !found {
-		if name == "current" && strings.HasSuffix(classType.String(), "\\Time") {
-			log.Println()
-		}
 		return
 	}
 
@@ -197,18 +168,6 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 	}
 
 	calledFunc := GlobalCtx.Funcs.GetOrCreateMethod(calledFuncKey, calledFunPos, calledClass)
-
-	if name == "current" && strings.HasSuffix(classType.String(), "\\Time") {
-		countCurrent++
-
-		countCurrentMapMtx.Lock()
-		countCurrentMap[calledFunc] = struct{}{}
-		countCurrentMapMtx.Unlock()
-
-		countCurrentMapFuncKeyMtx.Lock()
-		countCurrentMapFuncKey[calledFuncKey] = struct{}{}
-		countCurrentMapFuncKeyMtx.Unlock()
-	}
 
 	b.handleCalled(calledFunc)
 }

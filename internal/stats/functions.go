@@ -283,36 +283,6 @@ func (fi *Function) AddUse() {
 	atomic.AddInt64(&fi.UsesCount, 1)
 }
 
-func (b *blockChecker) CurFunc() string {
-	curClass := b.ctx.ClassParseState().CurrentClass
-	curFunction := b.ctx.ClassParseState().CurrentFunction
-	curNamespace := b.ctx.ClassParseState().Namespace
-
-	if curFunction == "" {
-		return ""
-	}
-
-	if curNamespace != "" {
-		curNamespace = curNamespace + `\`
-	}
-
-	if curClass != "" {
-		curClass = curClass + `::`
-	}
-
-	if curClass == "" && curNamespace == "" {
-		curFunction = `\` + curFunction
-	}
-
-	if curClass == "" && curNamespace != "" {
-		curFunction = curNamespace + curFunction
-	}
-
-	curFqn := curClass + curFunction
-
-	return curFqn
-}
-
 // GobDecode is custom gob unmarshaller
 func (fi *Function) GobDecode(buf []byte) error {
 	r := bytes.NewBuffer(buf)

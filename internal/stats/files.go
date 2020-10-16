@@ -36,28 +36,6 @@ func (f *Files) Len() int {
 	return len(f.Files)
 }
 
-// GobDecode is custom gob unmarshaller
-func (f *Files) GobDecode(buf []byte) error {
-	r := bytes.NewBuffer(buf)
-	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&f.Files)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GobEncode is a custom gob marshaller
-func (f *Files) GobEncode() ([]byte, error) {
-	w := new(bytes.Buffer)
-	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(f.Files)
-	if err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
-}
-
 func (f *Files) GetFullFileName(name string) (string, error) {
 	for _, file := range f.Files {
 		if strings.Contains(file.Path, name) {
@@ -415,4 +393,26 @@ func (f *File) GobDecode(buf []byte) error {
 		return err
 	}
 	return nil
+}
+
+// GobDecode is custom gob unmarshaller
+func (f *Files) GobDecode(buf []byte) error {
+	r := bytes.NewBuffer(buf)
+	decoder := gob.NewDecoder(r)
+	err := decoder.Decode(&f.Files)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GobEncode is a custom gob marshaller
+func (f *Files) GobEncode() ([]byte, error) {
+	w := new(bytes.Buffer)
+	encoder := gob.NewEncoder(w)
+	err := encoder.Encode(f.Files)
+	if err != nil {
+		return nil, err
+	}
+	return w.Bytes(), nil
 }
