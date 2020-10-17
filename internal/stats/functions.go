@@ -201,8 +201,7 @@ type Function struct {
 	UsesCount int64
 
 	// Method part
-	Class   *Class
-	Encoded bool
+	Class *Class
 }
 
 func NewFunctionInfo(name FuncKey, pos meta.ElementPosition) *Function {
@@ -357,11 +356,6 @@ func (f *Function) GobDecode(buf []byte) error {
 
 // GobEncode is a custom gob marshaller
 func (f *Function) GobEncode() ([]byte, error) {
-	if f.Encoded {
-		return nil, nil
-	}
-	f.Encoded = true
-
 	w := new(bytes.Buffer)
 	encoder := gob.NewEncoder(w)
 	err := encoder.Encode(f.Name)

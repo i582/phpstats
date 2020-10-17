@@ -208,7 +208,8 @@ func Graph() *shell.Executor {
 		Name: "graph",
 		Help: "graph view",
 		Func: func(c *shell.Context) {
-
+			fmt.Println("Usage:")
+			fmt.Println(c.Exec.HelpPage(0))
 		},
 	}
 

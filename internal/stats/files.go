@@ -52,34 +52,6 @@ func (f *Files) GetFullFileName(name string) ([]string, error) {
 	return res, nil
 }
 
-func (f *Files) Graphviz() string {
-	var res string
-	res += "digraph test{\n"
-
-	var count int
-
-	// Outer:
-	for _, file := range f.Files {
-		for _, requiredFile := range file.RequiredRoot.Files {
-			// if !strings.Contains(file.Path, `www\VK\API`) {
-			// 	continue
-			// }
-			res += fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, requiredFile.Path)
-			count++
-		}
-
-		for _, requiredFile := range file.RequiredBlock.Files {
-			// if !strings.Contains(file.Path, `www\VK\API`) {
-			// 	continue
-			// }
-			res += fmt.Sprintf("   \"%s\" -> \"%s\" [style=dotted]\n", file.Path, requiredFile.Path)
-			count++
-		}
-	}
-	res += "}"
-	return res
-}
-
 func (f *Files) GetFilesIncludedFile(name string) ([]*File, error) {
 	file, ok := f.Get(name)
 
@@ -194,7 +166,6 @@ func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, max
 
 	if _, ok := visited[file.Path]; ok {
 		return ""
-		// return fmt.Sprintf("%s<цикл, файл был подключен выше по иерархии> %s", GenIndent(level), file.ExtraShortString(0))
 	}
 	visited[file.Path] = struct{}{}
 
