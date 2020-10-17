@@ -7,7 +7,6 @@ import (
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
-	"github.com/VKCOM/noverify/src/meta"
 	"github.com/VKCOM/noverify/src/solver"
 
 	"phpstats/internal/utils"
@@ -18,10 +17,7 @@ type rootChecker struct {
 
 	ctx *linter.RootContext
 
-	CurFile   *File
-	CurClass  *Class
-	CurMethod *Function
-	CurFunc   *Function
+	CurFile *File
 }
 
 func (r *rootChecker) BeforeEnterFile() {
@@ -30,10 +26,6 @@ func (r *rootChecker) BeforeEnterFile() {
 }
 
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
-	if !meta.IsIndexingComplete() {
-		return
-	}
-
 	switch n := n.(type) {
 	case *ir.ImportExpr:
 		filename, ok := utils.ResolveRequirePath(r.ctx.ClassParseState(), `C:\projects\vkcom\www\`, n.Expr)
@@ -69,7 +61,6 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 
-		r.CurClass = class
 		r.CurFile.AddClass(class)
 
 		if n.Implements != nil {
@@ -118,73 +109,83 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 
-		r.CurClass = iface
 		r.CurFile.AddClass(iface)
 
-	case *ir.ClassMethodStmt:
-		if r.CurClass == nil {
-			return
-		}
-
-		methodName := n.MethodName.Value
-
-		method, ok := GlobalCtx.Funcs.Get(NewMethodKey(methodName, r.CurClass.Name))
-		if !ok {
-			return
-		}
-
-		r.CurMethod = method
-
-	case *ir.ClassConstFetchExpr:
-		classNameNode, ok := n.Class.(*ir.Name)
-		if !ok {
-			return
-		}
-
-		constClassName := classNameNode.Value
-
-		constClassName, ok = solver.GetClassName(r.ctx.ClassParseState(), classNameNode)
-		if !ok {
-			return
-		}
-
-		class, ok := GlobalCtx.Classes.Get(constClassName)
-		if !ok {
-			return
-		}
-
-		if r.CurClass != nil {
-			r.CurClass.AddDeps(class)
-			class.AddDepsBy(r.CurClass)
-		}
-
 	case *ir.ClassConstListStmt:
+		curClass, ok := r.GetCurrentClass()
+		if !ok {
+			return
+		}
+
 		for _, c := range n.Consts {
-			constant, ok := GlobalCtx.Constants.Get(*NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, r.CurClass.Name))
+			constant, ok := GlobalCtx.Constants.Get(*NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass.Name))
 			if !ok {
 				continue
 			}
 
-			r.CurClass.Constants.Add(constant)
+			curClass.Constants.Add(constant)
 		}
+
 	case *ir.PropertyListStmt:
-		if r.CurClass == nil {
+		curClass, ok := r.GetCurrentClass()
+		if !ok {
 			return
 		}
 
 		for _, prop := range n.Properties {
 			prop := prop.(*ir.PropertyStmt)
 
-			r.CurClass.Fields.Add(NewField(prop.Variable.Name, r.CurClass.Name))
+			curClass.Fields.Add(NewField(prop.Variable.Name, curClass.Name))
 		}
 	}
 }
 
-func (r *rootChecker) BeforeLeaveNode(n ir.Node) {
-	switch n.(type) {
-	case *ir.ClassStmt:
-		r.CurClass = nil
-	case *ir.ClassMethodStmt:
-		r.CurMethod = nil
+func (r *rootChecker) GetCurrentFunc() (*Function, bool) {
+	if r.ctx.ClassParseState().CurrentFunction == "" {
+		return nil, false
 	}
+
+	class, ok := r.GetCurrentClass()
+	if ok {
+		method, ok := class.Methods.Get(NewMethodKey(r.ctx.ClassParseState().CurrentFunction, class.Name))
+		if !ok {
+			return nil, false
+		}
+
+		return method, true
+	}
+
+	funcName, ok := solver.GetFuncName(r.ctx.ClassParseState(), &ir.Name{
+		Value: r.ctx.ClassParseState().CurrentFunction,
+	})
+	if !ok {
+		return nil, false
+	}
+
+	fn, ok := GlobalCtx.Funcs.Get(NewFuncKey(funcName))
+	if !ok {
+		return nil, false
+	}
+
+	return fn, true
+}
+
+func (r *rootChecker) GetCurrentClass() (*Class, bool) {
+	if r.ctx.ClassParseState().CurrentClass == "" {
+		return nil, false
+	}
+
+	className, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
+		Value: r.ctx.ClassParseState().CurrentClass,
+	})
+	if !ok {
+		return nil, false
+	}
+
+	class, ok := GlobalCtx.Classes.Get(className)
+	if !ok {
+		return nil, false
+	}
+
+	return class, true
 }
