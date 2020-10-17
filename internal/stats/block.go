@@ -150,6 +150,17 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 			class.AddDepsBy(b.root.CurClass)
 		}
 
+	case *ir.SimpleVar:
+		if b.root.CurClass == nil {
+			return
+		}
+		if b.root.CurMethod == nil {
+			return
+		}
+
+		name := n.Name
+		b.root.CurClass.Fields.AddMethodAccess(NewFieldKey(name, b.root.CurClass.Name), b.root.CurMethod)
+
 	default:
 		return
 	}
