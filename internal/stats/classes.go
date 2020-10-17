@@ -125,17 +125,35 @@ func (c *Classes) GetUsedClassesInClass(name string) (*Classes, bool) {
 	return res, true
 }
 
-func (c *Classes) CalculateClassDeps() {
-	for _, class := range c.Classes {
-		for _, method := range class.Methods.Funcs {
-			for _, called := range method.Called.Funcs {
-				if called.Class != nil && method.Class != nil && called.Class.ShortString(0) != method.Class.ShortString(0) {
-					class.AddDeps(called.Class)
-					called.Class.AddDepsBy(class)
-				}
-			}
-		}
+func (c *Class) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {
+	var res string
+
+	if level == 0 {
+		res += "digraph test{\n"
 	}
+
+	if level > maxLevel {
+		return ""
+	}
+
+	for _, class := range c.Deps.Classes {
+		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", c.Name, class.Name)
+
+		if _, ok := visited[str]; ok {
+			continue
+		}
+		visited[str] = struct{}{}
+
+		res += str
+
+		res += class.GraphvizRecursive(level+1, maxLevel, visited)
+	}
+
+	if level == 0 {
+		res += "}\n"
+	}
+
+	return res
 }
 
 func (c *Classes) Graphviz() string {
