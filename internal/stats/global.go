@@ -9,6 +9,8 @@ import (
 	"github.com/VKCOM/noverify/src/meta"
 )
 
+var ProjectRoot string
+
 type GlobalContext struct {
 	Funcs     *Functions
 	Classes   *Classes

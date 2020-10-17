@@ -1,4 +1,4 @@
-package shell
+package flags
 
 import (
 	"fmt"
@@ -80,7 +80,7 @@ func isFlag(arg string) bool {
 	return true
 }
 
-func getFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags []string) {
+func ParseFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags []string) {
 	flags = &Flags{
 		Flags: map[string]*Flag{},
 	}

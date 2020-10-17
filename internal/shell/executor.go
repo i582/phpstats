@@ -3,6 +3,7 @@ package shell
 import (
 	"fmt"
 
+	"phpstats/internal/shell/flags"
 	"phpstats/internal/stats"
 )
 
@@ -14,7 +15,7 @@ type Executor struct {
 
 	WithValue bool
 
-	Flags *Flags
+	Flags *flags.Flags
 
 	SubExecs Executors
 
@@ -46,7 +47,7 @@ func (e *Executor) HelpPage(level int) string {
 
 func (e *Executor) Execute(ctx *Context) {
 	if e.Flags == nil {
-		e.Flags = NewFlags()
+		e.Flags = flags.NewFlags()
 	}
 
 	if len(ctx.Args) > 0 {
@@ -55,12 +56,12 @@ func (e *Executor) Execute(ctx *Context) {
 		if exec, ok := e.SubExecs[arg]; ok {
 			exec.Execute(&Context{
 				Args:  ctx.Args[1:],
-				Flags: NewFlags(),
+				Flags: flags.NewFlags(),
 			})
 			return
 		}
 
-		ctx.Flags, ctx.Args = getFlags(ctx.Args, e.Flags)
+		ctx.Flags, ctx.Args = flags.ParseFlags(ctx.Args, e.Flags)
 	}
 
 	ctx.Exec = e

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"phpstats/internal/shell"
+	"phpstats/internal/shell/flags"
 	"phpstats/internal/stats"
 )
 
@@ -15,28 +16,28 @@ func Graph() *shell.Executor {
 		Name:      "file",
 		Help:      "graph some file",
 		WithValue: true,
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
 				Required:  true,
 				Help:      "output file",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-r",
 				WithValue: true,
 				Help:      "recursive level",
 				Default:   "5",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name: "-root",
 				Help: "only root require",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name: "-block",
 				Help: "only block require",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name: "-show",
 				Help: "show graph sources in console",
 			},

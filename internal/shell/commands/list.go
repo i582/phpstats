@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"phpstats/internal/shell"
+	"phpstats/internal/shell/flags"
 	"phpstats/internal/stats"
 )
 
@@ -12,14 +13,14 @@ func List() *shell.Executor {
 	listFuncExecutor := &shell.Executor{
 		Name: "funcs",
 		Help: "show list funcs",
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name:      "-c",
 				WithValue: true,
 				Help:      "count in list",
 				Default:   "10",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
 				Help:      "offset in list",
@@ -44,14 +45,14 @@ func List() *shell.Executor {
 	listMethodExecutor := &shell.Executor{
 		Name: "methods",
 		Help: "show list methods",
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name:      "-c",
 				WithValue: true,
 				Help:      "count in list",
 				Default:   "10",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
 				Help:      "offset in list",
@@ -76,20 +77,20 @@ func List() *shell.Executor {
 	listFilesExecutor := &shell.Executor{
 		Name: "files",
 		Help: "show list of files",
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name:      "-c",
 				WithValue: true,
 				Help:      "count in list",
 				Default:   "10",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
 				Help:      "offset in list",
 				Default:   "0",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name: "-f",
 				Help: "show full information",
 			},
@@ -118,20 +119,20 @@ func List() *shell.Executor {
 	listClassesExecutor := &shell.Executor{
 		Name: "classes",
 		Help: "show list of classes",
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name:      "-c",
 				WithValue: true,
 				Help:      "count in list",
 				Default:   "10",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
 				Help:      "offset in list",
 				Default:   "0",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name: "-f",
 				Help: "show full information",
 			},
@@ -160,20 +161,20 @@ func List() *shell.Executor {
 	listInterfaceExecutor := &shell.Executor{
 		Name: "ifaces",
 		Help: "show list of interfaces",
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name:      "-c",
 				WithValue: true,
 				Help:      "count in list",
 				Default:   "10",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
 				Help:      "offset in list",
 				Default:   "0",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name: "-f",
 				Help: "show full information",
 			},
