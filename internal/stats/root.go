@@ -28,7 +28,7 @@ func (r *rootChecker) BeforeEnterFile() {
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.ImportExpr:
-		filename, ok := utils.ResolveRequirePath(r.ctx.ClassParseState(), `C:\projects\vkcom\www\`, n.Expr)
+		filename, ok := utils.ResolveRequirePath(r.ctx.ClassParseState(), ProjectRoot, n.Expr)
 		if !ok {
 			return
 		}

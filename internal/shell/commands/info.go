@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"phpstats/internal/shell"
+	"phpstats/internal/shell/flags"
 	"phpstats/internal/stats"
 )
 
@@ -13,8 +14,8 @@ func Info() *shell.Executor {
 		Name:      "class",
 		Help:      "info about some class",
 		WithValue: true,
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name: "-f",
 				Help: "output full information",
 			},
@@ -57,8 +58,8 @@ func Info() *shell.Executor {
 		Name:      "func",
 		Help:      "info about some func",
 		WithValue: true,
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name: "-f",
 				Help: "output full information",
 			},
@@ -105,12 +106,12 @@ func Info() *shell.Executor {
 		Name:      "file",
 		Help:      "info about some file",
 		WithValue: true,
-		Flags: shell.NewFlags(
-			&shell.Flag{
+		Flags: flags.NewFlags(
+			&flags.Flag{
 				Name: "-f",
 				Help: "output full information",
 			},
-			&shell.Flag{
+			&flags.Flag{
 				Name:      "-r",
 				Help:      "output recursive",
 				Default:   "5",

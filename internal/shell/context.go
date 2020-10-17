@@ -2,11 +2,13 @@ package shell
 
 import (
 	"fmt"
+
+	"phpstats/internal/shell/flags"
 )
 
 type Context struct {
 	Args  []string
-	Flags *Flags
+	Flags *flags.Flags
 
 	Exec *Executor
 }

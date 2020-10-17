@@ -1,9 +1,14 @@
 package stats
 
 import (
+	"log"
+	"os"
+
 	"github.com/VKCOM/noverify/src/cmd"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
+
+	"phpstats/internal/shell/flags"
 )
 
 func CollectMain() error {
@@ -37,6 +42,27 @@ func CollectMain() error {
 		ctx.State()["vklints-root"] = indexer
 		return indexer
 	})
+
+	fs, args := flags.ParseFlags(os.Args, flags.NewFlags(&flags.Flag{
+		Name:      "--project-path",
+		WithValue: true,
+	}))
+
+	os.Args = args
+
+	if len(os.Args) < 2 {
+		log.Fatalf("Слишком мало аргументов")
+	}
+
+	if flag, ok := fs.Get("--project-path"); ok {
+		ProjectRoot = flag.Value
+	} else if len(os.Args) > 0 {
+		ProjectRoot = os.Args[len(os.Args)-1]
+	}
+
+	if _, err := os.Stat(ProjectRoot); os.IsNotExist(err) {
+		log.Fatalf("Невалидный путь к проекту: %v", err)
+	}
 
 	_, _ = cmd.Run(&cmd.MainConfig{
 		BeforeReport: func(*linter.Report) bool {
