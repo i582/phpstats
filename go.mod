@@ -1,4 +1,4 @@
-module phpstats
+module github.com/i582/phpstats
 
 go 1.15
 
