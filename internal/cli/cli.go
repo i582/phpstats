@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/i582/phpstats/internal/shell"
+	"github.com/i582/phpstats/internal/shell/commands"
 )
 
 type PhplinterTool struct {
@@ -46,5 +49,14 @@ func RunPhplinterTool(tool *PhplinterTool) {
 	log.SetFlags(0)
 	if err := run(); err != nil {
 		log.Printf("%s: run %q error: %+v", tool.Name, subcmd, err)
+		return
 	}
+
+	s := shell.NewShell()
+
+	s.AddExecutor(commands.Info())
+	s.AddExecutor(commands.List())
+	s.AddExecutor(commands.Graph())
+
+	s.Run()
 }
