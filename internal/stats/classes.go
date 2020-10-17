@@ -9,6 +9,8 @@ import (
 	"sync"
 
 	"github.com/VKCOM/noverify/src/meta"
+
+	"phpstats/internal/utils"
 )
 
 type Classes struct {
@@ -203,33 +205,17 @@ func NewClass(name string, file *File) *Class {
 }
 
 func NewInterface(name string, file *File) *Class {
-	return &Class{
-		Name:        name,
-		File:        file,
-		Methods:     NewFunctionsInfo(),
-		Fields:      NewFields(),
-		Constants:   NewConstants(),
-		Implements:  NewClasses(),
-		Extends:     NewClasses(),
-		Deps:        NewClasses(),
-		DepsBy:      NewClasses(),
-		IsInterface: true,
-	}
+	class := NewClass(name, file)
+	class.IsInterface = true
+
+	return class
 }
 
 func NewAbstractClass(name string, file *File) *Class {
-	return &Class{
-		Name:       name,
-		File:       file,
-		Methods:    NewFunctionsInfo(),
-		Fields:     NewFields(),
-		Constants:  NewConstants(),
-		Implements: NewClasses(),
-		Extends:    NewClasses(),
-		Deps:       NewClasses(),
-		DepsBy:     NewClasses(),
-		IsAbstract: true,
-	}
+	class := NewClass(name, file)
+	class.IsAbstract = true
+
+	return class
 }
 
 func (c *Class) AffEffString(full bool) string {
@@ -324,12 +310,12 @@ func (c *Class) ExtraShortString(level int) string {
 	var res string
 
 	if c.IsInterface {
-		res += fmt.Sprintf("%sИнтерфейс %s\n", GenIndent(level-1), c.Name)
+		res += fmt.Sprintf("%sИнтерфейс %s\n", utils.GenIndent(level-1), c.Name)
 	} else {
 		if c.IsAbstract {
-			res += fmt.Sprintf("%sАбстрактный класс %s\n", GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%sАбстрактный класс %s\n", utils.GenIndent(level-1), c.Name)
 		} else {
-			res += fmt.Sprintf("%sКласс %s\n", GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%sКласс %s\n", utils.GenIndent(level-1), c.Name)
 		}
 	}
 
@@ -344,16 +330,16 @@ func (c *Class) ShortStringWithPrefix(level int, prefix string) string {
 	var res string
 
 	if c.IsInterface {
-		res += fmt.Sprintf("%s%sИнтерфейс %s\n", prefix, GenIndent(level-1), c.Name)
+		res += fmt.Sprintf("%s%sИнтерфейс %s\n", prefix, utils.GenIndent(level-1), c.Name)
 	} else {
 		if c.IsAbstract {
-			res += fmt.Sprintf("%s%sАбстрактный класс %s\n", prefix, GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%s%sАбстрактный класс %s\n", prefix, utils.GenIndent(level-1), c.Name)
 		} else {
-			res += fmt.Sprintf("%s%sКласс %s\n", prefix, GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%s%sКласс %s\n", prefix, utils.GenIndent(level-1), c.Name)
 		}
 	}
-	res += fmt.Sprintf("%s Имя:  %s\n", GenIndent(level), c.Name)
-	res += fmt.Sprintf("%s Файл: %s:0\n", GenIndent(level), c.File.Path)
+	res += fmt.Sprintf("%s Имя:  %s\n", utils.GenIndent(level), c.Name)
+	res += fmt.Sprintf("%s Файл: %s:0\n", utils.GenIndent(level), c.File.Path)
 
 	return res
 }

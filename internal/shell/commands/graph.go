@@ -14,7 +14,7 @@ import (
 func Graph() *shell.Executor {
 	graphFileExecutor := &shell.Executor{
 		Name:      "file",
-		Help:      "graph some file",
+		Help:      "dependency graph for file",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -39,7 +39,7 @@ func Graph() *shell.Executor {
 			},
 			&flags.Flag{
 				Name: "-show",
-				Help: "show graph sources in console",
+				Help: "show graph file in console",
 			},
 		),
 		CountArgs: 1,
@@ -85,7 +85,7 @@ func Graph() *shell.Executor {
 
 	graphClassExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "graph some class",
+		Help:      "dependency graph for class",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -102,7 +102,7 @@ func Graph() *shell.Executor {
 			},
 			&flags.Flag{
 				Name: "-show",
-				Help: "show graph sources in console",
+				Help: "show graph file in console",
 			},
 		),
 		CountArgs: 1,
@@ -146,7 +146,7 @@ func Graph() *shell.Executor {
 
 	graphFuncExecutor := &shell.Executor{
 		Name:      "func",
-		Help:      "graph some func",
+		Help:      "dependency graph for function",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -163,7 +163,7 @@ func Graph() *shell.Executor {
 			},
 			&flags.Flag{
 				Name: "-show",
-				Help: "show graph sources in console",
+				Help: "show graph file in console",
 			},
 		),
 		Func: func(c *shell.Context) {
@@ -190,7 +190,7 @@ func Graph() *shell.Executor {
 
 			outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 			if err != nil {
-				log.Fatalf("file not open %v", err)
+				c.Error(fmt.Errorf("file not open %v", err))
 			}
 
 			res += fun.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
@@ -206,10 +206,9 @@ func Graph() *shell.Executor {
 
 	graphExecutor := &shell.Executor{
 		Name: "graph",
-		Help: "graph view",
+		Help: "dependencies graph view",
 		Func: func(c *shell.Context) {
-			fmt.Println("Usage:")
-			fmt.Println(c.Exec.HelpPage(0))
+			c.ShowHelpPage()
 		},
 	}
 

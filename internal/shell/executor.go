@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"phpstats/internal/shell/flags"
-	"phpstats/internal/stats"
+	"phpstats/internal/utils"
 )
 
 type Executors map[string]*Executor
@@ -31,11 +31,11 @@ func (e *Executor) HelpPage(level int) string {
 		withValueSpan = "<value>"
 	}
 
-	res += fmt.Sprintf("%s  %s %-*s%s\n", stats.GenIndent(level), e.Name, 20-len(stats.GenIndent(level))-len(e.Name), withValueSpan, e.Help)
+	res += fmt.Sprintf("%s  %s %-*s%s\n", utils.GenIndent(level), e.Name, 20-len(utils.GenIndent(level))-len(e.Name), withValueSpan, e.Help)
 
 	if e.Flags != nil {
 		for _, flag := range e.Flags.Flags {
-			res += fmt.Sprintf("%s    %s\n", stats.GenIndent(level), flag)
+			res += fmt.Sprintf("%s    %s\n", utils.GenIndent(level), flag)
 		}
 	}
 
@@ -68,10 +68,11 @@ func (e *Executor) Execute(ctx *Context) {
 	ctx.Exec = e
 
 	if e.CountArgs != -1 && len(ctx.Args) != e.CountArgs {
-		ctx.Error(fmt.Errorf("команда принимает ровно %d аргумент(а/ов)", e.CountArgs))
+		ctx.Error(fmt.Errorf("команда %s принимает ровно %d аргумент(а/ов)\n", e.Name, e.CountArgs))
 		return
 	}
 
+	fmt.Println()
 	e.Func(ctx)
 }
 

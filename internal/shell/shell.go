@@ -7,12 +7,18 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/gookit/color"
 )
 
 type Shell struct {
 	Execs Executors
 
 	Active bool
+}
+
+func (s *Shell) Error(msg string) {
+	color.Red.Printf("Error: %v", msg)
 }
 
 func (s *Shell) AddExecutor(exec *Executor) {
@@ -67,13 +73,22 @@ func NewShell() *Shell {
 
 func (s *Shell) Run() {
 	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Println("Entering interactive mode (type \"help\" for commands)")
+
 	for s.Active {
-		fmt.Print(`>>> `)
-		line, _, err := reader.ReadLine()
+		color.Yellow.Print(`>>> `)
+		ln, _, err := reader.ReadLine()
 		if err != nil {
 			panic(err)
 		}
-		tokens := strings.FieldsFunc(string(line), func(r rune) bool {
+		line := string(ln)
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		tokens := strings.FieldsFunc(line, func(r rune) bool {
 			return r == '=' || r == ' '
 		})
 		if len(tokens) == 0 {
@@ -81,9 +96,10 @@ func (s *Shell) Run() {
 		}
 
 		command := tokens[0]
+
 		e, has := s.Execs[command]
 		if !has {
-			fmt.Printf("connamd %s not found\n", command)
+			s.Error(fmt.Sprintf("command %s not found\n", command))
 			continue
 		}
 

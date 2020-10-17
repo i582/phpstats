@@ -13,7 +13,7 @@ import (
 func Info() *shell.Executor {
 	classInfoExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "info about some class",
+		Help:      "info about class",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -53,7 +53,7 @@ func Info() *shell.Executor {
 
 	funcInfoExecutor := &shell.Executor{
 		Name:      "func",
-		Help:      "info about some func",
+		Help:      "info about function",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -97,7 +97,7 @@ func Info() *shell.Executor {
 
 	fileInfoExecutor := &shell.Executor{
 		Name:      "file",
-		Help:      "info about some file",
+		Help:      "info about file",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -141,6 +141,7 @@ func Info() *shell.Executor {
 				}
 
 				fmt.Println(file.FullStringRecursive(int(count)))
+				return
 			}
 
 			if full {
@@ -153,7 +154,7 @@ func Info() *shell.Executor {
 
 	namespaceInfoExecutor := &shell.Executor{
 		Name:      "namespace",
-		Help:      "info about some namespace",
+		Help:      "info about namespace",
 		WithValue: true,
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
@@ -207,10 +208,9 @@ func Info() *shell.Executor {
 
 	infoExecutor := &shell.Executor{
 		Name: "info",
-		Help: "info about something",
+		Help: "info about",
 		Func: func(c *shell.Context) {
-			fmt.Println("Usage:")
-			fmt.Println(c.Exec.HelpPage(0))
+			c.ShowHelpPage()
 		},
 	}
 

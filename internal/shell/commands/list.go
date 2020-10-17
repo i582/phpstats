@@ -75,7 +75,7 @@ func List() *shell.Executor {
 			funcs := stats.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true, false)
 
 			for _, fn := range funcs {
-				fmt.Print(fn.FullString())
+				fmt.Println(fn.FullString())
 			}
 		},
 	}
@@ -165,7 +165,7 @@ func List() *shell.Executor {
 	}
 
 	listInterfaceExecutor := &shell.Executor{
-		Name: "ifaces",
+		Name: "interfaces",
 		Help: "show list of interfaces",
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -208,10 +208,9 @@ func List() *shell.Executor {
 
 	listExecutor := &shell.Executor{
 		Name: "list",
-		Help: "list of something",
+		Help: "list of",
 		Func: func(c *shell.Context) {
-			fmt.Println("Usage:")
-			fmt.Println(c.Exec.HelpPage(0))
+			c.ShowHelpPage()
 		},
 	}
 
