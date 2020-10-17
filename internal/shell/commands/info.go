@@ -46,9 +46,9 @@ func Info() *shell.Executor {
 			class, _ := stats.GlobalCtx.Classes.Get(className)
 
 			if full {
-				fmt.Println(class.FullString(0))
+				fmt.Println(class.ExtraFullString(0))
 			} else {
-				fmt.Println(class.ShortString(0))
+				fmt.Println(class.FullString(0, true))
 			}
 		},
 	}

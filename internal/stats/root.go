@@ -82,7 +82,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 					return
 				}
 
-				class.Deps.Add(iface)
+				class.AddDeps(iface)
 				iface.AddDepsBy(class)
 			}
 		}
@@ -101,7 +101,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 			}
 
 			class.AddExtends(extend)
-			class.Deps.Add(extend)
+			class.AddDeps(extend)
 			extend.AddDepsBy(class)
 		}
 
@@ -121,7 +121,38 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		r.CurClass = iface
 		r.CurFile.AddClass(iface)
 
-	case *ir.PropertyListStmt:
+	case *ir.ClassConstFetchExpr:
+		classNameNode, ok := n.Class.(*ir.Name)
+		if !ok {
+			return
+		}
+
+		constClassName := classNameNode.Value
+
+		constClassName, ok = solver.GetClassName(r.ctx.ClassParseState(), classNameNode)
+		if !ok {
+			return
+		}
+
+		class, ok := GlobalCtx.Classes.Get(constClassName)
+		if !ok {
+			return
+		}
+
+		if r.CurClass != nil {
+			r.CurClass.AddDeps(class)
+			class.AddDepsBy(r.CurClass)
+		}
+
+	case *ir.ClassConstListStmt:
+		for _, c := range n.Consts {
+			constant, ok := GlobalCtx.Constants.Get(*NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, r.CurClass.Name))
+			if !ok {
+				continue
+			}
+
+			r.CurClass.Constants.Add(constant)
+		}
 
 	}
 }

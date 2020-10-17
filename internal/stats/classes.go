@@ -130,8 +130,8 @@ func (c *Classes) CalculateClassDeps() {
 		for _, method := range class.Methods.Funcs {
 			for _, called := range method.Called.Funcs {
 				if called.Class != nil && method.Class != nil && called.Class.ShortString(0) != method.Class.ShortString(0) {
-					class.Deps.Add(called.Class)
-					called.Class.DepsBy.Add(class)
+					class.AddDeps(called.Class)
+					called.Class.AddDepsBy(class)
 				}
 			}
 		}
@@ -198,8 +198,8 @@ type Class struct {
 	IsAbstract  bool
 	IsInterface bool
 
-	Methods *Functions
-
+	Methods   *Functions
+	Constants *Constants
 	// Зависим от
 	Deps *Classes
 
@@ -212,6 +212,7 @@ func NewClass(name string, file *File) *Class {
 		Name:       name,
 		File:       file,
 		Methods:    NewFunctionsInfo(),
+		Constants:  NewConstants(),
 		Implements: NewClasses(),
 		Extends:    NewClasses(),
 		Deps:       NewClasses(),
@@ -224,6 +225,7 @@ func NewInterface(name string, file *File) *Class {
 		Name:        name,
 		File:        file,
 		Methods:     NewFunctionsInfo(),
+		Constants:   NewConstants(),
 		Implements:  NewClasses(),
 		Extends:     NewClasses(),
 		Deps:        NewClasses(),
@@ -237,6 +239,7 @@ func NewAbstractClass(name string, file *File) *Class {
 		Name:       name,
 		File:       file,
 		Methods:    NewFunctionsInfo(),
+		Constants:  NewConstants(),
 		Implements: NewClasses(),
 		Extends:    NewClasses(),
 		Deps:       NewClasses(),
@@ -245,10 +248,8 @@ func NewAbstractClass(name string, file *File) *Class {
 	}
 }
 
-func (c *Class) FullString(level int) string {
+func (c *Class) AffEffString(full bool) string {
 	var res string
-
-	res += c.ShortString(level)
 
 	efferent := float64(len(c.Deps.Classes))
 	afferent := float64(len(c.DepsBy.Classes))
@@ -261,8 +262,33 @@ func (c *Class) FullString(level int) string {
 	}
 
 	res += fmt.Sprintf(" Афферентность: %.2f\n", afferent)
+	if full {
+		for _, class := range c.DepsBy.Classes {
+			res += fmt.Sprintf("%s", class.ExtraShortString(2))
+		}
+	}
+
 	res += fmt.Sprintf(" Эфферентность: %.2f\n", efferent)
+	if full {
+		for _, class := range c.Deps.Classes {
+			res += fmt.Sprintf("%s", class.ExtraShortString(2))
+		}
+	}
+
 	res += fmt.Sprintf(" Стабильность:  %.2f\n", stability)
+
+	return res
+}
+
+// info class -f \VK\API\Builders\Transformers\Masks\EffectTransformer
+func (c *Class) FullString(level int, withAff bool) string {
+	var res string
+
+	res += c.ShortString(level)
+
+	if withAff {
+		res += c.AffEffString(false)
+	}
 
 	return res
 }
@@ -270,7 +296,9 @@ func (c *Class) FullString(level int) string {
 func (c *Class) ExtraFullString(level int) string {
 	var res string
 
-	res += c.FullString(level)
+	res += c.FullString(level, false)
+
+	res += c.AffEffString(true)
 
 	if c.Implements.Len() != 0 {
 		res += fmt.Sprintf(" Реализует:\n")
@@ -292,6 +320,29 @@ func (c *Class) ExtraFullString(level int) string {
 	}
 	for _, method := range c.Methods.Funcs {
 		res += fmt.Sprintf("   %s\n", method.Name.Name)
+	}
+
+	if c.Constants.Len() != 0 {
+		res += fmt.Sprintf(" Константы (%d):\n", c.Constants.Len())
+	}
+	for _, constant := range c.Constants.Constants {
+		res += fmt.Sprintf("   %s\n", constant.Name)
+	}
+
+	return res
+}
+
+func (c *Class) ExtraShortString(level int) string {
+	var res string
+
+	if c.IsInterface {
+		res += fmt.Sprintf("%sИнтерфейс %s\n", GenIndent(level-1), c.Name)
+	} else {
+		if c.IsAbstract {
+			res += fmt.Sprintf("%sАбстрактный класс %s\n", GenIndent(level-1), c.Name)
+		} else {
+			res += fmt.Sprintf("%sКласс %s\n", GenIndent(level-1), c.Name)
+		}
 	}
 
 	return res
@@ -341,6 +392,10 @@ func (c *Class) AddExtends(class *Class) {
 }
 
 func (c *Class) AddDeps(class *Class) {
+	if c == class {
+		return
+	}
+
 	_, ok := c.Deps.Get(class.Name)
 	if !ok {
 		c.Deps.Add(class)
@@ -348,6 +403,10 @@ func (c *Class) AddDeps(class *Class) {
 }
 
 func (c *Class) AddDepsBy(class *Class) {
+	if c == class {
+		return
+	}
+
 	_, ok := c.DepsBy.Get(class.Name)
 	if !ok {
 		c.DepsBy.Add(class)

@@ -151,11 +151,11 @@ func List() *shell.Executor {
 				if full {
 					fmt.Println(class.ExtraFullString(0))
 				} else {
-					fmt.Println(class.FullString(0))
+					fmt.Println(class.FullString(0, true))
 				}
 			}
 		},
-	}
+	} // \VK\API\Library\DeprecatedWrappers
 
 	listInterfaceExecutor := &shell.Executor{
 		Name: "ifaces",
@@ -193,7 +193,7 @@ func List() *shell.Executor {
 				if full {
 					fmt.Println(class.ExtraFullString(0))
 				} else {
-					fmt.Println(class.FullString(0))
+					fmt.Println(class.FullString(0, true))
 				}
 			}
 		},

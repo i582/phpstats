@@ -82,6 +82,11 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 
 		fn := NewFunctionInfo(NewMethodKey(methodName, currentClassName), pos)
 		r.meta.Funcs.Add(fn)
+
+	case *ir.ClassConstListStmt:
+		for _, c := range n.Consts {
+			r.meta.Constants.Add(NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, r.ctx.ClassParseState().CurrentClass))
+		}
 	}
 }
 
