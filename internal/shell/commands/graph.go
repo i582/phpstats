@@ -82,6 +82,66 @@ func Graph() *shell.Executor {
 		},
 	}
 
+	graphClassExecutor := &shell.Executor{
+		Name:      "class",
+		Help:      "graph some class",
+		WithValue: true,
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Required:  true,
+				Help:      "output file",
+			},
+			&flags.Flag{
+				Name:      "-r",
+				WithValue: true,
+				Help:      "recursive level",
+				Default:   "5",
+			},
+			&flags.Flag{
+				Name: "-show",
+				Help: "show graph sources in console",
+			},
+		),
+		Func: func(c *shell.Context) {
+			recursiveLevelValue := c.GetFlagValue("-r")
+			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
+
+			show := c.Flags.Contains("-show")
+
+			outputPath := c.GetFlagValue("-o")
+			if outputPath == "" {
+				c.Error(fmt.Errorf("invalid filepath\n"))
+				return
+			}
+
+			classes, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			if err != nil {
+				fmt.Printf("Класс %s не найден!\n", c.Args[0])
+				return
+			}
+
+			var res string
+
+			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
+
+			outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+			if err != nil {
+				log.Fatalf("file not open %v", err)
+			}
+
+			res += class.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
+
+			fmt.Fprint(outputFile, res)
+			outputFile.Close()
+
+			if show {
+				fmt.Println(res)
+			}
+		},
+	}
+
 	graphExecutor := &shell.Executor{
 		Name: "graph",
 		Help: "graph view",
@@ -91,6 +151,7 @@ func Graph() *shell.Executor {
 	}
 
 	graphExecutor.AddExecutor(graphFuncExecutor)
+	graphExecutor.AddExecutor(graphClassExecutor)
 
 	return graphExecutor
 }

@@ -67,6 +67,11 @@ Commands:
         -o <value>     output file
        [-r <value>]    recursive level (default: 5)
        [-root]         only root require
+       
+     class <value>     graph some class
+        -o <value>     output file
+       [-r <value>]    recursive level (default: 5)
+       [-show]         show graph sources in console
 ```
 
 ### Roadmap
