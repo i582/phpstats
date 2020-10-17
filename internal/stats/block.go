@@ -42,10 +42,6 @@ func (b *blockChecker) BeforeEnterNode(n ir.Node) {
 }
 
 func (b *blockChecker) AfterEnterNode(n ir.Node) {
-	if !meta.IsIndexingComplete() {
-		return
-	}
-
 	switch n := n.(type) {
 	case *ir.FunctionCallExpr:
 		funcName, ok := solver.GetFuncName(b.ctx.ClassParseState(), n.Function)
@@ -131,6 +127,29 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		class.AddDepsBy(curClass)
 		curClass.AddDeps(class)
 
+	case *ir.ClassConstFetchExpr:
+		classNameNode, ok := n.Class.(*ir.Name)
+		if !ok {
+			return
+		}
+
+		constClassName := classNameNode.Value
+
+		constClassName, ok = solver.GetClassName(b.root.ctx.ClassParseState(), classNameNode)
+		if !ok {
+			return
+		}
+
+		class, ok := GlobalCtx.Classes.Get(constClassName)
+		if !ok {
+			return
+		}
+
+		if b.root.CurClass != nil {
+			b.root.CurClass.AddDeps(class)
+			class.AddDepsBy(b.root.CurClass)
+		}
+
 	default:
 		return
 	}
@@ -203,6 +222,11 @@ func (b *blockChecker) handleCalled(calledFunc *Function) {
 		curFunc.AddCalled(calledFunc)
 		// выставляем, что вызываемая функция вызывается из текущей
 		calledFunc.AddCalledBy(curFunc)
+	}
+
+	if b.root.CurClass != nil && calledFunc.Class != nil {
+		b.root.CurClass.AddDeps(calledFunc.Class)
+		calledFunc.Class.AddDepsBy(b.root.CurClass)
 	}
 
 	calledFunc.AddUse()

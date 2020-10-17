@@ -10,9 +10,10 @@ import (
 )
 
 type GlobalContext struct {
-	Funcs   *Functions
-	Classes *Classes
-	Files   *Files
+	Funcs     *Functions
+	Classes   *Classes
+	Files     *Files
+	Constants *Constants
 
 	Decoded bool
 	Encoded bool
@@ -96,28 +97,35 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 
 		ctx.Funcs.Add(fun)
 	}
+
+	for _, constant := range f.Constants.Constants {
+		ctx.Constants.Add(constant)
+	}
 }
 
 func NewGlobalContext() *GlobalContext {
 	return &GlobalContext{
-		Funcs:   NewFunctionsInfo(),
-		Classes: NewClasses(),
-		Files:   NewFiles(),
+		Funcs:     NewFunctionsInfo(),
+		Classes:   NewClasses(),
+		Files:     NewFiles(),
+		Constants: NewConstants(),
 	}
 }
 
 var GlobalCtx = NewGlobalContext()
 
 type FileMeta struct {
-	Classes *Classes
-	Funcs   *Functions
-	Files   *Files
+	Classes   *Classes
+	Funcs     *Functions
+	Files     *Files
+	Constants *Constants
 }
 
 func NewFileMeta() FileMeta {
 	return FileMeta{
-		Classes: NewClasses(),
-		Funcs:   NewFunctionsInfo(),
-		Files:   NewFiles(),
+		Classes:   NewClasses(),
+		Funcs:     NewFunctionsInfo(),
+		Files:     NewFiles(),
+		Constants: NewConstants(),
 	}
 }
