@@ -42,6 +42,7 @@ func Graph() *shell.Executor {
 				Help: "show graph sources in console",
 			},
 		),
+		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			recursiveLevelValue := c.GetFlagValue("-r")
 			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
@@ -104,6 +105,7 @@ func Graph() *shell.Executor {
 				Help: "show graph sources in console",
 			},
 		),
+		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			recursiveLevelValue := c.GetFlagValue("-r")
 			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
