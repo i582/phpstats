@@ -21,13 +21,9 @@ func Info() *shell.Executor {
 				Help: "output full information",
 			},
 		),
+		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
-
-			if len(c.Args) != 1 {
-				c.Error(fmt.Errorf("команда принимает ровно один аргумент"))
-				return
-			}
 
 			classNames, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
@@ -65,13 +61,9 @@ func Info() *shell.Executor {
 				Help: "output full information",
 			},
 		),
+		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
-
-			if len(c.Args) != 1 {
-				c.Error(fmt.Errorf("команда принимает ровно один аргумент"))
-				return
-			}
 
 			funcNameKeys, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
 			if err != nil {
@@ -119,14 +111,10 @@ func Info() *shell.Executor {
 				WithValue: true,
 			},
 		),
+		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
 			recursiveFlag, recursive := c.Flags.Get("-r")
-
-			if len(c.Args) != 1 {
-				c.Error(fmt.Errorf("команда принимает ровно один аргумент"))
-				return
-			}
 
 			patches, err := stats.GlobalCtx.Files.GetFullFileName(c.Args[0])
 			if err != nil {
@@ -168,12 +156,8 @@ func Info() *shell.Executor {
 		Help:      "info about some namespace",
 		WithValue: true,
 		Flags:     flags.NewFlags(),
+		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			if len(c.Args) != 1 {
-				c.Error(fmt.Errorf("команда принимает ровно один аргумент"))
-				return
-			}
-
 			namespace := c.Args[0]
 
 			classes := stats.NewClasses()

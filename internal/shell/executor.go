@@ -15,7 +15,8 @@ type Executor struct {
 
 	WithValue bool
 
-	Flags *flags.Flags
+	Flags     *flags.Flags
+	CountArgs int
 
 	SubExecs Executors
 
@@ -65,6 +66,11 @@ func (e *Executor) Execute(ctx *Context) {
 	}
 
 	ctx.Exec = e
+
+	if e.CountArgs != -1 && len(ctx.Args) != e.CountArgs {
+		ctx.Error(fmt.Errorf("команда принимает ровно %d аргумент(а/ов)", e.CountArgs))
+		return
+	}
 
 	e.Func(ctx)
 }
