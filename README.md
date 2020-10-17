@@ -18,7 +18,56 @@ collect [--project-path <value>] <dir>
 
 После сбора информации вы попадете в интерактивную оболочку, для помощи введите `help`.
 
+```
+>>> help
+Commands:
+  help                 help page
+  clear                clear screen
+  exit                 exit program
+  info                 info about something
+     func <value>      info about some func
+       [-f]            output full information
 
+     file <value>      info about some file
+       [-f]            output full information
+       [-r <value>]    output recursive (default: 5)
+
+     class <value>     info about some class
+       [-f]            output full information
+
+  list                 list of something
+     methods           show list methods
+       [-c <value>]    count in list (default: 10)
+       [-o <value>]    offset in list (default: 0)
+
+     files             show list of files
+       [-c <value>]    count in list (default: 10)
+       [-o <value>]    offset in list (default: 0)
+       [-f]            show full information
+
+     classes           show list of classes
+       [-o <value>]    offset in list (default: 0)
+       [-f]            show full information
+       [-c <value>]    count in list (default: 10)
+
+     ifaces            show list of interfaces
+       [-c <value>]    count in list (default: 10)
+       [-o <value>]    offset in list (default: 0)
+       [-f]            show full information
+
+     funcs             show list funcs
+       [-e]            show embedded functions
+       [-c <value>]    count in list (default: 10)
+       [-o <value>]    offset in list (default: 0)
+
+  graph                graph view
+     file <value>      graph some file
+       [-block]        only block require
+       [-show]         show graph sources in console
+        -o <value>     output file
+       [-r <value>]    recursive level (default: 5)
+       [-root]         only root require
+```
 
 ### Roadmap
 
@@ -42,7 +91,7 @@ collect [--project-path <value>] <dir>
    * [x] От какого класса наследуется
      * [ ] Выводить рекурсивно?
 * [x] Список методов
-   
+  
 2. Вывод информации о функции/методе
 
    * [x] Вывод места определения (или информацию о том, что функция встроенная)
