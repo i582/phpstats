@@ -162,7 +162,7 @@ func List() *shell.Executor {
 				}
 			}
 		},
-	} // \VK\API\Library\DeprecatedWrappers
+	}
 
 	listInterfaceExecutor := &shell.Executor{
 		Name: "ifaces",

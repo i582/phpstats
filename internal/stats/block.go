@@ -1,10 +1,6 @@
 package stats
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
@@ -86,13 +82,6 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 
 		requiredFile, ok := GlobalCtx.Files.Get(filename)
 		if !ok {
-			curFileName := b.root.ctx.ClassParseState().CurrentFile
-			dir, _ := filepath.Split(curFileName)
-			if !strings.HasSuffix(dir, `www\`) {
-				if _, err := os.Stat(filename); err == nil {
-					// log.Printf("%s not found", filename)
-				}
-			}
 			return
 		}
 

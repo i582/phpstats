@@ -23,8 +23,6 @@ func NewClasses() *Classes {
 	}
 }
 
-var AlreadyShown = map[string]struct{}{}
-
 func (c *Classes) GetAllInterfaces(count int64, offset int64, sorted bool) []*Class {
 	return c.GetAll(true, count, offset, sorted)
 }
@@ -156,43 +154,6 @@ func (c *Class) GraphvizRecursive(level int64, maxLevel int64, visited map[strin
 	return res
 }
 
-func (c *Classes) Graphviz() string {
-	var res string
-	res += "digraph test{\n"
-
-	var count int
-
-Outer:
-	for _, class := range c.Classes {
-		// if !strings.Contains(class.File.Path, `VK\API`) {
-		// 	continue
-		// }
-		for _, method := range class.Methods.Funcs {
-			for _, called := range method.Called.Funcs {
-
-				if called.Class != nil && method.Class != nil && called.Class.File != method.Class.File {
-
-					str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", method.Class.Name, called.Class.Name)
-					if _, ok := AlreadyShown[str]; ok {
-						continue
-					}
-
-					res += str
-					AlreadyShown[str] = struct{}{}
-					count++
-
-					if count > 1000000 {
-						break Outer
-					}
-				}
-
-			}
-		}
-	}
-	res += "}"
-	return res
-}
-
 func (c *Classes) Add(class *Class) {
 	c.Lock()
 	defer c.Unlock()
@@ -274,51 +235,34 @@ func NewAbstractClass(name string, file *File) *Class {
 func (c *Class) AffEffString(full bool) string {
 	var res string
 
-	efferent := float64(len(c.Deps.Classes))
-	afferent := float64(len(c.DepsBy.Classes))
+	aff, eff, stab := AfferentEfferentStabilityOfClass(c)
 
-	var stability float64
-	if efferent+afferent == 0 {
-		stability = 0
-	} else {
-		stability = efferent / (efferent + afferent)
-	}
-
-	res += fmt.Sprintf(" Афферентность: %.2f\n", afferent)
+	res += fmt.Sprintf(" Афферентность: %.2f\n", aff)
 	if full {
 		for _, class := range c.DepsBy.Classes {
 			res += fmt.Sprintf("%s", class.ExtraShortString(2))
 		}
 	}
 
-	res += fmt.Sprintf(" Эфферентность: %.2f\n", efferent)
+	res += fmt.Sprintf(" Эфферентность: %.2f\n", eff)
 	if full {
 		for _, class := range c.Deps.Classes {
 			res += fmt.Sprintf("%s", class.ExtraShortString(2))
 		}
 	}
 
-	res += fmt.Sprintf(" Стабильность:  %.2f\n", stability)
+	res += fmt.Sprintf(" Стабильность:  %.2f\n", stab)
 
-	var usedSum int
-	for _, field := range c.Fields.Fields {
-		usedSum += len(field.Used)
-	}
-
-	allFieldMethod := c.Fields.Len() * c.Methods.Len()
-
-	if allFieldMethod == 0 {
+	lcom, ok := LackOfCohesionInMethodsOfCLass(c)
+	if !ok {
 		res += fmt.Sprintf(" LCOM: undefined (количество методов или полей равно нулю)\n")
 	} else {
-		lcom := 1 - float64(usedSum)/float64(allFieldMethod)
-
 		res += fmt.Sprintf(" LCOM: %.6f\n", lcom)
 	}
 
 	return res
 }
 
-// info class -f \VK\API\Builders\Transformers\Masks\EffectTransformer
 func (c *Class) FullString(level int, withAff bool) string {
 	var res string
 
@@ -344,8 +288,7 @@ func (c *Class) ExtraFullString(level int) string {
 	for _, class := range c.Implements.Classes {
 		res += fmt.Sprintf("%s", class.ShortStringWithPrefix(level+1, " ↳ "))
 	}
-	// info class -f AppPost
-	// info class -f PeriodToOneOf
+
 	if c.Extends.Len() != 0 {
 		res += fmt.Sprintf(" Расширяет:\n")
 	}

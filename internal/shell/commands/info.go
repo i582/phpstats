@@ -209,7 +209,8 @@ func Info() *shell.Executor {
 		Name: "info",
 		Help: "info about something",
 		Func: func(c *shell.Context) {
-
+			fmt.Println("Usage:")
+			fmt.Println(c.Exec.HelpPage(0))
 		},
 	}
 
