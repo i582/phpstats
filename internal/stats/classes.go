@@ -198,8 +198,10 @@ type Class struct {
 	IsAbstract  bool
 	IsInterface bool
 
+	Fields    *Fields
 	Methods   *Functions
 	Constants *Constants
+
 	// Зависим от
 	Deps *Classes
 
@@ -212,6 +214,7 @@ func NewClass(name string, file *File) *Class {
 		Name:       name,
 		File:       file,
 		Methods:    NewFunctionsInfo(),
+		Fields:     NewFields(),
 		Constants:  NewConstants(),
 		Implements: NewClasses(),
 		Extends:    NewClasses(),
@@ -225,6 +228,7 @@ func NewInterface(name string, file *File) *Class {
 		Name:        name,
 		File:        file,
 		Methods:     NewFunctionsInfo(),
+		Fields:      NewFields(),
 		Constants:   NewConstants(),
 		Implements:  NewClasses(),
 		Extends:     NewClasses(),
@@ -239,6 +243,7 @@ func NewAbstractClass(name string, file *File) *Class {
 		Name:       name,
 		File:       file,
 		Methods:    NewFunctionsInfo(),
+		Fields:     NewFields(),
 		Constants:  NewConstants(),
 		Implements: NewClasses(),
 		Extends:    NewClasses(),
@@ -276,6 +281,21 @@ func (c *Class) AffEffString(full bool) string {
 	}
 
 	res += fmt.Sprintf(" Стабильность:  %.2f\n", stability)
+
+	var usedSum int
+	for _, field := range c.Fields.Fields {
+		usedSum += len(field.Used)
+	}
+
+	allFieldMethod := c.Fields.Len() * c.Methods.Len()
+
+	if allFieldMethod == 0 {
+		res += fmt.Sprintf(" LCOM: undefined (количество методов или полей равно нулю)\n")
+	} else {
+		lcom := 1 - float64(usedSum)/float64(allFieldMethod)
+
+		res += fmt.Sprintf(" LCOM: %.6f\n", lcom)
+	}
 
 	return res
 }
@@ -320,6 +340,13 @@ func (c *Class) ExtraFullString(level int) string {
 	}
 	for _, method := range c.Methods.Funcs {
 		res += fmt.Sprintf("   %s\n", method.Name.Name)
+	}
+
+	if c.Fields.Len() != 0 {
+		res += fmt.Sprintf(" Поля (%d):\n", c.Fields.Len())
+	}
+	for _, field := range c.Fields.Fields {
+		res += fmt.Sprintf("   %s\n", field.Name)
 	}
 
 	if c.Constants.Len() != 0 {

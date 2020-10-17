@@ -197,8 +197,7 @@ type Function struct {
 	UsesCount int64
 
 	// Method part
-	Class *Class
-
+	Class   *Class
 	Encoded bool
 }
 

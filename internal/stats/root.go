@@ -121,6 +121,20 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		r.CurClass = iface
 		r.CurFile.AddClass(iface)
 
+	case *ir.ClassMethodStmt:
+		if r.CurClass == nil {
+			return
+		}
+
+		methodName := n.MethodName.Value
+
+		method, ok := GlobalCtx.Funcs.Get(NewMethodKey(methodName, r.CurClass.Name))
+		if !ok {
+			return
+		}
+
+		r.CurMethod = method
+
 	case *ir.ClassConstFetchExpr:
 		classNameNode, ok := n.Class.(*ir.Name)
 		if !ok {
@@ -153,7 +167,16 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 
 			r.CurClass.Constants.Add(constant)
 		}
+	case *ir.PropertyListStmt:
+		if r.CurClass == nil {
+			return
+		}
 
+		for _, prop := range n.Properties {
+			prop := prop.(*ir.PropertyStmt)
+
+			r.CurClass.Fields.Add(NewField(prop.Variable.Name, r.CurClass.Name))
+		}
 	}
 }
 
@@ -161,5 +184,7 @@ func (r *rootChecker) BeforeLeaveNode(n ir.Node) {
 	switch n.(type) {
 	case *ir.ClassStmt:
 		r.CurClass = nil
+	case *ir.ClassMethodStmt:
+		r.CurMethod = nil
 	}
 }
