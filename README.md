@@ -2,29 +2,48 @@
 
 # phpstats
 
-phpstats — это небольшая утилита для сбора статистики проектов на PHP.
+phpstats is a small utility for collecting statistics on PHP projects based on [NoVerify](https://github.com/VKCOM/noverify).
 
-### Установка
+#### Metrics
+
+The following metrics are currently available:
+
+1. Afferent couplings
+   1. for classes
+   2. for namespaces
+2. Efferent couplings
+   1. for classes
+   2. for namespaces
+3. Stability
+   1. for the classes
+   2. for namespaces
+4. Lack of Cohesion in Methods for classes
+
+#### Graph output (Graphviz format)
+
+1. File dependencies, both for root and inside functions.
+2. Class dependencies.
+3. Function/method dependencies.
+
+## Install
 
 ```
 go get github.com/i582/phpstats
 ```
 
-### Использование
+## Using
 
 ```
 collect [--project-path <value>] <dir>
 ```
 
-Флаг `--project-path` устанавливает директорию относительно которой будут разрешаться пути к файлам при импортировании. Если флаг не проставлен, директория устанавливается в значение текущей анализируемой директории.
+The `--project-path` flag sets the directory relative to which paths to files will be resolved when importing. If the flag is not set, the directory is set to the value of the current analyzed directory.
 
-После сбора информации вы попадете в интерактивную оболочку, для помощи введите `help`.
+After collecting information, you will be taken to an interactive shell, type `help` for help.
 
 ```
 >>> help
 Commands:
-  clear                clear screen
-  exit                 exit program
   info                 info about
      class <value>     info about class
        [-f]            output full information
@@ -80,72 +99,12 @@ Commands:
        [-r <value>]    recursive level (default: 5)
        [-show]         show graph file in console
         -o <value>     output file
-
+        
+  clear                clear screen
+  exit                 exit program
   help                 help page
 ```
 
-### Roadmap
-
-#### Команда `info`
-
-1. Вывод информации о классе
-   * [x] Афферентность (количество классов от которых зависит класс)
-     * [x] Учитывать константы
-     * [x] Учитывать методы
-     * [x] Учитывать статические методы
-     * [x] Учитывать использование new
-   * [x] Эфферентность (количество классов которые зависит от класса)
-     * [x] Учитывать константы
-     * [x] Учитывать методы
-     * [x] Учитывать статические методы
-     * [x] Учитывать использование new
-   * [x] Стабильность Эфферентность / (Эфферентность + Афферентность)
-   * [x] Расчет LCOM
-   * [x] Какие реализует интерфейсы
-     * [ ] Выводить рекурсивно?
-   * [x] От какого класса наследуется
-     * [ ] Выводить рекурсивно?
-* [x] Список методов
-  
-2. Вывод информации о функции/методе
-
-   * [x] Вывод места определения (или информацию о том, что функция встроенная)
-   * [x] Вывод количества использований
-   * [x] Вывод вызываемых внутри функций
-3. Вывод информации о файле
-
-   * [x] Вывод подключаемых файлов в корне
-   * [x] Вывод подключаемых файлов в функциях
-   * [ ] Вывод классов определенных внутри
-   * [ ] Вывод функций определенных внутри
-
-#### Команда `list`
-
-1. Выводить список классов
-   * [x] Возможность указывать количество
-   * [x] Возможность указывать сдвиг
-2. Выводить список интерфейсов
-   * [x] Возможность указывать количество
-   * [x] Возможность указывать сдвиг
-3. Выводить список файлов
-   * [x] Возможность указывать количество
-   * [x] Возможность указывать сдвиг
-4. Выводить список функций
-   * [x] Возможность указывать количество
-   * [x] Возможность указывать сдвиг
-5. Выводить список методов
-   * [x] Возможность указывать количество
-   * [x] Возможность указывать сдвиг
-
-#### Команда `graph`
-
-1. Вывод информации о файле
-    * [x] Вывод зависимостей файла в Graphviz формате
-      * [x] Возможность указать максимальный уровень вложенности
-      * [x] Разделять подключения в корне и функциях
-
-
-
-### Лицензия
+## License
 
 MIT
