@@ -5,7 +5,7 @@ import (
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/solver"
 
-	"phpstats/internal/utils"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type rootChecker struct {

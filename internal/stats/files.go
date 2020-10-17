@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"phpstats/internal/utils"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type Files struct {

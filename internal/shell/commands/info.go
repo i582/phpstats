@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"phpstats/internal/shell"
-	"phpstats/internal/shell/flags"
-	"phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/shell"
+	"github.com/i582/phpstats/internal/shell/flags"
+	"github.com/i582/phpstats/internal/stats"
 )
 
 func Info() *shell.Executor {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/VKCOM/noverify/src/meta"
 
-	"phpstats/internal/utils"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type Classes struct {

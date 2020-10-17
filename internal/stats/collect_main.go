@@ -8,7 +8,7 @@ import (
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
 
-	"phpstats/internal/shell/flags"
+	"github.com/i582/phpstats/internal/shell/flags"
 )
 
 func CollectMain() error {

@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"phpstats/internal/cli"
-	"phpstats/internal/shell"
-	"phpstats/internal/shell/commands"
-	"phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/cli"
+	"github.com/i582/phpstats/internal/shell"
+	"github.com/i582/phpstats/internal/shell/commands"
+	"github.com/i582/phpstats/internal/stats"
 )
 
 func main() {

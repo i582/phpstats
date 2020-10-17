@@ -3,8 +3,8 @@ package shell
 import (
 	"fmt"
 
-	"phpstats/internal/shell/flags"
-	"phpstats/internal/utils"
+	"github.com/i582/phpstats/internal/shell/flags"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type Executors map[string]*Executor

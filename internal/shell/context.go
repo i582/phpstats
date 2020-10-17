@@ -5,7 +5,7 @@ import (
 
 	"github.com/gookit/color"
 
-	"phpstats/internal/shell/flags"
+	"github.com/i582/phpstats/internal/shell/flags"
 )
 
 type Context struct {
