@@ -61,7 +61,7 @@ func ResolveRequirePath(st *meta.ClassParseState, projectPath string, e ir.Node)
 		pathBegin = `/`
 	}
 	// "/www/" is our include_path.
-	fullName := pathBegin + projectPath + "/www/" + path
+	fullName := pathBegin + projectPath + path
 	clean := filepath.Clean(fullName)
 
 	return clean, true

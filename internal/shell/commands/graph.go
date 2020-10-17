@@ -28,10 +28,26 @@ func Graph() *shell.Executor {
 				Help:      "recursive level",
 				Default:   "5",
 			},
+			&shell.Flag{
+				Name: "-root",
+				Help: "only root require",
+			},
+			&shell.Flag{
+				Name: "-block",
+				Help: "only block require",
+			},
+			&shell.Flag{
+				Name: "-show",
+				Help: "show graph sources in console",
+			},
 		),
 		Func: func(c *shell.Context) {
 			recursiveLevelValue := c.GetFlagValue("-r")
 			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
+
+			root := c.Flags.Contains("-root")
+			block := c.Flags.Contains("-block")
+			show := c.Flags.Contains("-show")
 
 			outputPath := c.GetFlagValue("-o")
 			if outputPath == "" {
@@ -54,11 +70,14 @@ func Graph() *shell.Executor {
 				log.Fatalf("file not open %v", err)
 			}
 
-			res += file.GraphvizRecursive(recursiveLevel)
+			res += file.GraphvizRecursive(recursiveLevel, root, block)
 
 			fmt.Fprint(outputFile, res)
-			fmt.Println(res)
 			outputFile.Close()
+
+			if show {
+				fmt.Println(res)
+			}
 		},
 	}
 

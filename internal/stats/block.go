@@ -81,7 +81,7 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		b.handleMethod(methodName, classType)
 
 	case *ir.ImportExpr:
-		filename, ok := utils.ResolveRequirePath(b.ctx.ClassParseState(), "C:\\projects\\vkcom", n.Expr)
+		filename, ok := utils.ResolveRequirePath(b.ctx.ClassParseState(), `C:\projects\vkcom\www\`, n.Expr)
 		if !ok {
 			return
 		}

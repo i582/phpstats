@@ -187,7 +187,7 @@ func GenIndent(level int) string {
 	return res
 }
 
-func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, maxRecursive int64, isRootRequire bool) string {
+func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, maxRecursive int64, root, block bool) string {
 	if level > maxRecursive {
 		return ""
 	}
@@ -200,35 +200,39 @@ func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, max
 
 	var res string
 
-	for _, f := range file.RequiredRoot.Files {
-		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
-		if _, ok := visited[str]; !ok {
-			res += str
-			visited[str] = struct{}{}
-		}
+	if root {
+		for _, f := range file.RequiredRoot.Files {
+			str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
+			if _, ok := visited[str]; !ok {
+				res += str
+				visited[str] = struct{}{}
+			}
 
-		res += GraphvizRecursive(f, level+1, visited, maxRecursive, true)
+			res += GraphvizRecursive(f, level+1, visited, maxRecursive, root, block)
+		}
 	}
 
-	for _, f := range file.RequiredBlock.Files {
-		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
-		if _, ok := visited[str]; !ok {
-			res += str
-			visited[str] = struct{}{}
-		}
+	if block {
+		for _, f := range file.RequiredBlock.Files {
+			str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
+			if _, ok := visited[str]; !ok {
+				res += str
+				visited[str] = struct{}{}
+			}
 
-		res += GraphvizRecursive(f, level+1, visited, maxRecursive, false)
+			res += GraphvizRecursive(f, level+1, visited, maxRecursive, root, block)
+		}
 	}
 
 	return res
 }
 
-func (f *File) GraphvizRecursive(maxRecursive int64) string {
+func (f *File) GraphvizRecursive(maxRecursive int64, root, block bool) string {
 	var res string
 
 	res += "digraph test{\n"
 
-	res += GraphvizRecursive(f, 0, make(map[string]struct{}), maxRecursive, false)
+	res += GraphvizRecursive(f, 0, make(map[string]struct{}), maxRecursive, root, block)
 
 	res += "}\n"
 
