@@ -6,7 +6,6 @@ import (
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
-	"github.com/VKCOM/noverify/src/php/parser/position"
 	"github.com/VKCOM/noverify/src/solver"
 )
 
@@ -92,27 +91,12 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 
 func (r *rootIndexer) getElementPos(n ir.Node) meta.ElementPosition {
 	pos := ir.GetPosition(n)
-	_, startChar := r.parseStartPos(pos)
 
 	return meta.ElementPosition{
 		Filename:  r.ctx.ClassParseState().CurrentFile,
-		Character: int32(startChar),
+		Character: int32(0),
 		Line:      int32(pos.StartLine),
 		EndLine:   int32(pos.EndLine),
 		Length:    int32(pos.EndPos - pos.StartPos),
 	}
-}
-
-func (r *rootIndexer) parseStartPos(pos *position.Position) (startLn []byte, startChar int) {
-	return []byte{}, 0
-
-	// if pos.StartLine >= 1 && len(r.ctx.Walker().Lines) > pos.StartLine {
-	// 	startLn = r.ctx.Walker().Lines[pos.StartLine-1]
-	// 	p := r.ctx.Walker().LinesPositions[pos.StartLine-1]
-	// 	if pos.StartPos > p {
-	// 		startChar = pos.StartPos - p
-	// 	}
-	// }
-	//
-	// return startLn, startChar
 }

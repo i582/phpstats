@@ -66,3 +66,11 @@ func ResolveRequirePath(st *meta.ClassParseState, projectPath string, e ir.Node)
 
 	return clean, true
 }
+
+func GenIndent(level int) string {
+	var res string
+	for i := 0; i < level; i++ {
+		res += "   "
+	}
+	return res
+}

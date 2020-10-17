@@ -82,26 +82,6 @@ func NewFunctionsInfo() *Functions {
 	}
 }
 
-func (fi *Functions) GetFuncsThatCalledFunc(name string) ([]*Function, error) {
-	fn, ok := fi.Get(NewFuncKey(name))
-
-	if !ok {
-		return nil, fmt.Errorf("function %s not found", name)
-	}
-
-	return fn.CalledBy.GetAll(false, false, true, -1, 0, false, true), nil
-}
-
-func (fi *Functions) GetFuncsThatCalledInFunc(name string) ([]*Function, error) {
-	fn, ok := fi.Get(NewFuncKey(name))
-
-	if !ok {
-		return nil, fmt.Errorf("function %s not found", name)
-	}
-
-	return fn.Called.GetAll(false, false, true, -1, 0, false, true), nil
-}
-
 func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool, withEmbeddedFuncs bool) []*Function {
 	var res []*Function
 	var index int64
@@ -286,7 +266,6 @@ func (f *Function) ShortString() string {
 	if f.Name.IsMethod() {
 		res += fmt.Sprintf("Метод %s\n", f.Name)
 
-		// если функция не встроенная
 		if !IsEmbeddedFunc(f.Pos.Filename) {
 			res += fmt.Sprintf(" Класс: ")
 			if f.Class != nil {

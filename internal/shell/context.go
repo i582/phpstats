@@ -3,6 +3,8 @@ package shell
 import (
 	"fmt"
 
+	"github.com/gookit/color"
+
 	"phpstats/internal/shell/flags"
 )
 
@@ -14,7 +16,7 @@ type Context struct {
 }
 
 func (c *Context) Error(err error) {
-	fmt.Println("Error:", err)
+	color.Red.Printf("Error: %v", err)
 }
 
 func (c *Context) ContainsFlag(flag string) bool {
@@ -51,4 +53,9 @@ func (c *Context) GetFlagValue(flag string) string {
 	}
 
 	return ""
+}
+
+func (c *Context) ShowHelpPage() {
+	fmt.Println("Usage:")
+	fmt.Println(c.Exec.HelpPage(0))
 }

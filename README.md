@@ -21,24 +21,33 @@ collect [--project-path <value>] <dir>
 ```
 >>> help
 Commands:
-  help                 help page
   clear                clear screen
   exit                 exit program
-  info                 info about something
-     func <value>      info about some func
+  info                 info about
+     class <value>     info about class
        [-f]            output full information
 
-     file <value>      info about some file
+     func <value>      info about function
+       [-f]            output full information
+
+     file <value>      info about file
        [-f]            output full information
        [-r <value>]    output recursive (default: 5)
 
-     class <value>     info about some class
-       [-f]            output full information
-       
-     namespace <value> info about some namespace
+     namespace <value> info about namespace
 
-  list                 list of something
-     methods           show list methods
+  list                 list of
+     interfaces        show list of interfaces
+       [-o <value>]    offset in list (default: 0)
+       [-f]            show full information
+       [-c <value>]    count in list (default: 10)
+
+     funcs             show list of functions
+       [-o <value>]    offset in list (default: 0)
+       [-e]            show embedded functions
+       [-c <value>]    count in list (default: 10)
+
+     methods           show list of methods
        [-c <value>]    count in list (default: 10)
        [-o <value>]    offset in list (default: 0)
 
@@ -48,37 +57,29 @@ Commands:
        [-f]            show full information
 
      classes           show list of classes
-       [-o <value>]    offset in list (default: 0)
-       [-f]            show full information
-       [-c <value>]    count in list (default: 10)
-
-     ifaces            show list of interfaces
        [-c <value>]    count in list (default: 10)
        [-o <value>]    offset in list (default: 0)
        [-f]            show full information
 
-     funcs             show list funcs
-       [-e]            show embedded functions
-       [-c <value>]    count in list (default: 10)
-       [-o <value>]    offset in list (default: 0)
-
-  graph                graph view
-     file <value>      graph some file
-       [-block]        only block require
-       [-show]         show graph sources in console
+  graph                dependencies graph view
+     file <value>      dependency graph for file
+       [-show]         show graph file in console
         -o <value>     output file
        [-r <value>]    recursive level (default: 5)
        [-root]         only root require
-       
-     class <value>     graph some class
+       [-block]        only block require
+
+     class <value>     dependency graph for class
         -o <value>     output file
        [-r <value>]    recursive level (default: 5)
-       [-show]         show graph sources in console
-       
-     func <value>      graph some func
+       [-show]         show graph file in console
+
+     func <value>      dependency graph for function
        [-r <value>]    recursive level (default: 5)
-       [-show]         show graph sources in console
+       [-show]         show graph file in console
         -o <value>     output file
+
+  help                 help page
 ```
 
 ### Roadmap

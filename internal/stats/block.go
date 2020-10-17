@@ -30,7 +30,6 @@ func (b *blockChecker) BeforeEnterNode(n ir.Node) {
 			return
 		}
 
-		// добавляем текущую функцию в текущий файл
 		b.root.CurFile.AddFunc(fun)
 	}
 }
@@ -109,19 +108,17 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		curClass.AddDeps(class)
 
 	case *ir.ClassConstFetchExpr:
-		curClass, ok := b.root.GetCurrentClass()
-		if !ok {
-			return
-		}
-
 		classNameNode, ok := n.Class.(*ir.Name)
 		if !ok {
 			return
 		}
 
-		constClassName := classNameNode.Value
+		curClass, ok := b.root.GetCurrentClass()
+		if !ok {
+			return
+		}
 
-		constClassName, ok = solver.GetClassName(b.root.ctx.ClassParseState(), classNameNode)
+		constClassName, ok := solver.GetClassName(b.root.ctx.ClassParseState(), classNameNode)
 		if !ok {
 			return
 		}
@@ -168,13 +165,11 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 		return
 	}
 
-	// вызываемая функция
 	calledName := calledMethodInfo.Info.Name
 	calledFuncKey := FuncKey{
 		Name:      calledName,
 		ClassName: calledMethodInfo.ImplName(),
 	}
-	// позиция вызываемой функции
 	calledFunPos := calledMethodInfo.Info.Pos
 
 	calledClass, ok := GlobalCtx.Classes.Get(calledMethodInfo.ImplName())
@@ -193,12 +188,10 @@ func (b *blockChecker) handleFunc(name string) {
 		return
 	}
 
-	// вызываемая функция
 	calledName := name
 	calledFuncKey := FuncKey{
 		Name: calledName,
 	}
-	// позиция вызываемой функции
 	calledFunPos := calledFuncInfo.Pos
 	calledFunc := GlobalCtx.Funcs.GetOrCreateFunction(calledFuncKey, calledFunPos)
 
@@ -212,9 +205,7 @@ func (b *blockChecker) handleCalled(calledFunc *Function) {
 	}
 
 	if curFunc != nil {
-		// добавляем, что текущая функция вызывает функцию
 		curFunc.AddCalled(calledFunc)
-		// выставляем, что вызываемая функция вызывается из текущей
 		calledFunc.AddCalledBy(curFunc)
 	}
 
