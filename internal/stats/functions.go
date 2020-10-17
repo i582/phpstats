@@ -89,7 +89,7 @@ func (fi *Functions) GetFuncsThatCalledFunc(name string) ([]*Function, error) {
 		return nil, fmt.Errorf("function %s not found", name)
 	}
 
-	return fn.CalledBy.GetAll(false, false, true, -1, 0, false), nil
+	return fn.CalledBy.GetAll(false, false, true, -1, 0, false, true), nil
 }
 
 func (fi *Functions) GetFuncsThatCalledInFunc(name string) ([]*Function, error) {
@@ -99,10 +99,10 @@ func (fi *Functions) GetFuncsThatCalledInFunc(name string) ([]*Function, error) 
 		return nil, fmt.Errorf("function %s not found", name)
 	}
 
-	return fn.Called.GetAll(false, false, true, -1, 0, false), nil
+	return fn.Called.GetAll(false, false, true, -1, 0, false, true), nil
 }
 
-func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool) []*Function {
+func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool, withEmbeddedFuncs bool) []*Function {
 	var res []*Function
 	var index int64
 
@@ -115,6 +115,10 @@ func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offse
 			if index > count+offset && count != -1 {
 				break
 			}
+		}
+
+		if !withEmbeddedFuncs && fn.IsEmbeddedFunc() {
+			continue
 		}
 
 		if !all {
@@ -224,6 +228,10 @@ func IsEmbeddedFunc(name string) bool {
 	return strings.Contains(name, "phpstorm-stubs")
 }
 
+func (f *Function) IsEmbeddedFunc() bool {
+	return IsEmbeddedFunc(f.Pos.Filename)
+}
+
 func (f *Function) IsMethod() bool {
 	return f.Name.IsMethod()
 }
@@ -297,8 +305,6 @@ func (f *Function) ShortString() string {
 
 func (f *Function) FullString() string {
 	var res string
-
-	res += "\n"
 
 	res += f.ShortString()
 
