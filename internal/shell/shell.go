@@ -11,6 +11,8 @@ import (
 
 type Shell struct {
 	Execs Executors
+
+	Active bool
 }
 
 func (s *Shell) AddExecutor(exec *Executor) {
@@ -22,7 +24,9 @@ func (s *Shell) AddExecutor(exec *Executor) {
 }
 
 func NewShell() *Shell {
-	shell := &Shell{}
+	shell := &Shell{
+		Active: true,
+	}
 
 	shell.AddExecutor(&Executor{
 		Name: "help",
@@ -50,12 +54,20 @@ func NewShell() *Shell {
 		},
 	})
 
+	shell.AddExecutor(&Executor{
+		Name: "exit",
+		Help: "exit program",
+		Func: func(c *Context) {
+			shell.Active = false
+		},
+	})
+
 	return shell
 }
 
 func (s *Shell) Run() {
 	reader := bufio.NewReader(os.Stdin)
-	for {
+	for s.Active {
 		fmt.Print(`>>> `)
 		line, _, err := reader.ReadLine()
 		if err != nil {
