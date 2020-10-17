@@ -224,25 +224,64 @@ func IsEmbeddedFunc(name string) bool {
 	return strings.Contains(name, "phpstorm-stubs")
 }
 
-func (fi *Function) IsMethod() bool {
-	return fi.Name.IsMethod()
+func (f *Function) IsMethod() bool {
+	return f.Name.IsMethod()
 }
 
-func (fi Function) Equal(fi2 Function) bool {
-	return fi.Name.Equal(fi2.Name)
+func (f Function) Equal(fi2 Function) bool {
+	return f.Name.Equal(fi2.Name)
 }
 
-func (fi *Function) ShortString() string {
+func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {
 	var res string
 
-	if fi.Name.IsMethod() {
-		res += fmt.Sprintf("Метод %s\n", fi.Name)
+	if level > maxLevel {
+		return ""
+	}
+
+	classes := NewClasses()
+
+	for _, called := range f.Called.Funcs {
+		if called.Class == nil {
+			continue
+		}
+
+		// res += called.Class.Deps.Graphviz()
+
+		res += called.GraphvizRecursive(level+1, maxLevel, visited)
+
+		classes.Add(called.Class)
+	}
+
+	// graph func -o test2.gv \VK\API\Library\DeprecatedWrappers::wrapComments -show -r 2
+
+	// res += fmt.Sprintf("   \"%s\" [shape=\"rectangle\"]\n", f.Name)
+
+	for _, class := range classes.Classes {
+		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", f.Name, class.Name)
+
+		if _, ok := visited[str]; ok {
+			continue
+		}
+		visited[str] = struct{}{}
+
+		res += str
+	}
+
+	return res
+}
+
+func (f *Function) ShortString() string {
+	var res string
+
+	if f.Name.IsMethod() {
+		res += fmt.Sprintf("Метод %s\n", f.Name)
 
 		// если функция не встроенная
-		if !IsEmbeddedFunc(fi.Pos.Filename) {
+		if !IsEmbeddedFunc(f.Pos.Filename) {
 			res += fmt.Sprintf(" Класс: ")
-			if fi.Class != nil {
-				res += fi.Class.Name
+			if f.Class != nil {
+				res += f.Class.Name
 			} else {
 				res += "undefined"
 			}
@@ -250,58 +289,58 @@ func (fi *Function) ShortString() string {
 		}
 
 	} else {
-		res += fmt.Sprintf("Функция %s\n", fi.Name)
+		res += fmt.Sprintf("Функция %s\n", f.Name)
 	}
 
 	return res
 }
 
-func (fi *Function) FullString() string {
+func (f *Function) FullString() string {
 	var res string
 
 	res += "\n"
 
-	res += fi.ShortString()
+	res += f.ShortString()
 
-	if IsEmbeddedFunc(fi.Pos.Filename) {
+	if IsEmbeddedFunc(f.Pos.Filename) {
 		res += fmt.Sprintf(" Встроенная функция\n")
 	} else {
-		res += fmt.Sprintf(" Определена здесь: %s:%d\n", fi.Pos.Filename, fi.Pos.Line)
+		res += fmt.Sprintf(" Определена здесь: %s:%d\n", f.Pos.Filename, f.Pos.Line)
 	}
 
-	res += fmt.Sprintf(" Количество использований: %d\n", fi.UsesCount)
+	res += fmt.Sprintf(" Количество использований: %d\n", f.UsesCount)
 
-	if len(fi.Called.Funcs) != 0 {
-		res += fmt.Sprintf(" Вызываемые функции (%d):\n", len(fi.Called.Funcs))
+	if len(f.Called.Funcs) != 0 {
+		res += fmt.Sprintf(" Вызываемые функции (%d):\n", len(f.Called.Funcs))
 	}
-	for _, fn := range fi.Called.Funcs {
+	for _, fn := range f.Called.Funcs {
 		res += fmt.Sprintf("   %s\n", fn.Name.Name)
 	}
 
 	return res
 }
 
-func (fi *Function) AddCalled(fn *Function) {
-	fi.Called.Add(fn)
+func (f *Function) AddCalled(fn *Function) {
+	f.Called.Add(fn)
 }
 
-func (fi *Function) AddCalledBy(fn *Function) {
-	fi.CalledBy.Add(fn)
+func (f *Function) AddCalledBy(fn *Function) {
+	f.CalledBy.Add(fn)
 }
 
-func (fi *Function) AddUse() {
-	atomic.AddInt64(&fi.UsesCount, 1)
+func (f *Function) AddUse() {
+	atomic.AddInt64(&f.UsesCount, 1)
 }
 
 // GobDecode is custom gob unmarshaller
-func (fi *Function) GobDecode(buf []byte) error {
+func (f *Function) GobDecode(buf []byte) error {
 	r := bytes.NewBuffer(buf)
 	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&fi.Name)
+	err := decoder.Decode(&f.Name)
 	if err != nil {
 		return err
 	}
-	err = decoder.Decode(&fi.Pos)
+	err = decoder.Decode(&f.Pos)
 	if err != nil {
 		return err
 	}
@@ -309,19 +348,19 @@ func (fi *Function) GobDecode(buf []byte) error {
 }
 
 // GobEncode is a custom gob marshaller
-func (fi *Function) GobEncode() ([]byte, error) {
-	if fi.Encoded {
+func (f *Function) GobEncode() ([]byte, error) {
+	if f.Encoded {
 		return nil, nil
 	}
-	fi.Encoded = true
+	f.Encoded = true
 
 	w := new(bytes.Buffer)
 	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(fi.Name)
+	err := encoder.Encode(f.Name)
 	if err != nil {
 		return nil, err
 	}
-	err = encoder.Encode(fi.Pos)
+	err = encoder.Encode(f.Pos)
 	if err != nil {
 		return nil, err
 	}

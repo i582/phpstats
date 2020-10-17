@@ -26,7 +26,6 @@ func (b *blockChecker) BeforeEnterNode(n ir.Node) {
 
 		funcInfo, ok := meta.Info.GetFunction(`\` + funcName)
 		if !ok {
-			b.root.CurFunc = nil
 			return
 		}
 
@@ -34,7 +33,6 @@ func (b *blockChecker) BeforeEnterNode(n ir.Node) {
 		if !ok {
 			return
 		}
-		b.root.CurFunc = fun
 
 		// добавляем текущую функцию в текущий файл
 		b.root.CurFile.AddFunc(fun)
@@ -102,24 +100,18 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		requiredFile.AddRequiredByFile(b.root.CurFile)
 
 	case *ir.NewExpr:
+		curClass, ok := b.root.GetCurrentClass()
+		if !ok {
+			return
+		}
+
 		classNameNode, ok := n.Class.(*ir.Name)
 		if !ok {
 			return
 		}
 		className := classNameNode.Value
 
-		if b.ctx.ClassParseState().CurrentClass == "" {
-			return
-		}
-
-		curClassName := b.ctx.ClassParseState().CurrentClass
-
 		class, ok := GlobalCtx.Classes.Get(className)
-		if !ok {
-			return
-		}
-
-		curClass, ok := GlobalCtx.Classes.Get(curClassName)
 		if !ok {
 			return
 		}
@@ -128,6 +120,11 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		curClass.AddDeps(class)
 
 	case *ir.ClassConstFetchExpr:
+		curClass, ok := b.root.GetCurrentClass()
+		if !ok {
+			return
+		}
+
 		classNameNode, ok := n.Class.(*ir.Name)
 		if !ok {
 			return
@@ -145,21 +142,21 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 
-		if b.root.CurClass != nil {
-			b.root.CurClass.AddDeps(class)
-			class.AddDepsBy(b.root.CurClass)
-		}
+		curClass.AddDeps(class)
+		class.AddDepsBy(curClass)
 
 	case *ir.SimpleVar:
-		if b.root.CurClass == nil {
+		curClass, ok := b.root.GetCurrentClass()
+		if !ok {
 			return
 		}
-		if b.root.CurMethod == nil {
+		curMethod, ok := b.root.GetCurrentFunc()
+		if !ok {
 			return
 		}
 
 		name := n.Name
-		b.root.CurClass.Fields.AddMethodAccess(NewFieldKey(name, b.root.CurClass.Name), b.root.CurMethod)
+		curClass.Fields.AddMethodAccess(NewFieldKey(name, curClass.Name), curMethod)
 
 	default:
 		return
@@ -220,12 +217,9 @@ func (b *blockChecker) handleFunc(name string) {
 }
 
 func (b *blockChecker) handleCalled(calledFunc *Function) {
-	var curFunc *Function
-
-	if b.root.CurFunc != nil {
-		curFunc = b.root.CurFunc
-	} else if b.root.CurMethod != nil {
-		curFunc = b.root.CurMethod
+	curFunc, ok := b.root.GetCurrentFunc()
+	if !ok {
+		return
 	}
 
 	if curFunc != nil {
@@ -235,9 +229,10 @@ func (b *blockChecker) handleCalled(calledFunc *Function) {
 		calledFunc.AddCalledBy(curFunc)
 	}
 
-	if b.root.CurClass != nil && calledFunc.Class != nil {
-		b.root.CurClass.AddDeps(calledFunc.Class)
-		calledFunc.Class.AddDepsBy(b.root.CurClass)
+	curClass, ok := b.root.GetCurrentClass()
+	if ok && calledFunc.Class != nil {
+		curClass.AddDeps(calledFunc.Class)
+		calledFunc.Class.AddDepsBy(curClass)
 	}
 
 	calledFunc.AddUse()
