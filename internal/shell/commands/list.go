@@ -12,7 +12,7 @@ import (
 func List() *shell.Executor {
 	listFuncExecutor := &shell.Executor{
 		Name: "funcs",
-		Help: "show list funcs",
+		Help: "show list of functions",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -50,7 +50,7 @@ func List() *shell.Executor {
 
 	listMethodExecutor := &shell.Executor{
 		Name: "methods",
-		Help: "show list methods",
+		Help: "show list of methods",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
