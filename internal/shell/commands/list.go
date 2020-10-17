@@ -26,6 +26,10 @@ func List() *shell.Executor {
 				Help:      "offset in list",
 				Default:   "0",
 			},
+			&flags.Flag{
+				Name: "-e",
+				Help: "show embedded functions",
+			},
 		),
 		Func: func(c *shell.Context) {
 			countValue := c.GetFlagValue("-c")
@@ -34,10 +38,12 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			funcs := stats.GlobalCtx.Funcs.GetAll(false, true, false, count, offset, true)
+			withEmbeddedFuncs := c.Flags.Contains("-e")
+
+			funcs := stats.GlobalCtx.Funcs.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
 
 			for _, fn := range funcs {
-				fmt.Print(fn.FullString())
+				fmt.Println(fn.FullString())
 			}
 		},
 	}
@@ -66,7 +72,7 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			funcs := stats.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true)
+			funcs := stats.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true, false)
 
 			for _, fn := range funcs {
 				fmt.Print(fn.FullString())
