@@ -2,7 +2,7 @@
 
 # phpstats
 
-phpstats is a small utility for collecting statistics on PHP projects based on [NoVerify](https://github.com/VKCOM/noverify).
+phpstats is a small utility for collecting statistics of PHP projects based on [NoVerify](https://github.com/VKCOM/noverify).
 
 #### Metrics
 
