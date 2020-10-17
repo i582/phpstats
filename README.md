@@ -34,6 +34,8 @@ Commands:
 
      class <value>     info about some class
        [-f]            output full information
+       
+     namespace <value> info about some namespace
 
   list                 list of something
      methods           show list methods

@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"phpstats/internal/shell"
 	"phpstats/internal/shell/flags"
@@ -162,6 +163,64 @@ func Info() *shell.Executor {
 		},
 	}
 
+	namespaceInfoExecutor := &shell.Executor{
+		Name:      "namespace",
+		Help:      "info about some namespace",
+		WithValue: true,
+		Flags:     flags.NewFlags(),
+		Func: func(c *shell.Context) {
+			if len(c.Args) != 1 {
+				c.Error(fmt.Errorf("команда принимает ровно один аргумент"))
+				return
+			}
+
+			namespace := c.Args[0]
+
+			classes := stats.NewClasses()
+			for _, class := range stats.GlobalCtx.Classes.Classes {
+				if strings.Contains(class.Name, namespace) {
+					classes.Add(class)
+				}
+			}
+
+			var aff float64
+			var eff float64
+
+			for _, class := range classes.Classes {
+				for _, dep := range class.Deps.Classes {
+					// если зависимость вне пространства имен
+					if !strings.Contains(dep.Name, namespace) {
+						aff++
+					}
+				}
+
+				for _, depBy := range class.DepsBy.Classes {
+					// если зависимость вне пространства имен
+					if !strings.Contains(depBy.Name, namespace) {
+						eff++
+					}
+				}
+			}
+
+			var stability float64
+			if eff+aff == 0 {
+				stability = 0
+			} else {
+				stability = eff / (eff + aff)
+			}
+
+			var res string
+
+			res += fmt.Sprintf("Пространство имен %s:\n", namespace)
+
+			res += fmt.Sprintf(" Афферентность: %.2f\n", aff)
+			res += fmt.Sprintf(" Эфферентность: %.2f\n", eff)
+			res += fmt.Sprintf(" Стабильность:  %.2f\n", stability)
+
+			fmt.Println(res)
+		},
+	}
+
 	infoExecutor := &shell.Executor{
 		Name: "info",
 		Help: "info about something",
@@ -173,6 +232,7 @@ func Info() *shell.Executor {
 	infoExecutor.AddExecutor(classInfoExecutor)
 	infoExecutor.AddExecutor(funcInfoExecutor)
 	infoExecutor.AddExecutor(fileInfoExecutor)
+	infoExecutor.AddExecutor(namespaceInfoExecutor)
 
 	return infoExecutor
 }
