@@ -12,7 +12,7 @@ import (
 )
 
 func Graph() *shell.Executor {
-	graphFileExecutor := &shell.Executor{
+	graphFuncExecutor := &shell.Executor{
 		Name:      "file",
 		Help:      "graph some file",
 		WithValue: true,
@@ -142,66 +142,6 @@ func Graph() *shell.Executor {
 		},
 	}
 
-	graphFuncExecutor := &shell.Executor{
-		Name:      "func",
-		Help:      "graph some func",
-		WithValue: true,
-		Flags: flags.NewFlags(
-			&flags.Flag{
-				Name:      "-o",
-				WithValue: true,
-				Required:  true,
-				Help:      "output file",
-			},
-			&flags.Flag{
-				Name:      "-r",
-				WithValue: true,
-				Help:      "recursive level",
-				Default:   "5",
-			},
-			&flags.Flag{
-				Name: "-show",
-				Help: "show graph sources in console",
-			},
-		),
-		Func: func(c *shell.Context) {
-			recursiveLevelValue := c.GetFlagValue("-r")
-			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
-
-			show := c.Flags.Contains("-show")
-
-			outputPath := c.GetFlagValue("-o")
-			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath\n"))
-				return
-			}
-
-			funcs, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
-			if err != nil {
-				fmt.Printf("Функция %s не найден!\n", c.Args[0])
-				return
-			}
-
-			var res string
-
-			fun, _ := stats.GlobalCtx.Funcs.Get(funcs[0])
-
-			outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				log.Fatalf("file not open %v", err)
-			}
-
-			res += fun.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
-
-			fmt.Fprint(outputFile, res)
-			outputFile.Close()
-
-			if show {
-				fmt.Println(res)
-			}
-		},
-	}
-
 	graphExecutor := &shell.Executor{
 		Name: "graph",
 		Help: "graph view",
@@ -210,9 +150,8 @@ func Graph() *shell.Executor {
 		},
 	}
 
-	graphExecutor.AddExecutor(graphFileExecutor)
-	graphExecutor.AddExecutor(graphClassExecutor)
 	graphExecutor.AddExecutor(graphFuncExecutor)
+	graphExecutor.AddExecutor(graphClassExecutor)
 
 	return graphExecutor
 }

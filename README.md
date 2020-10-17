@@ -72,11 +72,6 @@ Commands:
         -o <value>     output file
        [-r <value>]    recursive level (default: 5)
        [-show]         show graph sources in console
-       
-     func <value>      graph some func
-       [-r <value>]    recursive level (default: 5)
-       [-show]         show graph sources in console
-        -o <value>     output file
 ```
 
 ### Roadmap

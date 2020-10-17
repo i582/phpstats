@@ -243,10 +243,6 @@ func (f Function) Equal(fi2 Function) bool {
 func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {
 	var res string
 
-	if level == 0 {
-		res += "digraph test{\n"
-	}
-
 	if level > maxLevel {
 		return ""
 	}
@@ -258,10 +254,16 @@ func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[st
 			continue
 		}
 
-		res += called.Class.GraphvizRecursive(1, maxLevel+1, visited)
+		// res += called.Class.Deps.Graphviz()
+
+		res += called.GraphvizRecursive(level+1, maxLevel, visited)
 
 		classes.Add(called.Class)
 	}
+
+	// graph func -o test2.gv \VK\API\Library\DeprecatedWrappers::wrapComments -show -r 2
+
+	// res += fmt.Sprintf("   \"%s\" [shape=\"rectangle\"]\n", f.Name)
 
 	for _, class := range classes.Classes {
 		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", f.Name, class.Name)
@@ -272,10 +274,6 @@ func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[st
 		visited[str] = struct{}{}
 
 		res += str
-	}
-
-	if level == 0 {
-		res += "}\n"
 	}
 
 	return res
