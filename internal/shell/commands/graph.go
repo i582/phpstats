@@ -2,8 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"strconv"
 
 	"github.com/i582/phpstats/internal/shell"
@@ -51,11 +49,12 @@ func Graph() *shell.Executor {
 			block := c.Flags.Contains("-block")
 			show := c.Flags.Contains("-show")
 
-			outputPath := c.GetFlagValue("-o")
-			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath"))
+			output, err := c.ValidateFile("-o")
+			if err != nil {
+				c.Error(err)
 				return
 			}
+			defer output.Close()
 
 			paths, err := stats.GlobalCtx.Files.GetFullFileName(c.Args[0])
 			if err != nil {
@@ -63,22 +62,13 @@ func Graph() *shell.Executor {
 				return
 			}
 
-			var res string
-
 			file, _ := stats.GlobalCtx.Files.Get(paths[0])
+			graph := file.GraphvizRecursive(recursiveLevel, root, block)
 
-			outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				log.Fatalf("file not open %v", err)
-			}
-
-			res += file.GraphvizRecursive(recursiveLevel, root, block)
-
-			fmt.Fprint(outputFile, res)
-			outputFile.Close()
+			fmt.Fprint(output, graph)
 
 			if show {
-				fmt.Println(res)
+				fmt.Println(graph)
 			}
 		},
 	}
@@ -112,11 +102,12 @@ func Graph() *shell.Executor {
 
 			show := c.Flags.Contains("-show")
 
-			outputPath := c.GetFlagValue("-o")
-			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath"))
+			output, err := c.ValidateFile("-o")
+			if err != nil {
+				c.Error(err)
 				return
 			}
+			defer output.Close()
 
 			classes, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
@@ -124,22 +115,13 @@ func Graph() *shell.Executor {
 				return
 			}
 
-			var res string
-
 			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
+			graph := class.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
 
-			outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				log.Fatalf("file not open %v", err)
-			}
-
-			res += class.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
-
-			fmt.Fprint(outputFile, res)
-			outputFile.Close()
+			fmt.Fprint(output, graph)
 
 			if show {
-				fmt.Println(res)
+				fmt.Println(graph)
 			}
 		},
 	}
@@ -148,6 +130,7 @@ func Graph() *shell.Executor {
 		Name:      "func",
 		Help:      "dependency graph for function",
 		WithValue: true,
+		CountArgs: 1,
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-o",
@@ -172,11 +155,12 @@ func Graph() *shell.Executor {
 
 			show := c.Flags.Contains("-show")
 
-			outputPath := c.GetFlagValue("-o")
-			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath"))
+			output, err := c.ValidateFile("-o")
+			if err != nil {
+				c.Error(err)
 				return
 			}
+			defer output.Close()
 
 			funcs, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
 			if err != nil {
@@ -184,22 +168,13 @@ func Graph() *shell.Executor {
 				return
 			}
 
-			var res string
-
 			fun, _ := stats.GlobalCtx.Funcs.Get(funcs[0])
+			graph := fun.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
 
-			outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				c.Error(fmt.Errorf("file not open %v", err))
-			}
-
-			res += fun.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
-
-			fmt.Fprint(outputFile, res)
-			outputFile.Close()
+			fmt.Fprint(output, graph)
 
 			if show {
-				fmt.Println(res)
+				fmt.Println(graph)
 			}
 		},
 	}
