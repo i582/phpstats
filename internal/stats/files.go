@@ -120,6 +120,8 @@ type File struct {
 
 	Classes *Classes
 	Funcs   *Functions
+
+	CountLines int64
 }
 
 func NewFile(path string) *File {
