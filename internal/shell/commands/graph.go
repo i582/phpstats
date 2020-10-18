@@ -52,6 +52,7 @@ func Graph() *shell.Executor {
 			output, err := c.ValidateFile("-o")
 			if err != nil {
 				c.Error(err)
+				return
 			}
 			defer output.Close()
 
@@ -104,6 +105,7 @@ func Graph() *shell.Executor {
 			output, err := c.ValidateFile("-o")
 			if err != nil {
 				c.Error(err)
+				return
 			}
 			defer output.Close()
 
@@ -153,15 +155,10 @@ func Graph() *shell.Executor {
 
 			show := c.Flags.Contains("-show")
 
-			outputPath := c.GetFlagValue("-o")
-			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath"))
-				return
-			}
-
 			output, err := c.ValidateFile("-o")
 			if err != nil {
 				c.Error(err)
+				return
 			}
 			defer output.Close()
 
