@@ -75,7 +75,7 @@ func Graph() *shell.Executor {
 
 	graphClassExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "dependency graph for class",
+		Help:      "dependency graph for class or interface",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -96,6 +96,7 @@ func Graph() *shell.Executor {
 			},
 		),
 		CountArgs: 1,
+		Aliases:   []string{"interface"},
 		Func: func(c *shell.Context) {
 			recursiveLevelValue := c.GetFlagValue("-r")
 			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
@@ -128,9 +129,10 @@ func Graph() *shell.Executor {
 
 	graphFuncExecutor := &shell.Executor{
 		Name:      "func",
-		Help:      "dependency graph for function",
+		Help:      "dependency graph for function or method",
 		WithValue: true,
 		CountArgs: 1,
+		Aliases:   []string{"method"},
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-o",

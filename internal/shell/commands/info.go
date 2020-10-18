@@ -21,10 +21,15 @@ func Info() *shell.Executor {
 				Name: "-f",
 				Help: "output full information",
 			},
+			&flags.Flag{
+				Name: "-metrics",
+				Help: "output only metrics",
+			},
 		),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
+			onlyMetrics := c.Flags.Contains("-metrics")
 
 			classNames, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
@@ -43,6 +48,11 @@ func Info() *shell.Executor {
 			}
 
 			class, _ := stats.GlobalCtx.Classes.Get(className)
+
+			if onlyMetrics {
+				fmt.Println(class.OnlyMetricsString())
+				return
+			}
 
 			if full {
 				fmt.Println(class.ExtraFullString(0))

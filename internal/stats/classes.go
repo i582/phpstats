@@ -261,6 +261,27 @@ func (c *Class) FullString(level int, withAff bool) string {
 	return res
 }
 
+func (c *Class) OnlyMetricsString() string {
+	var res string
+
+	res += c.ShortString(0)
+
+	aff, eff, stab := AfferentEfferentStabilityOfClass(c)
+
+	res += fmt.Sprintf(" Afferent:  %.2f\n", aff)
+	res += fmt.Sprintf(" Efferent:  %.2f\n", eff)
+	res += fmt.Sprintf(" Stability: %.2f\n", stab)
+
+	lcom, ok := LackOfCohesionInMethodsOfCLass(c)
+	if !ok {
+		res += fmt.Sprintf(" LCOM: undefined (the number of methods or fields is zero)\n")
+	} else {
+		res += fmt.Sprintf(" LCOM: %.6f\n", lcom)
+	}
+
+	return res
+}
+
 func (c *Class) ExtraFullString(level int) string {
 	var res string
 
