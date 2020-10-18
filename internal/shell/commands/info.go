@@ -185,14 +185,12 @@ func Info() *shell.Executor {
 
 			for _, class := range classes.Classes {
 				for _, dep := range class.Deps.Classes {
-					// если зависимость вне пространства имен
 					if !strings.Contains(dep.Name, namespace) {
 						aff++
 					}
 				}
 
 				for _, depBy := range class.DepsBy.Classes {
-					// если зависимость вне пространства имен
 					if !strings.Contains(depBy.Name, namespace) {
 						eff++
 					}
@@ -208,11 +206,11 @@ func Info() *shell.Executor {
 
 			var res string
 
-			res += fmt.Sprintf("Пространство имен %s:\n", namespace)
+			res += fmt.Sprintf("Namespace %s:\n", namespace)
 
-			res += fmt.Sprintf(" Афферентность: %.2f\n", aff)
-			res += fmt.Sprintf(" Эфферентность: %.2f\n", eff)
-			res += fmt.Sprintf(" Стабильность:  %.2f\n", stability)
+			res += fmt.Sprintf(" Afferent:  %.2f\n", aff)
+			res += fmt.Sprintf(" Efferent:  %.2f\n", eff)
+			res += fmt.Sprintf(" Stability: %.2f\n", stability)
 
 			fmt.Println(res)
 		},
