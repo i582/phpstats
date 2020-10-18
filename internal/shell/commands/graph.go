@@ -53,7 +53,7 @@ func Graph() *shell.Executor {
 
 			outputPath := c.GetFlagValue("-o")
 			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath\n"))
+				c.Error(fmt.Errorf("invalid filepath"))
 				return
 			}
 
@@ -114,7 +114,7 @@ func Graph() *shell.Executor {
 
 			outputPath := c.GetFlagValue("-o")
 			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath\n"))
+				c.Error(fmt.Errorf("invalid filepath"))
 				return
 			}
 
@@ -174,7 +174,7 @@ func Graph() *shell.Executor {
 
 			outputPath := c.GetFlagValue("-o")
 			if outputPath == "" {
-				c.Error(fmt.Errorf("invalid filepath\n"))
+				c.Error(fmt.Errorf("invalid filepath"))
 				return
 			}
 

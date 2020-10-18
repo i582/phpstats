@@ -43,67 +43,67 @@ After collecting information, you will be taken to an interactive shell, type `h
 
 ```
 >>> help
-Commands:
-  info                 info about
-     class <value>     info about class
-       [-f]            output full information
+  info                                info about
+     class (or interface) <value>     info about class or interface
+       [-f]                           output full information
 
-     func <value>      info about function
-       [-f]            output full information
+     func (or method) <value>         info about function or method
+       [-f]                           output full information
 
-     file <value>      info about file
-       [-f]            output full information
-       [-r <value>]    output recursive (default: 5)
+     file  <value>                    info about file
+       [-r <value>]                   output recursive (default: 5)
+       [-f]                           output full information
 
-     namespace <value> info about namespace
+     namespace  <value>               info about namespace
 
-  list                 list of
-     interfaces        show list of interfaces
-       [-o <value>]    offset in list (default: 0)
-       [-f]            show full information
-       [-c <value>]    count in list (default: 10)
+  list                                list of
+     funcs                            show list of functions
+       [-c <value>]                   count in list (default: 10)
+       [-o <value>]                   offset in list (default: 0)
+       [-e]                           show embedded functions
 
-     funcs             show list of functions
-       [-o <value>]    offset in list (default: 0)
-       [-e]            show embedded functions
-       [-c <value>]    count in list (default: 10)
+     methods                          show list of methods
+       [-c <value>]                   count in list (default: 10)
+       [-o <value>]                   offset in list (default: 0)
 
-     methods           show list of methods
-       [-c <value>]    count in list (default: 10)
-       [-o <value>]    offset in list (default: 0)
+     files                            show list of files
+       [-c <value>]                   count in list (default: 10)
+       [-o <value>]                   offset in list (default: 0)
+       [-f]                           show full information
 
-     files             show list of files
-       [-c <value>]    count in list (default: 10)
-       [-o <value>]    offset in list (default: 0)
-       [-f]            show full information
+     classes                          show list of classes
+       [-o <value>]                   offset in list (default: 0)
+       [-f]                           show full information
+       [-c <value>]                   count in list (default: 10)
 
-     classes           show list of classes
-       [-c <value>]    count in list (default: 10)
-       [-o <value>]    offset in list (default: 0)
-       [-f]            show full information
+     interfaces                       show list of interfaces
+       [-o <value>]                   offset in list (default: 0)
+       [-f]                           show full information
+       [-c <value>]                   count in list (default: 10)
 
-  graph                dependencies graph view
-     file <value>      dependency graph for file
-       [-show]         show graph file in console
-        -o <value>     output file
-       [-r <value>]    recursive level (default: 5)
-       [-root]         only root require
-       [-block]        only block require
+  graph                               dependencies graph view
+     class  <value>                   dependency graph for class
+        -o <value>                    output file
+       [-r <value>]                   recursive level (default: 5)
+       [-show]                        show graph file in console
 
-     class <value>     dependency graph for class
-        -o <value>     output file
-       [-r <value>]    recursive level (default: 5)
-       [-show]         show graph file in console
+     func  <value>                    dependency graph for function
+       [-show]                        show graph file in console
+        -o <value>                    output file
+       [-r <value>]                   recursive level (default: 5)
 
-     func <value>      dependency graph for function
-       [-r <value>]    recursive level (default: 5)
-       [-show]         show graph file in console
-        -o <value>     output file
-        
-  brief                shows general information
-  clear                clear screen
-  exit                 exit program
-  help                 help page
+     file  <value>                    dependency graph for file
+        -o <value>                    output file
+       [-r <value>]                   recursive level (default: 5)
+       [-root]                        only root require
+       [-block]                       only block require
+       [-show]                        show graph file in console
+
+  brief                               shows general information
+  help                                help page
+  clear                               clear screen
+  exit                                exit the program
+
 ```
 
 ## License

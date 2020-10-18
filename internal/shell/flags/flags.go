@@ -31,9 +31,9 @@ func (f *Flag) String() string {
 	}
 
 	if f.Required {
-		res += fmt.Sprintf(" %s%-*s  %s%s", f.Name, 14-len(f.Name)-1, withValueSpan, f.Help, defaultSpan)
+		res += fmt.Sprintf(" %s%-*s  %s%s", f.Name, 29-len(f.Name)-1, withValueSpan, f.Help, defaultSpan)
 	} else {
-		res += fmt.Sprintf("[%s%s]%-*s %s%s", f.Name, withValueSpan, 14-len(f.Name)-len(withValueSpan)-1, "", f.Help, defaultSpan)
+		res += fmt.Sprintf("[%s%s]%-*s %s%s", f.Name, withValueSpan, 29-len(f.Name)-len(withValueSpan)-1, "", f.Help, defaultSpan)
 	}
 
 	return res
