@@ -16,9 +16,6 @@ type GlobalContext struct {
 	Classes   *Classes
 	Files     *Files
 	Constants *Constants
-
-	Decoded bool
-	Encoded bool
 }
 
 func (ctx *GlobalContext) Version() string {

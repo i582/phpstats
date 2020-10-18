@@ -57,6 +57,7 @@ func RunPhplinterTool(tool *PhplinterTool) {
 	s.AddExecutor(commands.Info())
 	s.AddExecutor(commands.List())
 	s.AddExecutor(commands.Graph())
+	s.AddExecutor(commands.Brief())
 
 	s.Run()
 }

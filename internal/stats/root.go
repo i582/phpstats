@@ -1,6 +1,8 @@
 package stats
 
 import (
+	"bytes"
+
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/solver"
@@ -19,6 +21,8 @@ type rootChecker struct {
 func (r *rootChecker) BeforeEnterFile() {
 	filename := r.ctx.Filename()
 	r.CurFile = GlobalCtx.Files.GetOrCreate(filename)
+	// hack, yet
+	r.CurFile.CountLines = int64(bytes.Count(r.ctx.FileContents(), []byte("\n")) + 1)
 }
 
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
