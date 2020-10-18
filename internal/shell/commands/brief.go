@@ -37,13 +37,13 @@ func Brief() *shell.Executor {
 				countLines += file.CountLines
 			}
 
-			fmt.Printf("Общая статистика по проекту\n")
-			fmt.Printf("Классов:    %d\n", stats.GlobalCtx.Classes.Len())
-			fmt.Printf("  Методов:  %d\n", countMethods)
-			fmt.Printf("  Констант: %d\n", stats.GlobalCtx.Constants.Len())
-			fmt.Printf("Функций:    %d\n", countFuncs)
-			fmt.Printf("Файлов:     %d\n", stats.GlobalCtx.Files.Len())
-			fmt.Printf("Строк кода: %d\n", countLines)
+			fmt.Printf("General project statistics\n")
+			fmt.Printf("Classes:       %d\n", stats.GlobalCtx.Classes.Len())
+			fmt.Printf("  Methods:     %d\n", countMethods)
+			fmt.Printf("  Constants:   %d\n", stats.GlobalCtx.Constants.Len())
+			fmt.Printf("Functions:     %d\n", countFuncs)
+			fmt.Printf("Files:         %d\n", stats.GlobalCtx.Files.Len())
+			fmt.Printf("Lines of code: %d\n", countLines)
 
 			fmt.Println()
 		},

@@ -259,18 +259,18 @@ func (f *File) FullString(level int) string {
 	res += f.ShortString(level)
 
 	if f.RequiredRoot.Len() != 0 {
-		res += fmt.Sprintf("%sПодключаемые файлы в корне:\n", utils.GenIndent(level))
+		res += fmt.Sprintf("%sInclude files at the root:\n", utils.GenIndent(level))
 	} else {
-		res += fmt.Sprintf("%sПодключаемых файлов в корне нет\n", utils.GenIndent(level))
+		res += fmt.Sprintf("%sNo include files in the root\n", utils.GenIndent(level))
 	}
 	for _, f := range f.RequiredRoot.Files {
 		res += f.ExtraShortString(level + 1)
 	}
 
 	if f.RequiredBlock.Len() != 0 {
-		res += fmt.Sprintf("%sПодключаемые файлы в функциях:\n", utils.GenIndent(level))
+		res += fmt.Sprintf("%sInclude files in functions:\n", utils.GenIndent(level))
 	} else {
-		res += fmt.Sprintf("%sПодключаемых файлов в функциях нет\n", utils.GenIndent(level))
+		res += fmt.Sprintf("%sNo include files in functions\n", utils.GenIndent(level))
 	}
 	for _, f := range f.RequiredBlock.Files {
 		res += f.ExtraShortString(level + 1)
@@ -284,8 +284,8 @@ func (f *File) FullString(level int) string {
 func (f *File) ShortString(level int) string {
 	var res string
 
-	res += fmt.Sprintf("%sИмя:  %s\n", utils.GenIndent(level), f.Name)
-	res += fmt.Sprintf("%sПуть: %s\n", utils.GenIndent(level), f.Path)
+	res += fmt.Sprintf("%sName: %s\n", utils.GenIndent(level), f.Name)
+	res += fmt.Sprintf("%sPath: %s\n", utils.GenIndent(level), f.Path)
 
 	return res
 }

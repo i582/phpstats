@@ -51,7 +51,7 @@ func CollectMain() error {
 	os.Args = args
 
 	if len(os.Args) < 2 {
-		log.Fatalf("Слишком мало аргументов")
+		log.Fatalf("Error: too few arguments")
 	}
 
 	if flag, ok := fs.Get("--project-path"); ok {
@@ -61,7 +61,7 @@ func CollectMain() error {
 	}
 
 	if _, err := os.Stat(ProjectRoot); os.IsNotExist(err) {
-		log.Fatalf("Невалидный путь к проекту: %v", err)
+		log.Fatalf("Error: invalid project path: %v", err)
 	}
 
 	_, _ = cmd.Run(&cmd.MainConfig{

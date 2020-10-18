@@ -264,10 +264,10 @@ func (f *Function) ShortString() string {
 	var res string
 
 	if f.Name.IsMethod() {
-		res += fmt.Sprintf("Метод %s\n", f.Name)
+		res += fmt.Sprintf("Method %s\n", f.Name)
 
 		if !IsEmbeddedFunc(f.Pos.Filename) {
-			res += fmt.Sprintf(" Класс: ")
+			res += fmt.Sprintf(" Class: ")
 			if f.Class != nil {
 				res += f.Class.Name
 			} else {
@@ -277,7 +277,7 @@ func (f *Function) ShortString() string {
 		}
 
 	} else {
-		res += fmt.Sprintf("Функция %s\n", f.Name)
+		res += fmt.Sprintf("Function %s\n", f.Name)
 	}
 
 	return res
@@ -289,15 +289,15 @@ func (f *Function) FullString() string {
 	res += f.ShortString()
 
 	if IsEmbeddedFunc(f.Pos.Filename) {
-		res += fmt.Sprintf(" Встроенная функция\n")
+		res += fmt.Sprintf(" Embedded function\n")
 	} else {
-		res += fmt.Sprintf(" Определена здесь: %s:%d\n", f.Pos.Filename, f.Pos.Line)
+		res += fmt.Sprintf(" Defined here: %s:%d\n", f.Pos.Filename, f.Pos.Line)
 	}
 
-	res += fmt.Sprintf(" Количество использований: %d\n", f.UsesCount)
+	res += fmt.Sprintf(" Number of uses: %d\n", f.UsesCount)
 
 	if len(f.Called.Funcs) != 0 {
-		res += fmt.Sprintf(" Вызываемые функции (%d):\n", len(f.Called.Funcs))
+		res += fmt.Sprintf(" Called functions (%d):\n", len(f.Called.Funcs))
 	}
 	for _, fn := range f.Called.Funcs {
 		res += fmt.Sprintf("   %s\n", fn.Name.Name)
