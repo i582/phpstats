@@ -223,25 +223,25 @@ func (c *Class) AffEffString(full bool) string {
 
 	aff, eff, stab := AfferentEfferentStabilityOfClass(c)
 
-	res += fmt.Sprintf(" Афферентность: %.2f\n", aff)
+	res += fmt.Sprintf(" Afferent: %.2f\n", aff)
 	if full {
 		for _, class := range c.DepsBy.Classes {
 			res += fmt.Sprintf("%s", class.ExtraShortString(2))
 		}
 	}
 
-	res += fmt.Sprintf(" Эфферентность: %.2f\n", eff)
+	res += fmt.Sprintf(" Efferent: %.2f\n", eff)
 	if full {
 		for _, class := range c.Deps.Classes {
 			res += fmt.Sprintf("%s", class.ExtraShortString(2))
 		}
 	}
 
-	res += fmt.Sprintf(" Стабильность:  %.2f\n", stab)
+	res += fmt.Sprintf(" Stability:  %.2f\n", stab)
 
 	lcom, ok := LackOfCohesionInMethodsOfCLass(c)
 	if !ok {
-		res += fmt.Sprintf(" LCOM: undefined (количество методов или полей равно нулю)\n")
+		res += fmt.Sprintf(" LCOM: undefined (the number of methods or fields is zero)\n")
 	} else {
 		res += fmt.Sprintf(" LCOM: %.6f\n", lcom)
 	}
@@ -269,35 +269,35 @@ func (c *Class) ExtraFullString(level int) string {
 	res += c.AffEffString(true)
 
 	if c.Implements.Len() != 0 {
-		res += fmt.Sprintf(" Реализует:\n")
+		res += fmt.Sprintf(" Implements:\n")
 	}
 	for _, class := range c.Implements.Classes {
 		res += fmt.Sprintf("%s", class.ShortStringWithPrefix(level+1, " ↳ "))
 	}
 
 	if c.Extends.Len() != 0 {
-		res += fmt.Sprintf(" Расширяет:\n")
+		res += fmt.Sprintf(" Extends:\n")
 	}
 	for _, class := range c.Extends.Classes {
 		res += fmt.Sprintf("%s", class.ShortStringWithPrefix(level+1, " ↳ "))
 	}
 
 	if c.Methods.Len() != 0 {
-		res += fmt.Sprintf(" Методы (%d):\n", c.Methods.Len())
+		res += fmt.Sprintf(" Methods (%d):\n", c.Methods.Len())
 	}
 	for _, method := range c.Methods.Funcs {
 		res += fmt.Sprintf("   %s\n", method.Name.Name)
 	}
 
 	if c.Fields.Len() != 0 {
-		res += fmt.Sprintf(" Поля (%d):\n", c.Fields.Len())
+		res += fmt.Sprintf(" Fields (%d):\n", c.Fields.Len())
 	}
 	for _, field := range c.Fields.Fields {
 		res += fmt.Sprintf("   %s\n", field.Name)
 	}
 
 	if c.Constants.Len() != 0 {
-		res += fmt.Sprintf(" Константы (%d):\n", c.Constants.Len())
+		res += fmt.Sprintf(" Constants (%d):\n", c.Constants.Len())
 	}
 	for _, constant := range c.Constants.Constants {
 		res += fmt.Sprintf("   %s\n", constant.Name)
@@ -310,12 +310,12 @@ func (c *Class) ExtraShortString(level int) string {
 	var res string
 
 	if c.IsInterface {
-		res += fmt.Sprintf("%sИнтерфейс %s\n", utils.GenIndent(level-1), c.Name)
+		res += fmt.Sprintf("%sInterface %s\n", utils.GenIndent(level-1), c.Name)
 	} else {
 		if c.IsAbstract {
-			res += fmt.Sprintf("%sАбстрактный класс %s\n", utils.GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%sAbstract class %s\n", utils.GenIndent(level-1), c.Name)
 		} else {
-			res += fmt.Sprintf("%sКласс %s\n", utils.GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%sClass %s\n", utils.GenIndent(level-1), c.Name)
 		}
 	}
 
@@ -330,16 +330,16 @@ func (c *Class) ShortStringWithPrefix(level int, prefix string) string {
 	var res string
 
 	if c.IsInterface {
-		res += fmt.Sprintf("%s%sИнтерфейс %s\n", prefix, utils.GenIndent(level-1), c.Name)
+		res += fmt.Sprintf("%sInterface %s\n", utils.GenIndent(level-1), c.Name)
 	} else {
 		if c.IsAbstract {
-			res += fmt.Sprintf("%s%sАбстрактный класс %s\n", prefix, utils.GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%sAbstract class %s\n", utils.GenIndent(level-1), c.Name)
 		} else {
-			res += fmt.Sprintf("%s%sКласс %s\n", prefix, utils.GenIndent(level-1), c.Name)
+			res += fmt.Sprintf("%sClass %s\n", utils.GenIndent(level-1), c.Name)
 		}
 	}
-	res += fmt.Sprintf("%s Имя:  %s\n", utils.GenIndent(level), c.Name)
-	res += fmt.Sprintf("%s Файл: %s:0\n", utils.GenIndent(level), c.File.Path)
+	res += fmt.Sprintf("%s Name: %s\n", utils.GenIndent(level), c.Name)
+	res += fmt.Sprintf("%s File: %s:0\n", utils.GenIndent(level), c.File.Path)
 
 	return res
 }
