@@ -139,7 +139,7 @@ func Info() *shell.Executor {
 			if recursive {
 				count, err := strconv.ParseInt(recursiveFlag.Value, 0, 64)
 				if err != nil {
-					c.Error(fmt.Errorf("значение флага должно быть числом"))
+					c.Error(fmt.Errorf("flag value must be a number"))
 				}
 
 				fmt.Println(file.FullStringRecursive(int(count)))

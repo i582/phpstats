@@ -58,7 +58,7 @@ func Graph() *shell.Executor {
 
 			paths, err := stats.GlobalCtx.Files.GetFullFileName(c.Args[0])
 			if err != nil {
-				fmt.Printf("Файл %s не найден!\n", c.Args[0])
+				c.Error(err)
 				return
 			}
 
@@ -111,7 +111,7 @@ func Graph() *shell.Executor {
 
 			classes, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
-				fmt.Printf("Класс %s не найден!\n", c.Args[0])
+				c.Error(err)
 				return
 			}
 
@@ -164,7 +164,7 @@ func Graph() *shell.Executor {
 
 			funcs, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
 			if err != nil {
-				fmt.Printf("Функция %s не найден!\n", c.Args[0])
+				c.Error(err)
 				return
 			}
 

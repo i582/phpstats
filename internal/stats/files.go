@@ -38,7 +38,7 @@ func (f *Files) GetFullFileName(name string) ([]string, error) {
 	}
 
 	if len(res) == 0 {
-		return res, fmt.Errorf("class %s not found", name)
+		return res, fmt.Errorf("file %s not found", name)
 	}
 
 	return res, nil
