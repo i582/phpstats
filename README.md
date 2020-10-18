@@ -100,6 +100,7 @@ Commands:
        [-show]         show graph file in console
         -o <value>     output file
         
+  brief                shows general information
   clear                clear screen
   exit                 exit program
   help                 help page
