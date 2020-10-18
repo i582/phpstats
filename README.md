@@ -46,12 +46,13 @@ After collecting information, you will be taken to an interactive shell, type `h
   info                                info about
      class (or interface) <value>     info about class or interface
        [-f]                           output full information
-
-     func (or method) <value>         info about function or method
-       [-f]                           output full information
+       [-metrics]                     output only metrics
 
      file  <value>                    info about file
        [-r <value>]                   output recursive (default: 5)
+       [-f]                           output full information
+
+     func (or method) <value>         info about function or method
        [-f]                           output full information
 
      namespace  <value>               info about namespace
