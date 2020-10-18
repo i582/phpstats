@@ -97,8 +97,10 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 		ctx.Funcs.Add(fun)
 	}
 
-	for _, constant := range f.Constants.Constants {
-		ctx.Constants.Add(constant)
+	if f.Constants != nil {
+		for _, constant := range f.Constants.Constants {
+			ctx.Constants.Add(constant)
+		}
 	}
 }
 
