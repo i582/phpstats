@@ -18,7 +18,7 @@ type Shell struct {
 }
 
 func (s *Shell) Error(msg string) {
-	color.Red.Printf("Error: %v", msg)
+	color.Red.Printf("Error: %v\n", msg)
 }
 
 func (s *Shell) AddExecutor(exec *Executor) {
@@ -99,7 +99,7 @@ func (s *Shell) Run() {
 
 		e, has := s.Execs[command]
 		if !has {
-			s.Error(fmt.Sprintf("command %s not found\n", command))
+			s.Error(fmt.Sprintf("command %s not found", command))
 			continue
 		}
 

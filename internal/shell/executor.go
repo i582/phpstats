@@ -2,6 +2,7 @@ package shell
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/utils"
@@ -12,6 +13,8 @@ type Executors map[string]*Executor
 type Executor struct {
 	Name string
 	Help string
+
+	Aliases []string
 
 	WithValue bool
 
@@ -31,7 +34,12 @@ func (e *Executor) HelpPage(level int) string {
 		withValueSpan = "<value>"
 	}
 
-	res += fmt.Sprintf("%s  %s %-*s%s\n", utils.GenIndent(level), e.Name, 20-len(utils.GenIndent(level))-len(e.Name), withValueSpan, e.Help)
+	aliases := strings.Join(e.Aliases, ",")
+	if aliases != "" {
+		aliases = "(or " + aliases + ")"
+	}
+
+	res += fmt.Sprintf("%s  %s %s %-*s%s\n", utils.GenIndent(level), e.Name, aliases, 35-len(utils.GenIndent(level))-len(e.Name)-len(aliases)-1, withValueSpan, e.Help)
 
 	if e.Flags != nil {
 		for _, flag := range e.Flags.Flags {
@@ -46,15 +54,31 @@ func (e *Executor) HelpPage(level int) string {
 	return res
 }
 
+func (e *Executor) findSubExec(name string) (*Executor, bool) {
+	for _, exec := range e.SubExecs {
+		if exec.Name == name {
+			return exec, true
+		} else {
+			for _, alias := range exec.Aliases {
+				if alias == name {
+					return exec, true
+				}
+			}
+		}
+	}
+
+	return nil, false
+}
+
 func (e *Executor) Execute(ctx *Context) {
 	if e.Flags == nil {
 		e.Flags = flags.NewFlags()
 	}
 
 	if len(ctx.Args) > 0 {
-		arg := ctx.Args[0]
+		command := ctx.Args[0]
 
-		if exec, ok := e.SubExecs[arg]; ok {
+		if exec, ok := e.findSubExec(command); ok {
 			exec.Execute(&Context{
 				Args:  ctx.Args[1:],
 				Flags: flags.NewFlags(),

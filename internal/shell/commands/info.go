@@ -13,8 +13,9 @@ import (
 func Info() *shell.Executor {
 	classInfoExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "info about class",
+		Help:      "info about class or interface",
 		WithValue: true,
+		Aliases:   []string{"interface"},
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name: "-f",
@@ -53,8 +54,9 @@ func Info() *shell.Executor {
 
 	funcInfoExecutor := &shell.Executor{
 		Name:      "func",
-		Help:      "info about function",
+		Help:      "info about function or method",
 		WithValue: true,
+		Aliases:   []string{"method"},
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name: "-f",

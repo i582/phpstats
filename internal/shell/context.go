@@ -16,7 +16,7 @@ type Context struct {
 }
 
 func (c *Context) Error(err error) {
-	color.Red.Printf("Error: %v", err)
+	color.Red.Printf("Error: %v\n", err)
 }
 
 func (c *Context) ContainsFlag(flag string) bool {
