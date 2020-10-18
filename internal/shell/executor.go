@@ -68,7 +68,7 @@ func (e *Executor) Execute(ctx *Context) {
 	ctx.Exec = e
 
 	if e.CountArgs != -1 && len(ctx.Args) != e.CountArgs {
-		ctx.Error(fmt.Errorf("команда %s принимает ровно %d аргумент(а/ов)\n", e.Name, e.CountArgs))
+		ctx.Error(fmt.Errorf("command %s takes exactly %d argument\n", e.Name, e.CountArgs))
 		return
 	}
 
