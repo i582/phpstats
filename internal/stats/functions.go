@@ -300,10 +300,22 @@ func (f *Function) FullString() string {
 		res += fmt.Sprintf(" Called functions (%d):\n", len(f.Called.Funcs))
 	}
 	for _, fn := range f.Called.Funcs {
-		res += fmt.Sprintf("   %s\n", fn.Name.Name)
+		res += fmt.Sprintf("   %s\n", fn.getName(f))
 	}
 
 	return res
+}
+
+func (f *Function) getName(caller *Function) string {
+	if !f.Name.IsMethod() {
+		return f.Name.Name
+	}
+
+	if caller.Class != nil && f.Class != nil && caller.Class == f.Class {
+		return "self::" + f.Name.Name
+	}
+
+	return f.Name.String()
 }
 
 func (f *Function) AddCalled(fn *Function) {
