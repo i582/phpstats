@@ -100,9 +100,10 @@ func Info() *shell.Executor {
 			fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
 			if full {
+				// yet
 				fmt.Println(fn.FullString())
 			} else {
-				fmt.Println(fn.ShortString())
+				fmt.Println(fn.FullString())
 			}
 		},
 	}
