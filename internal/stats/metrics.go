@@ -6,8 +6,8 @@ import (
 )
 
 func AfferentEfferentStabilityOfClass(c *Class) (aff, eff, stab float64) {
-	efferent := float64(len(c.Deps.Classes))
-	afferent := float64(len(c.DepsBy.Classes))
+	efferent := float64(c.Deps.Len())
+	afferent := float64(c.DepsBy.Len())
 
 	var stability float64
 	if efferent+afferent == 0 {
