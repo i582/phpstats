@@ -246,6 +246,9 @@ func (c *Class) AffEffString(full bool) string {
 		res += fmt.Sprintf(" LCOM: %.6f\n", lcom)
 	}
 
+	lcom4 := Lcom4(c)
+	res += fmt.Sprintf(" LCOM4: %d\n", lcom4)
+
 	return res
 }
 
@@ -278,6 +281,9 @@ func (c *Class) OnlyMetricsString() string {
 	} else {
 		res += fmt.Sprintf(" LCOM: %.6f\n", lcom)
 	}
+
+	lcom4 := Lcom4(c)
+	res += fmt.Sprintf(" LCOM4: %d\n", lcom4)
 
 	return res
 }

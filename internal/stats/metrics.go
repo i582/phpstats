@@ -1,5 +1,10 @@
 package stats
 
+import (
+	"gonum.org/v1/gonum/graph/simple"
+	"gonum.org/v1/gonum/graph/topo"
+)
+
 func AfferentEfferentStabilityOfClass(c *Class) (aff, eff, stab float64) {
 	efferent := float64(len(c.Deps.Classes))
 	afferent := float64(len(c.DepsBy.Classes))
@@ -27,4 +32,43 @@ func LackOfCohesionInMethodsOfCLass(c *Class) (float64, bool) {
 	}
 
 	return -1, false
+}
+
+func Lcom4(c *Class) int64 {
+	g := simple.NewUndirectedGraph()
+
+	for _, method := range c.Methods.Funcs {
+		g.AddNode(method)
+	}
+
+	for _, method := range c.Methods.Funcs {
+		for _, called := range method.Called.Funcs {
+			if _, ok := c.Methods.Get(called.Name); ok && method != called {
+				g.SetEdge(simple.Edge{
+					F: method,
+					T: called,
+				})
+			}
+		}
+	}
+
+	for _, field := range c.Fields.Fields {
+		functions := make([]*Function, 0, len(field.Used))
+
+		for used := range field.Used {
+			functions = append(functions, used)
+		}
+
+		for i := 0; i < len(functions)-1; i++ {
+			for j := i + 1; j < len(functions); j++ {
+				g.SetEdge(simple.Edge{
+					F: functions[i],
+					T: functions[j],
+				})
+			}
+		}
+	}
+
+	connectedComponents := topo.ConnectedComponents(g)
+	return int64(len(connectedComponents))
 }

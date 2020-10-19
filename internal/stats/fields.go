@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"sync"
+	"sync/atomic"
 )
 
 type FieldKey struct {
@@ -18,23 +19,33 @@ func NewFieldKey(name, class string) FieldKey {
 	}
 }
 
+var FieldsCount int64
+
 type Field struct {
 	Name  string
 	Class string
 
 	Used map[*Function]struct{}
+
+	Id int64
 }
 
 func NewField(name, class string) *Field {
+	atomic.AddInt64(&FieldsCount, 1)
 	return &Field{
 		Name:  name,
 		Class: class,
 		Used:  map[*Function]struct{}{},
+		Id:    FieldsCount,
 	}
 }
 
-func (c *Field) String() string {
-	return c.Class + "::" + c.Name
+func (f *Field) ID() int64 {
+	return f.Id
+}
+
+func (f *Field) String() string {
+	return f.Class + "::" + f.Name
 }
 
 type Fields struct {
