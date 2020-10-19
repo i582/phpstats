@@ -171,6 +171,8 @@ func (fi *Functions) GetOrCreateMethod(fn FuncKey, pos meta.ElementPosition, cla
 	return f
 }
 
+var FunctionCount int64
+
 type Function struct {
 	Name FuncKey
 	Pos  meta.ElementPosition
@@ -182,25 +184,29 @@ type Function struct {
 
 	// Method part
 	Class *Class
+
+	Id int64
+}
+
+func (f *Function) ID() int64 {
+	return f.Id
 }
 
 func NewFunctionInfo(name FuncKey, pos meta.ElementPosition) *Function {
+	atomic.AddInt64(&FunctionCount, 1)
 	return &Function{
 		Name:     name,
 		Called:   NewFunctionsInfo(),
 		CalledBy: NewFunctionsInfo(),
 		Pos:      pos,
+		Id:       FunctionCount,
 	}
 }
 
 func NewMethodInfo(name FuncKey, pos meta.ElementPosition, class *Class) *Function {
-	return &Function{
-		Name:     name,
-		Called:   NewFunctionsInfo(),
-		CalledBy: NewFunctionsInfo(),
-		Pos:      pos,
-		Class:    class,
-	}
+	method := NewFunctionInfo(name, pos)
+	method.Class = class
+	return method
 }
 
 func IsEmbeddedFunc(name string) bool {
