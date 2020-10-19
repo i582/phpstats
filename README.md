@@ -8,16 +8,17 @@ phpstats is a small utility for collecting statistics of PHP projects based on [
 
 The following metrics are currently available:
 
-1. Afferent couplings
-   1. for classes
-   2. for namespaces
-2. Efferent couplings
-   1. for classes
-   2. for namespaces
-3. Stability
-   1. for the classes
-   2. for namespaces
-4. Lack of Cohesion in Methods for classes
+1. Afferent couplings:
+   1. for classes;
+   2. for namespaces;
+2. Efferent couplings:
+   1. for classes;
+   2. for namespaces;
+3. Stability:
+   1. for the classes;
+   2. for namespaces;
+4. Lack of Cohesion in Methods for classes;
+5. LCOM4 for classes.
 
 #### Graph output (Graphviz format)
 
