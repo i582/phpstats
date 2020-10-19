@@ -181,6 +181,50 @@ func Graph() *shell.Executor {
 		},
 	}
 
+	graphLcom4Executor := &shell.Executor{
+		Name:      "lcom4",
+		Help:      "show lcom4 connected class components",
+		WithValue: true,
+		CountArgs: 1,
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Required:  true,
+				Help:      "output file",
+			},
+			&flags.Flag{
+				Name: "-show",
+				Help: "show graph file in console",
+			},
+		),
+		Func: func(c *shell.Context) {
+			show := c.Flags.Contains("-show")
+
+			output, err := c.ValidateFile("-o")
+			if err != nil {
+				c.Error(err)
+				return
+			}
+			defer output.Close()
+
+			classes, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			if err != nil {
+				c.Error(err)
+				return
+			}
+
+			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
+			graph := class.Lcom4Graph()
+
+			fmt.Fprint(output, graph)
+
+			if show {
+				fmt.Println(graph)
+			}
+		},
+	}
+
 	graphExecutor := &shell.Executor{
 		Name: "graph",
 		Help: "dependencies graph view",
@@ -192,6 +236,7 @@ func Graph() *shell.Executor {
 	graphExecutor.AddExecutor(graphFileExecutor)
 	graphExecutor.AddExecutor(graphClassExecutor)
 	graphExecutor.AddExecutor(graphFuncExecutor)
+	graphExecutor.AddExecutor(graphLcom4Executor)
 
 	return graphExecutor
 }
