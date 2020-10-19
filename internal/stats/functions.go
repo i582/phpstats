@@ -83,7 +83,7 @@ func NewFunctionsInfo() *Functions {
 }
 
 func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool, withEmbeddedFuncs bool) []*Function {
-	var res []*Function
+	var res = make([]*Function, 0, len(fi.Funcs))
 	var index int64
 
 	if offset < 0 {
@@ -225,6 +225,38 @@ func (f Function) Equal(fi2 Function) bool {
 	return f.Name.Equal(fi2.Name)
 }
 
+func (f *Function) CountDeps() int64 {
+	deps := map[string]struct{}{}
+	for _, called := range f.Called.Funcs {
+		if called.Class == nil {
+			continue
+		}
+		if called.Class == f.Class {
+			continue
+		}
+
+		deps[called.Class.Name] = struct{}{}
+	}
+
+	return int64(len(deps))
+}
+
+func (f *Function) CountDepsBy() int64 {
+	deps := map[string]struct{}{}
+	for _, called := range f.CalledBy.Funcs {
+		if called.Class == nil {
+			continue
+		}
+		if called.Class == f.Class {
+			continue
+		}
+
+		deps[called.Class.Name] = struct{}{}
+	}
+
+	return int64(len(deps))
+}
+
 func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {
 	var res string
 
@@ -302,11 +334,15 @@ func (f *Function) FullString() string {
 
 	res += fmt.Sprintf(" Number of uses: %d\n", f.UsesCount)
 
+	res += fmt.Sprintf(" Depends of classes: %d\n", f.CountDeps())
+	res += fmt.Sprintf(" Classes depends: %d\n", f.CountDepsBy())
+
 	if len(f.Called.Funcs) != 0 {
 		res += fmt.Sprintf(" Called functions (%d):\n", len(f.Called.Funcs))
 	}
-	for _, fn := range f.Called.Funcs {
-		res += fmt.Sprintf("   %s\n", fn.getName(f))
+
+	if len(f.Called.Funcs) != 0 {
+		res += fmt.Sprintf(" Called by functions (%d):\n", len(f.CalledBy.Funcs))
 	}
 
 	return res
