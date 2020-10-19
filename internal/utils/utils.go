@@ -84,3 +84,7 @@ func DefaultCacheDir() string {
 	}
 	return defaultCacheDir
 }
+
+func NameNormalize(str string) string {
+	return strings.ReplaceAll(str, `\`, `\\`)
+}

@@ -25,6 +25,7 @@ The following metrics are currently available:
 1. File dependencies, both for root and inside functions.
 2. Class dependencies.
 3. Function/method dependencies.
+4. Lcom4
 
 ## Install
 
@@ -100,6 +101,10 @@ After collecting information, you will be taken to an interactive shell, type `h
        [-r <value>]                   recursive level (default: 5)
        [-root]                        only root require
        [-block]                       only block require
+       [-show]                        show graph file in console
+
+     lcom4  <value>                   show lcom4 connected class components
+        -o <value>                    output file
        [-show]                        show graph file in console
 
   brief                               shows general information

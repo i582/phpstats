@@ -218,6 +218,58 @@ func NewAbstractClass(name string, file *File) *Class {
 	return class
 }
 
+func (c *Class) Lcom4Graph() string {
+	var res string
+
+	res += "digraph \"Lcom4" + utils.NameNormalize(c.Name) + "\" {\n"
+
+	showed := map[string]struct{}{}
+
+	for _, method := range c.Methods.Funcs {
+		res += fmt.Sprintf("  \"%s\"\n", method.Name.Name)
+	}
+
+	for _, method := range c.Methods.Funcs {
+		for _, called := range method.Called.Funcs {
+			if _, ok := c.Methods.Get(called.Name); ok && method != called {
+				str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", method.Name.Name, called.Name.Name)
+
+				if _, ok := showed[str]; ok {
+					continue
+				}
+				showed[str] = struct{}{}
+
+				res += str
+			}
+		}
+	}
+
+	for _, field := range c.Fields.Fields {
+		functions := make([]*Function, 0, len(field.Used))
+
+		for used := range field.Used {
+			functions = append(functions, used)
+		}
+
+		for i := 0; i < len(functions)-1; i++ {
+			for j := i + 1; j < len(functions); j++ {
+				str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", functions[i].Name.Name, functions[j].Name.Name)
+
+				if _, ok := showed[str]; ok {
+					continue
+				}
+				showed[str] = struct{}{}
+
+				res += str
+			}
+		}
+	}
+
+	res += "}\n"
+
+	return res
+}
+
 func (c *Class) AffEffString(full bool) string {
 	var res string
 
