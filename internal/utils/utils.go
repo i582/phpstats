@@ -74,3 +74,13 @@ func GenIndent(level int) string {
 	}
 	return res
 }
+
+func DefaultCacheDir() string {
+	defaultCacheDir, err := os.UserCacheDir()
+	if err != nil {
+		defaultCacheDir = ""
+	} else {
+		defaultCacheDir = filepath.Join(defaultCacheDir, "phpstats")
+	}
+	return defaultCacheDir
+}
