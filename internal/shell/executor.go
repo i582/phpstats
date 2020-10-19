@@ -91,6 +91,11 @@ func (e *Executor) Execute(ctx *Context) {
 
 	ctx.Exec = e
 
+	if e.CountArgs == 0 && len(e.SubExecs) != 0 {
+		ctx.ShowHelpPage()
+		return
+	}
+
 	if e.CountArgs != -1 && len(ctx.Args) != e.CountArgs {
 		ctx.Error(fmt.Errorf("command %s takes exactly %d argument\n", e.Name, e.CountArgs))
 		return
