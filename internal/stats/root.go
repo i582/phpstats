@@ -23,6 +23,8 @@ func (r *rootChecker) BeforeEnterFile() {
 	r.CurFile = GlobalCtx.Files.GetOrCreate(filename)
 	// hack, yet
 	r.CurFile.CountLines = int64(bytes.Count(r.ctx.FileContents(), []byte("\n")) + 1)
+
+	BarLinting.Increment()
 }
 
 func (r *rootChecker) AfterEnterNode(n ir.Node) {

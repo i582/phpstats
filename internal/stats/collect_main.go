@@ -7,10 +7,13 @@ import (
 	"github.com/VKCOM/noverify/src/cmd"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
+	"github.com/cheggaaa/pb/v3"
 
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/utils"
 )
+
+var BarLinting *pb.ProgressBar
 
 func CollectMain() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
@@ -42,6 +45,10 @@ func CollectMain() error {
 		}
 		ctx.State()["vklints-root"] = indexer
 		return indexer
+	})
+
+	meta.OnIndexingComplete(func() {
+		BarLinting = pb.StartNew(GlobalCtx.Files.Len())
 	})
 
 	fs, args := flags.ParseFlags(os.Args, flags.NewFlags(&flags.Flag{
@@ -86,5 +93,6 @@ func CollectMain() error {
 		},
 	})
 
+	BarLinting.Finish()
 	return nil
 }
