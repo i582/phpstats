@@ -48,7 +48,7 @@ func CollectMain() error {
 		Name:      "--project-path",
 		WithValue: true,
 	}, &flags.Flag{
-		Name:      "-cache-dir",
+		Name:      "--cache-dir",
 		WithValue: true,
 	}))
 
@@ -59,7 +59,7 @@ func CollectMain() error {
 	}
 
 	var cacheDir string
-	if f, ok := fs.Get("-cache-dir"); ok {
+	if f, ok := fs.Get("--cache-dir"); ok {
 		cacheDir = f.Value
 	} else {
 		cacheDir = utils.DefaultCacheDir()
