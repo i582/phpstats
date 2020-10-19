@@ -65,6 +65,21 @@ func (f *Flags) Get(flagName string) (*Flag, bool) {
 	return flag, ok
 }
 
+func flagParsed(arg string) bool {
+	if strings.Contains(arg, "=") {
+		return false
+	}
+	return true
+}
+
+func ParseFlag(flag string) []string {
+	if flagParsed(flag) {
+		return []string{flag}
+	}
+
+	return strings.Split(flag, "=")
+}
+
 func isFlag(arg string) bool {
 	if !strings.HasPrefix(arg, "-") && !strings.HasPrefix(arg, "--") {
 		return false
@@ -85,10 +100,21 @@ func ParseFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags [
 		Flags: map[string]*Flag{},
 	}
 
-	for i := 0; i < len(args); i++ {
-		if isFlag(args[i]) {
+	parsedArgs := make([]string, 0, len(args))
+
+	for _, arg := range args {
+		if isFlag(arg) {
+			parsedArgs = append(parsedArgs, ParseFlag(arg)...)
+			continue
+		}
+
+		parsedArgs = append(parsedArgs, arg)
+	}
+
+	for i := 0; i < len(parsedArgs); i++ {
+		if isFlag(parsedArgs[i]) {
 			var val string
-			name := args[i]
+			name := parsedArgs[i]
 
 			var needValue bool
 			if f, ok := allowed.Get(name); ok {
@@ -96,8 +122,8 @@ func ParseFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags [
 			}
 
 			if needValue {
-				if i+1 < len(args) && !isFlag(args[i+1]) {
-					val = args[i+1]
+				if i+1 < len(parsedArgs) && !isFlag(parsedArgs[i+1]) {
+					val = parsedArgs[i+1]
 					i++
 				}
 			}
@@ -109,7 +135,7 @@ func ParseFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags [
 
 			flags.Flags[name] = flag
 		} else {
-			argsWithoutFlags = append(argsWithoutFlags, args[i])
+			argsWithoutFlags = append(argsWithoutFlags, parsedArgs[i])
 		}
 	}
 
