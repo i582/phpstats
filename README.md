@@ -107,26 +107,26 @@ After collecting information, you will be taken to an interactive shell, type `h
         -o <value>                    output file
        [-show]                        show graph file in console
 
-  top                                 shows top of
-     funcs                            show top of functions
-       [-by-as-dep <value>]           top functions by as dependency (default: 10)
-       [-by-uses <value>]             top functions by uses count (default: 10)
-       [-r]                           sort reverse
-       [-c <value>]                   count in list (default: 10)
-       [-o <value>]                   offset in list (default: 0)
-       [-by-deps <value>]             top functions by dependencies (default: 10)
-
-     classes                          show top of classes
-       [-by-eff <value>]              top classes by efferent coupling (default: 10)
-       [-by-stab <value>]             top classes by stability (default: 10)
-       [-by-lcom <value>]             top classes by Lack of cohesion in methods (default: 10)
-       [-r]                           sort reverse
-       [-by-aff <value>]              top classes by afferent coupling (default: 10)
-       [-by-lcom4 <value>]            top classes by Lack of cohesion in methods 4 (default: 10)
-       [-by-deps <value>]             top classes by dependencies (default: 10)
-       [-by-as-dep <value>]           top classes by as dependency (default: 10)
-       [-c <value>]                   count in list (default: 10)
-       [-o <value>]                   offset in list (default: 0)
+    top                                 shows top of
+       funcs                            show top of functions
+         [-by-as-dep]                   top functions by as dependency
+         [-by-uses]                     top functions by uses count
+         [-r]                           sort reverse
+         [-c <value>]                   count in list (default: 10)
+         [-o <value>]                   offset in list (default: 0)
+         [-by-deps]                     top functions by dependencies
+  
+       classes                          show top of classes
+         [-by-lcom]                     top classes by Lack of cohesion in methods
+         [-by-deps]                     top classes by dependencies
+         [-r]                           sort reverse
+         [-by-as-dep]                   top classes by as dependency
+         [-c <value>]                   count in list (default: 10)
+         [-o <value>]                   offset in list (default: 0)
+         [-by-aff]                      top classes by afferent coupling
+         [-by-eff]                      top classes by efferent coupling
+         [-by-stab]                     top classes by stability
+         [-by-lcom4]                    top classes by Lack of cohesion in methods 4
 
   brief                               shows general information
   help                                help page
