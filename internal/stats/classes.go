@@ -275,21 +275,21 @@ func (c *Class) AffEffString(full bool) string {
 
 	aff, eff, stab := AfferentEfferentStabilityOfClass(c)
 
-	res += fmt.Sprintf(" Afferent:  %.2f\n", aff)
+	res += fmt.Sprintf(" Afferent:    %.2f\n", aff)
 	if full {
 		for _, class := range c.DepsBy.Classes {
 			res += fmt.Sprintf("%s", class.ExtraShortString(2))
 		}
 	}
 
-	res += fmt.Sprintf(" Efferent:  %.2f\n", eff)
+	res += fmt.Sprintf(" Efferent:    %.2f\n", eff)
 	if full {
 		for _, class := range c.Deps.Classes {
 			res += fmt.Sprintf("%s", class.ExtraShortString(2))
 		}
 	}
 
-	res += fmt.Sprintf(" Stability: %.2f\n", stab)
+	res += fmt.Sprintf(" Instability: %.2f\n", stab)
 
 	lcom, ok := LackOfCohesionInMethodsOfCLass(c)
 	if !ok {
@@ -323,9 +323,9 @@ func (c *Class) OnlyMetricsString() string {
 
 	aff, eff, stab := AfferentEfferentStabilityOfClass(c)
 
-	res += fmt.Sprintf(" Afferent:  %.2f\n", aff)
-	res += fmt.Sprintf(" Efferent:  %.2f\n", eff)
-	res += fmt.Sprintf(" Stability: %.2f\n", stab)
+	res += fmt.Sprintf(" Afferent:    %.2f\n", aff)
+	res += fmt.Sprintf(" Efferent:    %.2f\n", eff)
+	res += fmt.Sprintf(" Instability: %.2f\n", stab)
 
 	lcom, ok := LackOfCohesionInMethodsOfCLass(c)
 	if !ok {

@@ -14,7 +14,7 @@ The following metrics are currently available:
 2. Efferent couplings:
    1. for classes;
    2. for namespaces;
-3. Stability:
+3. Instability:
    1. for the classes;
    2. for namespaces;
 4. Lack of Cohesion in Methods for classes;
