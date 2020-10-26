@@ -198,11 +198,11 @@ func Info() *shell.Executor {
 				}
 			}
 
-			var stability float64
+			var instability float64
 			if eff+aff == 0 {
-				stability = 0
+				instability = 0
 			} else {
-				stability = eff / (eff + aff)
+				instability = eff / (eff + aff)
 			}
 
 			var res string
@@ -211,7 +211,7 @@ func Info() *shell.Executor {
 
 			res += fmt.Sprintf(" Afferent:  %.2f\n", aff)
 			res += fmt.Sprintf(" Efferent:  %.2f\n", eff)
-			res += fmt.Sprintf(" Stability: %.2f\n", stability)
+			res += fmt.Sprintf(" Instability: %.2f\n", instability)
 
 			fmt.Println(res)
 		},

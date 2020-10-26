@@ -125,7 +125,7 @@ After collecting information, you will be taken to an interactive shell, type `h
          [-o <value>]                   offset in list (default: 0)
          [-by-aff]                      top classes by afferent coupling
          [-by-eff]                      top classes by efferent coupling
-         [-by-stab]                     top classes by stability
+         [-by-instab]                     top classes by instability
          [-by-lcom4]                    top classes by Lack of cohesion in methods 4
 
   brief                               shows general information

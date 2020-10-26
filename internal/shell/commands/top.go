@@ -136,7 +136,7 @@ func Top() *shell.Executor {
 			},
 			&flags.Flag{
 				Name: "-by-stab",
-				Help: "top classes by stability",
+				Help: "top classes by instability",
 			},
 			&flags.Flag{
 				Name: "-by-lcom",
@@ -182,7 +182,7 @@ func Top() *shell.Executor {
 
 			byAff := c.Flags.Contains("-by-aff")
 			byEff := c.Flags.Contains("-by-eff")
-			byStab := c.Flags.Contains("-by-stab")
+			byStab := c.Flags.Contains("-by-instab")
 			byLcom := c.Flags.Contains("-by-lcom")
 			byLcom4 := c.Flags.Contains("-by-lcom4")
 			byDeps := c.Flags.Contains("-by-deps")

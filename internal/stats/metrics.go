@@ -9,14 +9,14 @@ func AfferentEfferentStabilityOfClass(c *Class) (aff, eff, stab float64) {
 	efferent := float64(c.Deps.Len())
 	afferent := float64(c.DepsBy.Len())
 
-	var stability float64
+	var instability float64
 	if efferent+afferent == 0 {
-		stability = 0
+		instability = 0
 	} else {
-		stability = efferent / (efferent + afferent)
+		instability = efferent / (efferent + afferent)
 	}
 
-	return afferent, efferent, stability
+	return afferent, efferent, instability
 }
 
 func LackOfCohesionInMethodsOfCLass(c *Class) (float64, bool) {
