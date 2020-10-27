@@ -225,8 +225,9 @@ func (f Function) Equal(fi2 Function) bool {
 	return f.Name.Equal(fi2.Name)
 }
 
-func (f *Function) CountDeps() int64 {
-	deps := map[string]struct{}{}
+func (f *Function) Deps() *Classes {
+	deps := NewClasses()
+
 	for _, called := range f.Called.Funcs {
 		if called.Class == nil {
 			continue
@@ -235,14 +236,19 @@ func (f *Function) CountDeps() int64 {
 			continue
 		}
 
-		deps[called.Class.Name] = struct{}{}
+		deps.Add(called.Class)
 	}
 
-	return int64(len(deps))
+	return deps
 }
 
-func (f *Function) CountDepsBy() int64 {
-	deps := map[string]struct{}{}
+func (f *Function) CountDeps() int64 {
+	return int64(f.Deps().Len())
+}
+
+func (f *Function) DepsBy() *Classes {
+	deps := NewClasses()
+
 	for _, called := range f.CalledBy.Funcs {
 		if called.Class == nil {
 			continue
@@ -251,10 +257,14 @@ func (f *Function) CountDepsBy() int64 {
 			continue
 		}
 
-		deps[called.Class.Name] = struct{}{}
+		deps.Add(called.Class)
 	}
 
-	return int64(len(deps))
+	return deps
+}
+
+func (f *Function) CountDepsBy() int64 {
+	return int64(f.DepsBy().Len())
 }
 
 func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {

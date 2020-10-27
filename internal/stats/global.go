@@ -79,6 +79,8 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 			cl = NewClass(class.Name, file)
 		}
 
+		cl.Vendor = class.Vendor
+
 		ctx.Classes.Add(cl)
 	}
 

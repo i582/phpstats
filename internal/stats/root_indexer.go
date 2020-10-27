@@ -2,6 +2,7 @@ package stats
 
 import (
 	"log"
+	"strings"
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
@@ -14,6 +15,11 @@ type rootIndexer struct {
 
 	ctx  *linter.RootContext
 	meta FileMeta
+}
+
+func (r *rootIndexer) inVendor() bool {
+	curFileName := r.ctx.Filename()
+	return strings.Contains(curFileName, "vendor") || strings.Contains(curFileName, "phpstorm-stubs")
 }
 
 func (r *rootIndexer) BeforeEnterFile() {
@@ -53,6 +59,7 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 
 		class := NewClass(className, curFile)
 		class.IsAbstract = isAbstract
+		class.Vendor = r.inVendor()
 
 		r.meta.Classes.Add(class)
 
@@ -72,6 +79,7 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 		}
 
 		iface := NewInterface(ifaceName, curFile)
+		iface.Vendor = r.inVendor()
 		r.meta.Classes.Add(iface)
 
 	case *ir.ClassMethodStmt:

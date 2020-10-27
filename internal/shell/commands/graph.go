@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/i582/phpstats/internal/grapher"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
@@ -117,7 +118,9 @@ func Graph() *shell.Executor {
 			}
 
 			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
-			graph := class.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
+
+			g := grapher.NewGrapher()
+			graph := g.ClassDeps(class, recursiveLevel)
 
 			fmt.Fprint(output, graph)
 

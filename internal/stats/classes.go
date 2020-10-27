@@ -8,8 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/VKCOM/noverify/src/meta"
-
 	"github.com/i582/phpstats/internal/utils"
 )
 
@@ -188,6 +186,8 @@ type Class struct {
 
 	// Зависят от нас
 	DepsBy *Classes
+
+	Vendor bool
 }
 
 func NewClass(name string, file *File) *Class {
@@ -466,13 +466,6 @@ func (c *Class) AddDepsBy(class *Class) {
 	}
 }
 
-func (c *Class) GetOrCreateMethod(fn FuncKey, pos meta.ElementPosition) *Function {
-	method := c.Methods.GetOrCreateMethod(fn, pos, c)
-
-	c.Methods.Add(method)
-	return method
-}
-
 // GobEncode is a custom gob marshaller
 func (c *Class) GobEncode() ([]byte, error) {
 	w := new(bytes.Buffer)
@@ -490,6 +483,10 @@ func (c *Class) GobEncode() ([]byte, error) {
 		return nil, err
 	}
 	err = encoder.Encode(c.IsInterface)
+	if err != nil {
+		return nil, err
+	}
+	err = encoder.Encode(c.Vendor)
 	if err != nil {
 		return nil, err
 	}
@@ -513,6 +510,10 @@ func (c *Class) GobDecode(buf []byte) error {
 		return err
 	}
 	err = decoder.Decode(&c.IsInterface)
+	if err != nil {
+		return err
+	}
+	err = decoder.Decode(&c.Vendor)
 	if err != nil {
 		return err
 	}
