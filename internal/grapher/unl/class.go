@@ -1,30 +1,31 @@
-package grapher
+package uml
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/utils"
 )
 
-func getUmlForClass(c *stats.Class) string {
-	return getUmlForClassWithFilter(c, func(*stats.Function) bool {
+func GetUmlForClass(c *stats.Class) string {
+	return GetUmlForClassWithFilter(c, func(*stats.Function) bool {
 		return true
 	}, func(*stats.Field) bool {
 		return true
 	})
 }
 
-func getShortUmlForClass(c *stats.Class) string {
-	return getUmlForClassWithFilter(c, func(*stats.Function) bool {
+func GetShortUmlForClass(c *stats.Class) string {
+	return GetUmlForClassWithFilter(c, func(*stats.Function) bool {
 		return false
 	}, func(*stats.Field) bool {
 		return false
 	})
 }
 
-func getUmlForClassWithFilter(c *stats.Class, predMethods func(m *stats.Function) bool, predFields func(f *stats.Field) bool) string {
-	id := transformName(c.Name)
+func GetUmlForClassWithFilter(c *stats.Class, predMethods func(m *stats.Function) bool, predFields func(f *stats.Field) bool) string {
+	id := utils.ClassNameNormalize(c.Name)
 	idParts := strings.Split(c.Name, `\`)
 	shortName := idParts[len(idParts)-1]
 

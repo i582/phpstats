@@ -144,20 +144,11 @@ func Graph() *shell.Executor {
 				Help:      "output file",
 			},
 			&flags.Flag{
-				Name:      "-r",
-				WithValue: true,
-				Help:      "recursive level",
-				Default:   "5",
-			},
-			&flags.Flag{
 				Name: "-show",
 				Help: "show graph file in console",
 			},
 		),
 		Func: func(c *shell.Context) {
-			recursiveLevelValue := c.GetFlagValue("-r")
-			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
-
 			show := c.Flags.Contains("-show")
 
 			output, err := c.ValidateFile("-o")
@@ -174,7 +165,9 @@ func Graph() *shell.Executor {
 			}
 
 			fun, _ := stats.GlobalCtx.Funcs.Get(funcs[0])
-			graph := fun.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
+
+			g := grapher.NewGrapher()
+			graph := g.FuncDeps(fun)
 
 			fmt.Fprint(output, graph)
 
