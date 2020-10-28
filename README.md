@@ -23,10 +23,17 @@ The following metrics are currently available:
 #### Graph output (Graphviz format)
 
 1. File dependencies, both for root and inside functions.
+
 2. Class dependencies.
-![](/doc/class_graph.svg)
+
+  ![](/doc/class_graph.svg)
+
 3. Function/method dependencies.
-![](/doc/func_graph.svg)
+
+  
+
+  ![](/doc/func_graph.svg)
+
 4. LCOM4
 
 ## Install
