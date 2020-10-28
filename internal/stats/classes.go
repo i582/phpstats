@@ -156,14 +156,14 @@ func (c *Class) GraphvizRecursive(level int64, maxLevel int64, visited map[strin
 
 func (c *Classes) Add(class *Class) {
 	c.Lock()
-	defer c.Unlock()
 	c.Classes[class.Name] = class
+	c.Unlock()
 }
 
 func (c *Classes) Get(name string) (*Class, bool) {
 	c.Lock()
-	defer c.Unlock()
 	class, ok := c.Classes[name]
+	c.Unlock()
 	return class, ok
 }
 
@@ -194,7 +194,7 @@ func NewClass(name string, file *File) *Class {
 	return &Class{
 		Name:       name,
 		File:       file,
-		Methods:    NewFunctionsInfo(),
+		Methods:    NewFunctions(),
 		Fields:     NewFields(),
 		Constants:  NewConstants(),
 		Implements: NewClasses(),
@@ -417,31 +417,21 @@ func (c *Class) ShortStringWithPrefix(level int, prefix string) string {
 			res += fmt.Sprintf("%sClass %s\n", utils.GenIndent(level-1), c.Name)
 		}
 	}
-	res += fmt.Sprintf("%s Name: %s\n", utils.GenIndent(level), c.Name)
 	res += fmt.Sprintf("%s File: %s:0\n", utils.GenIndent(level), c.File.Path)
 
 	return res
 }
 
 func (c *Class) AddMethod(fn *Function) {
-	_, ok := c.Methods.Get(fn.Name)
-	if !ok {
-		c.Methods.Add(fn)
-	}
+	c.Methods.Add(fn)
 }
 
 func (c *Class) AddImplements(class *Class) {
-	_, ok := c.Implements.Get(class.Name)
-	if !ok {
-		c.Implements.Add(class)
-	}
+	c.Implements.Add(class)
 }
 
 func (c *Class) AddExtends(class *Class) {
-	_, ok := c.Extends.Get(class.Name)
-	if !ok {
-		c.Extends.Add(class)
-	}
+	c.Extends.Add(class)
 }
 
 func (c *Class) AddDeps(class *Class) {
@@ -449,10 +439,7 @@ func (c *Class) AddDeps(class *Class) {
 		return
 	}
 
-	_, ok := c.Deps.Get(class.Name)
-	if !ok {
-		c.Deps.Add(class)
-	}
+	c.Deps.Add(class)
 }
 
 func (c *Class) AddDepsBy(class *Class) {
@@ -460,10 +447,7 @@ func (c *Class) AddDepsBy(class *Class) {
 		return
 	}
 
-	_, ok := c.DepsBy.Get(class.Name)
-	if !ok {
-		c.DepsBy.Add(class)
-	}
+	c.DepsBy.Add(class)
 }
 
 // GobEncode is a custom gob marshaller

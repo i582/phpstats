@@ -20,7 +20,12 @@ type rootChecker struct {
 
 func (r *rootChecker) BeforeEnterFile() {
 	filename := r.ctx.Filename()
-	r.CurFile = GlobalCtx.Files.GetOrCreate(filename)
+
+	var ok bool
+	r.CurFile, ok = GlobalCtx.Files.Get(filename)
+	if !ok {
+		return
+	}
 	// hack, yet
 	r.CurFile.CountLines = int64(bytes.Count(r.ctx.FileContents(), []byte("\n")) + 1)
 

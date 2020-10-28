@@ -99,17 +99,6 @@ func (f *Files) Get(path string) (*File, bool) {
 	return file, ok
 }
 
-func (f *Files) GetOrCreate(path string) *File {
-	file, ok := f.Get(path)
-	if !ok {
-		file := NewFile(path)
-		f.Add(file)
-		return file
-	}
-
-	return file
-}
-
 type File struct {
 	Name string
 	Path string
@@ -132,7 +121,7 @@ func NewFile(path string) *File {
 		RequiredBlock: NewFiles(),
 		RequiredBy:    NewFiles(),
 		Classes:       NewClasses(),
-		Funcs:         NewFunctionsInfo(),
+		Funcs:         NewFunctions(),
 	}
 }
 
@@ -303,38 +292,23 @@ func (f *File) ExtraShortStringWithPrefix(level int, prefix string) string {
 }
 
 func (f *File) AddRequiredFile(file *File) {
-	_, ok := f.RequiredBlock.Get(file.Path)
-	if !ok {
-		f.RequiredBlock.Add(file)
-	}
+	f.RequiredBlock.Add(file)
 }
 
 func (f *File) AddRequiredRootFile(file *File) {
-	_, ok := f.RequiredRoot.Get(file.Path)
-	if !ok {
-		f.RequiredRoot.Add(file)
-	}
+	f.RequiredRoot.Add(file)
 }
 
 func (f *File) AddRequiredByFile(file *File) {
-	_, ok := f.RequiredBy.Get(file.Path)
-	if !ok {
-		f.RequiredBy.Add(file)
-	}
+	f.RequiredBy.Add(file)
 }
 
 func (f *File) AddClass(class *Class) {
-	_, ok := f.Classes.Get(class.Name)
-	if !ok {
-		f.Classes.Add(class)
-	}
+	f.Classes.Add(class)
 }
 
 func (f *File) AddFunc(fun *Function) {
-	_, ok := f.Funcs.Get(fun.Name)
-	if !ok {
-		f.Funcs.Add(fun)
-	}
+	f.Funcs.Add(fun)
 }
 
 // GobEncode is a custom gob marshaller

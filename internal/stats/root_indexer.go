@@ -63,6 +63,10 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 
 		r.meta.Classes.Add(class)
 
+		for _, n := range n.Stmts {
+			r.handleClassInterfaceMethodsConstants(class, n)
+		}
+
 	case *ir.InterfaceStmt:
 		curFileName := r.ctx.Filename()
 
@@ -78,21 +82,39 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 			log.Fatalf("file not found")
 		}
 
+		if ifaceName == "\\Exception" {
+			log.Print()
+		}
+
 		iface := NewInterface(ifaceName, curFile)
 		iface.Vendor = r.inVendor()
 		r.meta.Classes.Add(iface)
 
+		for _, n := range n.Stmts {
+			r.handleClassInterfaceMethodsConstants(iface, n)
+		}
+
+	case *ir.FunctionStmt:
+		funcName := n.FunctionName.Value
+		pos := r.getElementPos(n)
+
+		fn := NewFunctionInfo(NewFuncKey(funcName), pos)
+		r.meta.Funcs.Add(fn)
+	}
+}
+
+func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *Class, n ir.Node) {
+	switch n := n.(type) {
 	case *ir.ClassMethodStmt:
-		currentClassName := r.ctx.ClassParseState().CurrentClass
 		methodName := n.MethodName.Value
 		pos := r.getElementPos(n)
 
-		fn := NewFunctionInfo(NewMethodKey(methodName, currentClassName), pos)
+		fn := NewFunctionInfo(NewMethodKey(methodName, class.Name), pos)
 		r.meta.Funcs.Add(fn)
 
 	case *ir.ClassConstListStmt:
 		for _, c := range n.Consts {
-			r.meta.Constants.Add(NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, r.ctx.ClassParseState().CurrentClass))
+			r.meta.Constants.Add(NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, class.Name))
 		}
 	}
 }
