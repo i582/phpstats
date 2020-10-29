@@ -82,10 +82,6 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 			log.Fatalf("file not found")
 		}
 
-		if ifaceName == "\\Exception" {
-			log.Print()
-		}
-
 		iface := NewInterface(ifaceName, curFile)
 		iface.Vendor = r.inVendor()
 		r.meta.Classes.Add(iface)
