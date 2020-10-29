@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
@@ -117,7 +118,8 @@ func Top() *shell.Executor {
 			allFuncs = allFuncs[:count]
 
 			for _, fn := range allFuncs {
-				fmt.Println(fn.FullString())
+				data := representator.GetFunctionRepr(fn)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -272,8 +274,9 @@ func Top() *shell.Executor {
 
 			allClasses = allClasses[:count]
 
-			for _, fn := range allClasses {
-				fmt.Println(fn.FullString(0, true))
+			for _, class := range allClasses {
+				data := representator.GetClassRepr(class)
+				fmt.Println(data)
 			}
 		},
 	}

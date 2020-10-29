@@ -155,7 +155,7 @@ func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRec
 	}
 
 	if len(visited) == 1 {
-		res += file.ShortString(level)
+		res += file.ExtraShortStringWithPrefix(level, "")
 	} else {
 		res += file.ExtraShortStringWithPrefix(level, prefix)
 	}
@@ -199,51 +199,10 @@ func (f *File) FullStringRecursive(maxRecursive int) string {
 	return res
 }
 
-func (f *File) FullString(level int) string {
-	var res string
-
-	res += f.ShortString(level)
-
-	if f.RequiredRoot.Len() != 0 {
-		res += fmt.Sprintf("%sInclude files at the root:\n", utils.GenIndent(level))
-	} else {
-		res += fmt.Sprintf("%sNo include files in the root\n", utils.GenIndent(level))
-	}
-	for _, f := range f.RequiredRoot.Files {
-		res += f.ExtraShortString(level + 1)
-	}
-
-	if f.RequiredBlock.Len() != 0 {
-		res += fmt.Sprintf("%sInclude files in functions:\n", utils.GenIndent(level))
-	} else {
-		res += fmt.Sprintf("%sNo include files in functions\n", utils.GenIndent(level))
-	}
-	for _, f := range f.RequiredBlock.Files {
-		res += f.ExtraShortString(level + 1)
-	}
-
-	res += "\n"
-
-	return res
-}
-
-func (f *File) ShortString(level int) string {
-	var res string
-
-	res += fmt.Sprintf("%sName: %s\n", utils.GenIndent(level), f.Name)
-	res += fmt.Sprintf("%sPath: %s\n", utils.GenIndent(level), f.Path)
-
-	return res
-}
-
-func (f *File) ExtraShortString(level int) string {
-	return f.ExtraShortStringWithPrefix(level, "")
-}
-
 func (f *File) ExtraShortStringWithPrefix(level int, prefix string) string {
 	var res string
 
-	res += fmt.Sprintf("%s%s%-30s (%s)\n", utils.GenIndent(level), prefix, f.Name, f.Path)
+	res += fmt.Sprintf("%s%s%-40s (%s)\n", utils.GenIndent(level), prefix, f.Name, f.Path)
 
 	return res
 }

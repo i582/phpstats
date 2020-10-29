@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/i582/phpstats/internal/cli"
+	"github.com/i582/phpstats/internal/server"
 	"github.com/i582/phpstats/internal/stats"
 )
 
@@ -15,4 +16,8 @@ func main() {
 		Collect: stats.CollectMain,
 		Process: nil,
 	})
+
+	if stats.WithServer {
+		server.RunServer()
+	}
 }

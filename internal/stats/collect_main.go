@@ -2,7 +2,6 @@ package stats
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/VKCOM/noverify/src/cmd"
@@ -15,6 +14,7 @@ import (
 )
 
 var BarLinting *pb.ProgressBar
+var WithServer bool
 
 func CollectMain() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
@@ -91,12 +91,7 @@ func CollectMain() error {
 	}
 
 	if fs.Contains("--server") {
-		http.HandleFunc("/info/class", InfoClassHandler)
-		http.HandleFunc("/info/func", InfoFunctionHandler)
-		http.HandleFunc("/exit", ExitHandler)
-		http.HandleFunc("/analyzeStats", AnalyzeStatsHandler)
-
-		go http.ListenAndServe("localhost:8000", nil)
+		WithServer = true
 	}
 
 	// defer profile.Start(profile.ProfilePath("C:\\projects\\phpstats"), profile.MemProfileRate(100)).Stop()
