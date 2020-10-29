@@ -157,7 +157,7 @@ The following APIs are currently available:
 
 `/exit` — shutdown of the server.
 
-`/analyzeStats` — Get the current analysis state.
+`/analyzeStats` — get the current analysis state.
 
 ## License
 
