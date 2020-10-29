@@ -21,6 +21,10 @@ type FunctionData struct {
 }
 
 func funcToData(f *stats.Function) *FunctionData {
+	if f == nil {
+		return nil
+	}
+
 	var tp string
 	if f.Name.IsMethod() {
 		tp = "Method"
@@ -40,12 +44,20 @@ func funcToData(f *stats.Function) *FunctionData {
 }
 
 func GetShortFunctionRepr(f *stats.Function) string {
+	if f == nil {
+		return ""
+	}
+
 	data := funcToData(f)
 
 	return fmt.Sprintf("%s %s", data.Type, data.Name)
 }
 
 func GetFunctionRepr(f *stats.Function) string {
+	if f == nil {
+		return ""
+	}
+
 	data := funcToData(f)
 
 	var res string
@@ -67,6 +79,24 @@ func GetJsonFunctionRepr(f *stats.Function) (string, error) {
 	data := funcToData(f)
 
 	res, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
+}
+
+func GetJsonFunctionReprWithFlag(f *stats.Function) (string, error) {
+	type Response struct {
+		Data  *FunctionData
+		Found bool
+	}
+	var resp Response
+
+	resp.Data = funcToData(f)
+	resp.Found = f != nil
+
+	res, err := json.Marshal(resp)
 	if err != nil {
 		return "", err
 	}

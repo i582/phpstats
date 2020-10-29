@@ -32,6 +32,10 @@ type ClassData struct {
 }
 
 func classToData(c *stats.Class) *ClassData {
+	if c == nil {
+		return nil
+	}
+
 	var tp string
 	if c.IsInterface {
 		tp = "Interface"
@@ -69,12 +73,20 @@ func classToData(c *stats.Class) *ClassData {
 }
 
 func GetShortClassRepr(c *stats.Class) string {
+	if c == nil {
+		return ""
+	}
+
 	data := classToData(c)
 
 	return fmt.Sprintf("%s %s", data.Type, data.Name)
 }
 
 func GetClassRepr(c *stats.Class) string {
+	if c == nil {
+		return ""
+	}
+
 	data := classToData(c)
 
 	var res string
@@ -96,6 +108,24 @@ func GetJsonClassRepr(c *stats.Class) (string, error) {
 	data := classToData(c)
 
 	res, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
+}
+
+func GetJsonClassReprWithFlag(c *stats.Class) (string, error) {
+	type Response struct {
+		Data  *ClassData
+		Found bool
+	}
+	var resp Response
+
+	resp.Data = classToData(c)
+	resp.Found = c != nil
+
+	res, err := json.Marshal(resp)
 	if err != nil {
 		return "", err
 	}
