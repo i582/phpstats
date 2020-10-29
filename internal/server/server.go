@@ -15,7 +15,7 @@ func RunServer() {
 	http.HandleFunc("/exit", ExitHandler)
 	http.HandleFunc("/analyzeStats", AnalyzeStatsHandler)
 
-	go http.ListenAndServe("localhost:8000", nil)
+	go http.ListenAndServe("localhost:8080", nil)
 }
 
 func InfoClassHandler(w http.ResponseWriter, r *http.Request) {

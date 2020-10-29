@@ -14,14 +14,14 @@ type ClassData struct {
 	Type string `json:"type"`
 
 	Afferent    float64 `json:"aff"`
-	Efferent    float64 `json:"err"`
+	Efferent    float64 `json:"eff"`
 	Instability float64 `json:"instab"`
 
 	Lcom  float64 `json:"lcom"`
 	Lcom4 int64   `json:"lcom4"`
 
-	CountDeps   int64 `json:"count-deps"`
-	CountDepsBy int64 `json:"count-deps-by"`
+	CountDeps   int64 `json:"countDeps"`
+	CountDepsBy int64 `json:"countDepsBy"`
 
 	implements *stats.Classes
 	extends    *stats.Classes
@@ -92,13 +92,13 @@ func GetClassRepr(c *stats.Class) string {
 	return res
 }
 
-func GetJsonClassRepr(c *stats.Class) ([]byte, error) {
+func GetJsonClassRepr(c *stats.Class) (string, error) {
 	data := classToData(c)
 
 	res, err := json.Marshal(data)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return res, nil
+	return string(res), nil
 }

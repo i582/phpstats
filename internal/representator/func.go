@@ -63,13 +63,13 @@ func GetFunctionRepr(f *stats.Function) string {
 	return res
 }
 
-func GetJsonFunctionRepr(f *stats.Function) ([]byte, error) {
+func GetJsonFunctionRepr(f *stats.Function) (string, error) {
 	data := funcToData(f)
 
 	res, err := json.Marshal(data)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return res, nil
+	return string(res), nil
 }
