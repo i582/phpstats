@@ -66,14 +66,14 @@ func (c *Fields) Len() int {
 
 func (c *Fields) Add(field *Field) {
 	c.Lock()
-	defer c.Unlock()
 	c.Fields[NewFieldKey(field.Name, field.Class)] = field
+	c.Unlock()
 }
 
 func (c *Fields) Get(key FieldKey) (*Field, bool) {
 	c.Lock()
-	defer c.Unlock()
 	field, ok := c.Fields[key]
+	c.Unlock()
 	return field, ok
 }
 

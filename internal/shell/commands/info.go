@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
@@ -16,21 +17,9 @@ func Info() *shell.Executor {
 		Help:      "info about class or interface",
 		WithValue: true,
 		Aliases:   []string{"interface"},
-		Flags: flags.NewFlags(
-			&flags.Flag{
-				Name: "-f",
-				Help: "output full information",
-			},
-			&flags.Flag{
-				Name: "-metrics",
-				Help: "output only metrics",
-			},
-		),
+		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			full := c.Flags.Contains("-f")
-			onlyMetrics := c.Flags.Contains("-metrics")
-
 			classNames, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
 				c.Error(err)
@@ -48,17 +37,9 @@ func Info() *shell.Executor {
 			}
 
 			class, _ := stats.GlobalCtx.Classes.Get(className)
+			data := representator.GetClassRepr(class)
 
-			if onlyMetrics {
-				fmt.Println(class.OnlyMetricsString())
-				return
-			}
-
-			if full {
-				fmt.Println(class.ExtraFullString(0))
-			} else {
-				fmt.Println(class.FullString(0, true))
-			}
+			fmt.Println(data)
 		},
 	}
 
@@ -67,15 +48,9 @@ func Info() *shell.Executor {
 		Help:      "info about function or method",
 		WithValue: true,
 		Aliases:   []string{"method"},
-		Flags: flags.NewFlags(
-			&flags.Flag{
-				Name: "-f",
-				Help: "output full information",
-			},
-		),
+		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			full := c.Flags.Contains("-f")
 
 			funcNameKeys, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
 			if err != nil {
@@ -99,12 +74,10 @@ func Info() *shell.Executor {
 
 			fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
-			if full {
-				// yet
-				fmt.Println(fn.FullString())
-			} else {
-				fmt.Println(fn.FullString())
-			}
+			dataJson, _ := representator.GetJsonFunctionRepr(fn)
+			fmt.Println(string(dataJson))
+			data := representator.GetFunctionRepr(fn)
+			fmt.Println(data)
 		},
 	}
 
@@ -157,11 +130,13 @@ func Info() *shell.Executor {
 				return
 			}
 
+			var data string
 			if full {
-				fmt.Println(file.FullString(0))
+				data = representator.GetFileRepr(file)
 			} else {
-				fmt.Println(file.ShortString(0))
+				data = representator.GetShortFileRepr(file)
 			}
+			fmt.Println(data)
 		},
 	}
 

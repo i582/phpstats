@@ -72,7 +72,7 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		classType := meta.NewTypesMap(className)
 
 		b.handleMethod(methodName, classType)
-		// \VK\API\Account\Logger::logUserContactDataRequest
+
 	case *ir.ImportExpr:
 		filename, ok := utils.ResolveRequirePath(b.ctx.ClassParseState(), ProjectRoot, n.Expr)
 		if !ok {
@@ -204,16 +204,6 @@ func (b *blockChecker) handleCalled(calledFunc *Function) {
 		return
 	}
 
-	if curFunc != nil {
-		curFunc.AddCalled(calledFunc)
-		calledFunc.AddCalledBy(curFunc)
-	}
-
-	curClass, ok := b.root.GetCurrentClass()
-	if ok && calledFunc.Class != nil {
-		curClass.AddDeps(calledFunc.Class)
-		calledFunc.Class.AddDepsBy(curClass)
-	}
-
-	calledFunc.AddUse()
+	curFunc.AddCalled(calledFunc)
+	calledFunc.AddCalledBy(curFunc)
 }

@@ -79,6 +79,8 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 			cl = NewClass(class.Name, file)
 		}
 
+		cl.Vendor = class.Vendor
+
 		ctx.Classes.Add(cl)
 	}
 
@@ -106,7 +108,7 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 
 func NewGlobalContext() *GlobalContext {
 	return &GlobalContext{
-		Funcs:     NewFunctionsInfo(),
+		Funcs:     NewFunctions(),
 		Classes:   NewClasses(),
 		Files:     NewFiles(),
 		Constants: NewConstants(),
@@ -125,7 +127,7 @@ type FileMeta struct {
 func NewFileMeta() FileMeta {
 	return FileMeta{
 		Classes:   NewClasses(),
-		Funcs:     NewFunctionsInfo(),
+		Funcs:     NewFunctions(),
 		Files:     NewFiles(),
 		Constants: NewConstants(),
 	}

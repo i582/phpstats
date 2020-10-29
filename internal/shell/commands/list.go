@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
@@ -43,7 +44,8 @@ func List() *shell.Executor {
 			funcs := stats.GlobalCtx.Funcs.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
 
 			for _, fn := range funcs {
-				fmt.Println(fn.FullString())
+				data := representator.GetFunctionRepr(fn)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -75,7 +77,8 @@ func List() *shell.Executor {
 			funcs := stats.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true, false)
 
 			for _, fn := range funcs {
-				fmt.Println(fn.FullString())
+				data := representator.GetFunctionRepr(fn)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -113,11 +116,13 @@ func List() *shell.Executor {
 			files := stats.GlobalCtx.Files.GetAll(count, offset, true)
 
 			for _, file := range files {
+				var data string
 				if full {
-					fmt.Print(file.FullString(0))
+					data = representator.GetFileRepr(file)
 				} else {
-					fmt.Print(file.ExtraShortString(0))
+					data = representator.GetShortFileRepr(file)
 				}
+				fmt.Println(data)
 			}
 		},
 	}
@@ -138,14 +143,8 @@ func List() *shell.Executor {
 				Help:      "offset in list",
 				Default:   "0",
 			},
-			&flags.Flag{
-				Name: "-f",
-				Help: "show full information",
-			},
 		),
 		Func: func(c *shell.Context) {
-			full := c.Flags.Contains("-f")
-
 			countValue := c.GetFlagValue("-c")
 			count, _ := strconv.ParseInt(countValue, 0, 64)
 
@@ -155,11 +154,8 @@ func List() *shell.Executor {
 			classes := stats.GlobalCtx.Classes.GetAllClasses(count, offset, true)
 
 			for _, class := range classes {
-				if full {
-					fmt.Println(class.ExtraFullString(0))
-				} else {
-					fmt.Println(class.FullString(0, true))
-				}
+				data := representator.GetClassRepr(class)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -186,8 +182,6 @@ func List() *shell.Executor {
 			},
 		),
 		Func: func(c *shell.Context) {
-			full := c.Flags.Contains("-f")
-
 			countValue := c.GetFlagValue("-c")
 			count, _ := strconv.ParseInt(countValue, 0, 64)
 
@@ -197,11 +191,8 @@ func List() *shell.Executor {
 			classes := stats.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
 
 			for _, class := range classes {
-				if full {
-					fmt.Println(class.ExtraFullString(0))
-				} else {
-					fmt.Println(class.FullString(0, true))
-				}
+				data := representator.GetClassRepr(class)
+				fmt.Println(data)
 			}
 		},
 	}

@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 
+	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
@@ -117,7 +118,8 @@ func Top() *shell.Executor {
 			allFuncs = allFuncs[:count]
 
 			for _, fn := range allFuncs {
-				fmt.Println(fn.FullString())
+				data := representator.GetFunctionRepr(fn)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -135,7 +137,7 @@ func Top() *shell.Executor {
 				Help: "top classes by efferent coupling",
 			},
 			&flags.Flag{
-				Name: "-by-stab",
+				Name: "-by-instab",
 				Help: "top classes by instability",
 			},
 			&flags.Flag{
@@ -182,7 +184,7 @@ func Top() *shell.Executor {
 
 			byAff := c.Flags.Contains("-by-aff")
 			byEff := c.Flags.Contains("-by-eff")
-			byStab := c.Flags.Contains("-by-instab")
+			byInstab := c.Flags.Contains("-by-instab")
 			byLcom := c.Flags.Contains("-by-lcom")
 			byLcom4 := c.Flags.Contains("-by-lcom4")
 			byDeps := c.Flags.Contains("-by-deps")
@@ -191,8 +193,8 @@ func Top() *shell.Executor {
 			allClasses := stats.GlobalCtx.Classes.GetAll(false, -1, 0, false)
 
 			sort.Slice(allClasses, func(i, j int) bool {
-				affI, effI, stabI := stats.AfferentEfferentStabilityOfClass(allClasses[i])
-				affJ, effJ, stabJ := stats.AfferentEfferentStabilityOfClass(allClasses[j])
+				affI, effI, instabI := stats.AfferentEfferentStabilityOfClass(allClasses[i])
+				affJ, effJ, instabJ := stats.AfferentEfferentStabilityOfClass(allClasses[j])
 
 				switch {
 				case byAff:
@@ -205,11 +207,11 @@ func Top() *shell.Executor {
 						effI, effJ = effJ, effI
 					}
 					return effI > effJ
-				case byStab:
+				case byInstab:
 					if reverse {
-						stabI, stabJ = stabJ, stabI
+						instabI, instabJ = instabJ, instabI
 					}
-					return stabI > stabJ
+					return instabI > instabJ
 				case byLcom:
 					lcomI, _ := stats.LackOfCohesionInMethodsOfCLass(allClasses[i])
 					lcomJ, _ := stats.LackOfCohesionInMethodsOfCLass(allClasses[j])
@@ -272,8 +274,9 @@ func Top() *shell.Executor {
 
 			allClasses = allClasses[:count]
 
-			for _, fn := range allClasses {
-				fmt.Println(fn.FullString(0, true))
+			for _, class := range allClasses {
+				data := representator.GetClassRepr(class)
+				fmt.Println(data)
 			}
 		},
 	}

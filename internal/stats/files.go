@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -99,17 +100,6 @@ func (f *Files) Get(path string) (*File, bool) {
 	return file, ok
 }
 
-func (f *Files) GetOrCreate(path string) *File {
-	file, ok := f.Get(path)
-	if !ok {
-		file := NewFile(path)
-		f.Add(file)
-		return file
-	}
-
-	return file
-}
-
 type File struct {
 	Name string
 	Path string
@@ -132,59 +122,15 @@ func NewFile(path string) *File {
 		RequiredBlock: NewFiles(),
 		RequiredBy:    NewFiles(),
 		Classes:       NewClasses(),
-		Funcs:         NewFunctionsInfo(),
+		Funcs:         NewFunctions(),
 	}
 }
 
-func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, maxRecursive int64, root, block bool) string {
-	if level > maxRecursive {
-		return ""
-	}
+var filenameNormalizer = regexp.MustCompile("[^0-9a-zA-Z]")
 
-	if _, ok := visited[file.Path]; ok {
-		return ""
-	}
-	visited[file.Path] = struct{}{}
-
-	var res string
-
-	if root {
-		for _, f := range file.RequiredRoot.Files {
-			str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
-			if _, ok := visited[str]; !ok {
-				res += str
-				visited[str] = struct{}{}
-			}
-
-			res += GraphvizRecursive(f, level+1, visited, maxRecursive, root, block)
-		}
-	}
-
-	if block {
-		for _, f := range file.RequiredBlock.Files {
-			str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
-			if _, ok := visited[str]; !ok {
-				res += str
-				visited[str] = struct{}{}
-			}
-
-			res += GraphvizRecursive(f, level+1, visited, maxRecursive, root, block)
-		}
-	}
-
-	return res
-}
-
-func (f *File) GraphvizRecursive(maxRecursive int64, root, block bool) string {
-	var res string
-
-	res += "digraph test{\n"
-
-	res += GraphvizRecursive(f, 0, make(map[string]struct{}), maxRecursive, root, block)
-
-	res += "}\n"
-
-	return res
+func (f *File) UniqueId() string {
+	dir, _ := filepath.Split(f.Path)
+	return filepath.Base(dir) + "__" + filenameNormalizer.ReplaceAllString(f.Name, "_")
 }
 
 func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRecursive int, isRootRequire bool) string {
@@ -209,7 +155,7 @@ func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRec
 	}
 
 	if len(visited) == 1 {
-		res += file.ShortString(level)
+		res += file.ExtraShortStringWithPrefix(level, "")
 	} else {
 		res += file.ExtraShortStringWithPrefix(level, prefix)
 	}
@@ -253,88 +199,32 @@ func (f *File) FullStringRecursive(maxRecursive int) string {
 	return res
 }
 
-func (f *File) FullString(level int) string {
-	var res string
-
-	res += f.ShortString(level)
-
-	if f.RequiredRoot.Len() != 0 {
-		res += fmt.Sprintf("%sInclude files at the root:\n", utils.GenIndent(level))
-	} else {
-		res += fmt.Sprintf("%sNo include files in the root\n", utils.GenIndent(level))
-	}
-	for _, f := range f.RequiredRoot.Files {
-		res += f.ExtraShortString(level + 1)
-	}
-
-	if f.RequiredBlock.Len() != 0 {
-		res += fmt.Sprintf("%sInclude files in functions:\n", utils.GenIndent(level))
-	} else {
-		res += fmt.Sprintf("%sNo include files in functions\n", utils.GenIndent(level))
-	}
-	for _, f := range f.RequiredBlock.Files {
-		res += f.ExtraShortString(level + 1)
-	}
-
-	res += "\n"
-
-	return res
-}
-
-func (f *File) ShortString(level int) string {
-	var res string
-
-	res += fmt.Sprintf("%sName: %s\n", utils.GenIndent(level), f.Name)
-	res += fmt.Sprintf("%sPath: %s\n", utils.GenIndent(level), f.Path)
-
-	return res
-}
-
-func (f *File) ExtraShortString(level int) string {
-	return f.ExtraShortStringWithPrefix(level, "")
-}
-
 func (f *File) ExtraShortStringWithPrefix(level int, prefix string) string {
 	var res string
 
-	res += fmt.Sprintf("%s%s%-30s (%s)\n", utils.GenIndent(level), prefix, f.Name, f.Path)
+	res += fmt.Sprintf("%s%s%-40s (%s)\n", utils.GenIndent(level), prefix, f.Name, f.Path)
 
 	return res
 }
 
 func (f *File) AddRequiredFile(file *File) {
-	_, ok := f.RequiredBlock.Get(file.Path)
-	if !ok {
-		f.RequiredBlock.Add(file)
-	}
+	f.RequiredBlock.Add(file)
 }
 
 func (f *File) AddRequiredRootFile(file *File) {
-	_, ok := f.RequiredRoot.Get(file.Path)
-	if !ok {
-		f.RequiredRoot.Add(file)
-	}
+	f.RequiredRoot.Add(file)
 }
 
 func (f *File) AddRequiredByFile(file *File) {
-	_, ok := f.RequiredBy.Get(file.Path)
-	if !ok {
-		f.RequiredBy.Add(file)
-	}
+	f.RequiredBy.Add(file)
 }
 
 func (f *File) AddClass(class *Class) {
-	_, ok := f.Classes.Get(class.Name)
-	if !ok {
-		f.Classes.Add(class)
-	}
+	f.Classes.Add(class)
 }
 
 func (f *File) AddFunc(fun *Function) {
-	_, ok := f.Funcs.Get(fun.Name)
-	if !ok {
-		f.Funcs.Add(fun)
-	}
+	f.Funcs.Add(fun)
 }
 
 // GobEncode is a custom gob marshaller

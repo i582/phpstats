@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/i582/phpstats/internal/grapher"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
@@ -63,7 +64,9 @@ func Graph() *shell.Executor {
 			}
 
 			file, _ := stats.GlobalCtx.Files.Get(paths[0])
-			graph := file.GraphvizRecursive(recursiveLevel, root, block)
+
+			g := grapher.NewGrapher()
+			graph := g.FileDeps(file, recursiveLevel, root, block)
 
 			fmt.Fprint(output, graph)
 
@@ -117,7 +120,9 @@ func Graph() *shell.Executor {
 			}
 
 			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
-			graph := class.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
+
+			g := grapher.NewGrapher()
+			graph := g.ClassDeps(class, recursiveLevel)
 
 			fmt.Fprint(output, graph)
 
@@ -141,20 +146,11 @@ func Graph() *shell.Executor {
 				Help:      "output file",
 			},
 			&flags.Flag{
-				Name:      "-r",
-				WithValue: true,
-				Help:      "recursive level",
-				Default:   "5",
-			},
-			&flags.Flag{
 				Name: "-show",
 				Help: "show graph file in console",
 			},
 		),
 		Func: func(c *shell.Context) {
-			recursiveLevelValue := c.GetFlagValue("-r")
-			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
-
 			show := c.Flags.Contains("-show")
 
 			output, err := c.ValidateFile("-o")
@@ -171,7 +167,9 @@ func Graph() *shell.Executor {
 			}
 
 			fun, _ := stats.GlobalCtx.Funcs.Get(funcs[0])
-			graph := fun.GraphvizRecursive(0, recursiveLevel, map[string]struct{}{})
+
+			g := grapher.NewGrapher()
+			graph := g.FuncDeps(fun)
 
 			fmt.Fprint(output, graph)
 

@@ -40,14 +40,14 @@ func (c *Constants) Len() int {
 
 func (c *Constants) Add(constant *Constant) {
 	c.Lock()
-	defer c.Unlock()
 	c.Constants[*constant] = constant
+	c.Unlock()
 }
 
 func (c *Constants) Get(constantKey Constant) (*Constant, bool) {
 	c.Lock()
-	defer c.Unlock()
 	constant, ok := c.Constants[constantKey]
+	c.Unlock()
 	return constant, ok
 }
 

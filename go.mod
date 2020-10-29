@@ -14,6 +14,6 @@ require (
 	github.com/quasilyte/regex/syntax v0.0.0-20200805063351-8f842688393c // indirect
 	golang.org/x/exp v0.0.0-20201008143054-e3b2a7f2fdc7 // indirect
 	golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13 // indirect
-	golang.org/x/tools v0.0.0-20201019175715-b894a3290fff // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gonum.org/v1/gonum v0.8.1
 )

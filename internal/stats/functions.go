@@ -76,7 +76,7 @@ func (fi *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 	return res, nil
 }
 
-func NewFunctionsInfo() *Functions {
+func NewFunctions() *Functions {
 	return &Functions{
 		Funcs: map[FuncKey]*Function{},
 	}
@@ -136,14 +136,14 @@ func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offse
 
 func (fi *Functions) Add(fn *Function) {
 	fi.Lock()
-	defer fi.Unlock()
 	fi.Funcs[fn.Name] = fn
+	fi.Unlock()
 }
 
 func (fi *Functions) Get(fn FuncKey) (*Function, bool) {
 	fi.Lock()
-	defer fi.Unlock()
 	f, ok := fi.Funcs[fn]
+	fi.Unlock()
 	return f, ok
 }
 
@@ -155,7 +155,6 @@ func (fi *Functions) GetOrCreateFunction(fn FuncKey, pos meta.ElementPosition) *
 		f = NewFunctionInfo(fn, pos)
 		GlobalCtx.Funcs.Add(f)
 	}
-
 	return f
 }
 
@@ -167,7 +166,6 @@ func (fi *Functions) GetOrCreateMethod(fn FuncKey, pos meta.ElementPosition, cla
 		f = NewMethodInfo(fn, pos, class)
 		GlobalCtx.Funcs.Add(f)
 	}
-
 	return f
 }
 
@@ -181,6 +179,12 @@ type Function struct {
 	CalledBy *Functions
 
 	UsesCount int64
+
+	depsResolved bool
+	deps         *Classes
+
+	depsByResolved bool
+	depsBy         *Classes
 
 	// Method part
 	Class *Class
@@ -196,8 +200,10 @@ func NewFunctionInfo(name FuncKey, pos meta.ElementPosition) *Function {
 	atomic.AddInt64(&FunctionCount, 1)
 	return &Function{
 		Name:     name,
-		Called:   NewFunctionsInfo(),
-		CalledBy: NewFunctionsInfo(),
+		Called:   NewFunctions(),
+		CalledBy: NewFunctions(),
+		deps:     NewClasses(),
+		depsBy:   NewClasses(),
 		Pos:      pos,
 		Id:       FunctionCount,
 	}
@@ -225,8 +231,11 @@ func (f Function) Equal(fi2 Function) bool {
 	return f.Name.Equal(fi2.Name)
 }
 
-func (f *Function) CountDeps() int64 {
-	deps := map[string]struct{}{}
+func (f *Function) Deps() *Classes {
+	if f.depsResolved {
+		return f.deps
+	}
+
 	for _, called := range f.Called.Funcs {
 		if called.Class == nil {
 			continue
@@ -235,14 +244,23 @@ func (f *Function) CountDeps() int64 {
 			continue
 		}
 
-		deps[called.Class.Name] = struct{}{}
+		f.deps.Add(called.Class)
 	}
 
-	return int64(len(deps))
+	f.depsResolved = true
+
+	return f.deps
 }
 
-func (f *Function) CountDepsBy() int64 {
-	deps := map[string]struct{}{}
+func (f *Function) CountDeps() int64 {
+	return int64(f.Deps().Len())
+}
+
+func (f *Function) DepsBy() *Classes {
+	if f.depsByResolved {
+		return f.depsBy
+	}
+
 	for _, called := range f.CalledBy.Funcs {
 		if called.Class == nil {
 			continue
@@ -251,121 +269,37 @@ func (f *Function) CountDepsBy() int64 {
 			continue
 		}
 
-		deps[called.Class.Name] = struct{}{}
+		f.depsBy.Add(called.Class)
 	}
 
-	return int64(len(deps))
+	f.depsByResolved = true
+
+	return f.depsBy
 }
 
-func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {
-	var res string
-
-	if level == 0 {
-		res += "digraph test{\n"
-	}
-
-	if level > maxLevel {
-		return ""
-	}
-
-	classes := NewClasses()
-
-	for _, called := range f.Called.Funcs {
-		if called.Class == nil {
-			continue
-		}
-
-		res += called.Class.GraphvizRecursive(1, maxLevel+1, visited)
-
-		classes.Add(called.Class)
-	}
-
-	for _, class := range classes.Classes {
-		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", f.Name, class.Name)
-
-		if _, ok := visited[str]; ok {
-			continue
-		}
-		visited[str] = struct{}{}
-
-		res += str
-	}
-
-	if level == 0 {
-		res += "}\n"
-	}
-
-	return res
-}
-
-func (f *Function) ShortString() string {
-	var res string
-
-	if f.Name.IsMethod() {
-		res += fmt.Sprintf("Method %s\n", f.Name)
-
-		if !IsEmbeddedFunc(f.Pos.Filename) {
-			res += fmt.Sprintf(" Class: ")
-			if f.Class != nil {
-				res += f.Class.Name
-			} else {
-				res += "undefined"
-			}
-			res += "\n"
-		}
-
-	} else {
-		res += fmt.Sprintf("Function %s\n", f.Name)
-	}
-
-	return res
-}
-
-func (f *Function) FullString() string {
-	var res string
-
-	res += f.ShortString()
-
-	if IsEmbeddedFunc(f.Pos.Filename) {
-		res += fmt.Sprintf(" Embedded function\n")
-	} else {
-		res += fmt.Sprintf(" Defined here: %s:%d\n", f.Pos.Filename, f.Pos.Line)
-	}
-
-	res += fmt.Sprintf(" Number of uses: %d\n", f.UsesCount)
-
-	res += fmt.Sprintf(" Depends of classes: %d\n", f.CountDeps())
-	res += fmt.Sprintf(" Classes depends: %d\n", f.CountDepsBy())
-
-	if len(f.Called.Funcs) != 0 {
-		res += fmt.Sprintf(" Called functions (%d):\n", len(f.Called.Funcs))
-	}
-
-	if len(f.Called.Funcs) != 0 {
-		res += fmt.Sprintf(" Called by functions (%d):\n", len(f.CalledBy.Funcs))
-	}
-
-	return res
-}
-
-func (f *Function) getName(caller *Function) string {
-	if !f.Name.IsMethod() {
-		return f.Name.Name
-	}
-
-	if caller.Class != nil && f.Class != nil && caller.Class == f.Class {
-		return "self::" + f.Name.Name
-	}
-
-	return f.Name.String()
+func (f *Function) CountDepsBy() int64 {
+	return int64(f.DepsBy().Len())
 }
 
 func (f *Function) AddCalled(fn *Function) {
 	f.Called.Add(fn)
+
+	if f.Class == nil || fn.Class == nil {
+		return
+	}
+
+	f.Class.AddDeps(fn.Class)
 }
 
 func (f *Function) AddCalledBy(fn *Function) {
 	f.CalledBy.Add(fn)
+
+	if f.Class == nil || fn.Class == nil {
+		return
+	}
+
+	f.Class.AddDepsBy(fn.Class)
+	f.AddUse()
 }
 
 func (f *Function) AddUse() {

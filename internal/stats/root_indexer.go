@@ -2,6 +2,7 @@ package stats
 
 import (
 	"log"
+	"strings"
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
@@ -14,6 +15,11 @@ type rootIndexer struct {
 
 	ctx  *linter.RootContext
 	meta FileMeta
+}
+
+func (r *rootIndexer) inVendor() bool {
+	curFileName := r.ctx.Filename()
+	return strings.Contains(curFileName, "vendor") || strings.Contains(curFileName, "phpstorm-stubs")
 }
 
 func (r *rootIndexer) BeforeEnterFile() {
@@ -53,8 +59,13 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 
 		class := NewClass(className, curFile)
 		class.IsAbstract = isAbstract
+		class.Vendor = r.inVendor()
 
 		r.meta.Classes.Add(class)
+
+		for _, n := range n.Stmts {
+			r.handleClassInterfaceMethodsConstants(class, n)
+		}
 
 	case *ir.InterfaceStmt:
 		curFileName := r.ctx.Filename()
@@ -72,19 +83,34 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 		}
 
 		iface := NewInterface(ifaceName, curFile)
+		iface.Vendor = r.inVendor()
 		r.meta.Classes.Add(iface)
 
+		for _, n := range n.Stmts {
+			r.handleClassInterfaceMethodsConstants(iface, n)
+		}
+
+	case *ir.FunctionStmt:
+		funcName := n.FunctionName.Value
+		pos := r.getElementPos(n)
+
+		fn := NewFunctionInfo(NewFuncKey(funcName), pos)
+		r.meta.Funcs.Add(fn)
+	}
+}
+
+func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *Class, n ir.Node) {
+	switch n := n.(type) {
 	case *ir.ClassMethodStmt:
-		currentClassName := r.ctx.ClassParseState().CurrentClass
 		methodName := n.MethodName.Value
 		pos := r.getElementPos(n)
 
-		fn := NewFunctionInfo(NewMethodKey(methodName, currentClassName), pos)
+		fn := NewFunctionInfo(NewMethodKey(methodName, class.Name), pos)
 		r.meta.Funcs.Add(fn)
 
 	case *ir.ClassConstListStmt:
 		for _, c := range n.Consts {
-			r.meta.Constants.Add(NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, r.ctx.ClassParseState().CurrentClass))
+			r.meta.Constants.Add(NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, class.Name))
 		}
 	}
 }
