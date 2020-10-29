@@ -281,47 +281,6 @@ func (f *Function) CountDepsBy() int64 {
 	return int64(f.DepsBy().Len())
 }
 
-func (f *Function) GraphvizRecursive(level int64, maxLevel int64, visited map[string]struct{}) string {
-	var res string
-
-	if level == 0 {
-		res += "digraph test{\n"
-	}
-
-	if level > maxLevel {
-		return ""
-	}
-
-	classes := NewClasses()
-
-	for _, called := range f.Called.Funcs {
-		if called.Class == nil {
-			continue
-		}
-
-		res += called.Class.GraphvizRecursive(1, maxLevel+1, visited)
-
-		classes.Add(called.Class)
-	}
-
-	for _, class := range classes.Classes {
-		str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", f.Name, class.Name)
-
-		if _, ok := visited[str]; ok {
-			continue
-		}
-		visited[str] = struct{}{}
-
-		res += str
-	}
-
-	if level == 0 {
-		res += "}\n"
-	}
-
-	return res
-}
-
 func (f *Function) ShortString() string {
 	var res string
 

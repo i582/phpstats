@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -125,55 +126,11 @@ func NewFile(path string) *File {
 	}
 }
 
-func GraphvizRecursive(file *File, level int64, visited map[string]struct{}, maxRecursive int64, root, block bool) string {
-	if level > maxRecursive {
-		return ""
-	}
+var filenameNormalizer = regexp.MustCompile("[^0-9a-zA-Z]")
 
-	if _, ok := visited[file.Path]; ok {
-		return ""
-	}
-	visited[file.Path] = struct{}{}
-
-	var res string
-
-	if root {
-		for _, f := range file.RequiredRoot.Files {
-			str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
-			if _, ok := visited[str]; !ok {
-				res += str
-				visited[str] = struct{}{}
-			}
-
-			res += GraphvizRecursive(f, level+1, visited, maxRecursive, root, block)
-		}
-	}
-
-	if block {
-		for _, f := range file.RequiredBlock.Files {
-			str := fmt.Sprintf("   \"%s\" -> \"%s\"\n", file.Path, f.Path)
-			if _, ok := visited[str]; !ok {
-				res += str
-				visited[str] = struct{}{}
-			}
-
-			res += GraphvizRecursive(f, level+1, visited, maxRecursive, root, block)
-		}
-	}
-
-	return res
-}
-
-func (f *File) GraphvizRecursive(maxRecursive int64, root, block bool) string {
-	var res string
-
-	res += "digraph test{\n"
-
-	res += GraphvizRecursive(f, 0, make(map[string]struct{}), maxRecursive, root, block)
-
-	res += "}\n"
-
-	return res
+func (f *File) UniqueId() string {
+	dir, _ := filepath.Split(f.Path)
+	return filepath.Base(dir) + "__" + filenameNormalizer.ReplaceAllString(f.Name, "_")
 }
 
 func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRecursive int, isRootRequire bool) string {

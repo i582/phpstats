@@ -64,7 +64,9 @@ func Graph() *shell.Executor {
 			}
 
 			file, _ := stats.GlobalCtx.Files.Get(paths[0])
-			graph := file.GraphvizRecursive(recursiveLevel, root, block)
+
+			g := grapher.NewGrapher()
+			graph := g.FileDeps(file, recursiveLevel, root, block)
 
 			fmt.Fprint(output, graph)
 
