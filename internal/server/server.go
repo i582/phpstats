@@ -69,5 +69,5 @@ func ExitHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AnalyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, float64(stats.BarLinting.Total()), float64(stats.GlobalCtx.Files.Len()))
+	fmt.Fprint(w, float64(stats.BarLinting.Total())/float64(stats.GlobalCtx.Files.Len()))
 }

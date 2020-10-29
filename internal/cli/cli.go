@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/i582/phpstats/internal/server"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/commands"
+	"github.com/i582/phpstats/internal/stats"
 )
 
 type PhplinterTool struct {
@@ -50,6 +52,10 @@ func RunPhplinterTool(tool *PhplinterTool) {
 	if err := run(); err != nil {
 		log.Printf("%s: run %q error: %+v", tool.Name, subcmd, err)
 		return
+	}
+
+	if stats.WithServer {
+		server.RunServer()
 	}
 
 	s := shell.NewShell()
