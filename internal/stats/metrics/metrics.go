@@ -1,11 +1,13 @@
-package stats
+package metrics
 
 import (
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
+
+	"github.com/i582/phpstats/internal/stats"
 )
 
-func AfferentEfferentStabilityOfClass(c *Class) (aff, eff, stab float64) {
+func AfferentEfferentStabilityOfClass(c *stats.Class) (aff, eff, stab float64) {
 	efferent := float64(c.Deps.Len())
 	afferent := float64(c.DepsBy.Len())
 
@@ -19,7 +21,7 @@ func AfferentEfferentStabilityOfClass(c *Class) (aff, eff, stab float64) {
 	return afferent, efferent, instability
 }
 
-func LackOfCohesionInMethodsOfCLass(c *Class) (float64, bool) {
+func LackOfCohesionInMethodsOfCLass(c *stats.Class) (float64, bool) {
 	var usedSum int
 	for _, field := range c.Fields.Fields {
 		usedSum += len(field.Used)
@@ -34,7 +36,7 @@ func LackOfCohesionInMethodsOfCLass(c *Class) (float64, bool) {
 	return -1, false
 }
 
-func Lcom4(c *Class) int64 {
+func Lcom4(c *stats.Class) int64 {
 	g := simple.NewUndirectedGraph()
 
 	for _, method := range c.Methods.Funcs {
@@ -53,7 +55,7 @@ func Lcom4(c *Class) int64 {
 	}
 
 	for _, field := range c.Fields.Fields {
-		functions := make([]*Function, 0, len(field.Used))
+		functions := make([]*stats.Function, 0, len(field.Used))
 
 		for used := range field.Used {
 			functions = append(functions, used)

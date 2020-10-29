@@ -9,6 +9,7 @@ import (
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/metrics"
 )
 
 func Top() *shell.Executor {
@@ -193,8 +194,8 @@ func Top() *shell.Executor {
 			allClasses := stats.GlobalCtx.Classes.GetAll(false, -1, 0, false)
 
 			sort.Slice(allClasses, func(i, j int) bool {
-				affI, effI, instabI := stats.AfferentEfferentStabilityOfClass(allClasses[i])
-				affJ, effJ, instabJ := stats.AfferentEfferentStabilityOfClass(allClasses[j])
+				affI, effI, instabI := metrics.AfferentEfferentStabilityOfClass(allClasses[i])
+				affJ, effJ, instabJ := metrics.AfferentEfferentStabilityOfClass(allClasses[j])
 
 				switch {
 				case byAff:
@@ -213,15 +214,15 @@ func Top() *shell.Executor {
 					}
 					return instabI > instabJ
 				case byLcom:
-					lcomI, _ := stats.LackOfCohesionInMethodsOfCLass(allClasses[i])
-					lcomJ, _ := stats.LackOfCohesionInMethodsOfCLass(allClasses[j])
+					lcomI, _ := metrics.LackOfCohesionInMethodsOfCLass(allClasses[i])
+					lcomJ, _ := metrics.LackOfCohesionInMethodsOfCLass(allClasses[j])
 					if reverse {
 						lcomI, lcomJ = lcomJ, lcomI
 					}
 					return lcomI > lcomJ
 				case byLcom4:
-					lcom4I := stats.Lcom4(allClasses[i])
-					lcom4J := stats.Lcom4(allClasses[j])
+					lcom4I := metrics.Lcom4(allClasses[i])
+					lcom4J := metrics.Lcom4(allClasses[j])
 					if reverse {
 						lcom4I, lcom4J = lcom4J, lcom4I
 					}

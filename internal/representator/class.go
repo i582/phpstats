@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/metrics"
 )
 
 type ClassData struct {
@@ -42,9 +43,9 @@ func classToData(c *stats.Class) *ClassData {
 		}
 	}
 
-	aff, eff, instab := stats.AfferentEfferentStabilityOfClass(c)
-	lcom, _ := stats.LackOfCohesionInMethodsOfCLass(c)
-	lcom4 := stats.Lcom4(c)
+	aff, eff, instab := metrics.AfferentEfferentStabilityOfClass(c)
+	lcom, _ := metrics.LackOfCohesionInMethodsOfCLass(c)
+	lcom4 := metrics.Lcom4(c)
 
 	return &ClassData{
 		Name:        c.Name,
