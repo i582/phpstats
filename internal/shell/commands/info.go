@@ -74,8 +74,8 @@ func Info() *shell.Executor {
 
 			fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
-			dataJson, _ := representator.GetJsonFunctionRepr(fn)
-			fmt.Println(string(dataJson))
+			dataJson, _ := representator.GetJsonFunctionReprWithFlag(fn)
+			fmt.Println(dataJson)
 			data := representator.GetFunctionRepr(fn)
 			fmt.Println(data)
 		},

@@ -36,12 +36,20 @@ func fileToData(f *stats.File) *FileData {
 }
 
 func GetShortFileRepr(f *stats.File) string {
+	if f == nil {
+		return ""
+	}
+
 	data := fileToData(f)
 
 	return fmt.Sprintf("%-40s (%s)", data.Name, data.Path)
 }
 
 func GetFileRepr(f *stats.File) string {
+	if f == nil {
+		return ""
+	}
+
 	data := fileToData(f)
 
 	var res string
@@ -64,13 +72,31 @@ func GetFileRepr(f *stats.File) string {
 	return res
 }
 
-func GetJsonFileRepr(f *stats.File) ([]byte, error) {
+func GetJsonFileRepr(f *stats.File) (string, error) {
 	data := fileToData(f)
 
 	res, err := json.Marshal(data)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return res, nil
+	return string(res), nil
+}
+
+func GetJsonFileReprWithFile(f *stats.File) (string, error) {
+	type Response struct {
+		Data  *FileData
+		Found bool
+	}
+	var resp Response
+
+	resp.Data = fileToData(f)
+	resp.Found = f != nil
+
+	res, err := json.Marshal(resp)
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
 }

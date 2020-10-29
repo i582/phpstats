@@ -23,7 +23,8 @@ func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 
 	classNames, err := stats.GlobalCtx.Classes.GetFullClassName(name)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		data, _ := representator.GetJsonClassReprWithFlag(nil)
+		fmt.Fprintln(w, data)
 		return
 	}
 
@@ -37,7 +38,7 @@ func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 
 	class, _ := stats.GlobalCtx.Classes.Get(className)
 
-	data, _ := representator.GetJsonClassRepr(class)
+	data, _ := representator.GetJsonClassReprWithFlag(class)
 	fmt.Fprintln(w, data)
 }
 
@@ -46,7 +47,8 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 
 	funcNameKeys, err := stats.GlobalCtx.Funcs.GetFullFuncName(name)
 	if err != nil {
-		fmt.Fprintln(w, err)
+		data, _ := representator.GetJsonFunctionReprWithFlag(nil)
+		fmt.Fprintln(w, data)
 		return
 	}
 
@@ -60,7 +62,7 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 
 	fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
-	data, _ := representator.GetJsonFunctionRepr(fn)
+	data, _ := representator.GetJsonFunctionReprWithFlag(fn)
 	fmt.Fprintln(w, data)
 }
 
