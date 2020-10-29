@@ -152,8 +152,11 @@ A local server is used to interact with the analyzer from other programs. To ena
 The following APIs are currently available:
 
 `/info/class?name=value` — getting information about the class by its name (the name does not have to be completely the same, the search is not strict).
+
 `/info/func?name=value` — getting information about a function by its name.
+
 `/exit` — shutdown of the server.
+
 `/analyzeStats` — Get the current analysis state.
 
 ## License
