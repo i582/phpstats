@@ -12,6 +12,7 @@ import (
 func RunServer() {
 	http.HandleFunc("/info/class", InfoClassHandler)
 	http.HandleFunc("/info/func", InfoFunctionHandler)
+	http.HandleFunc("/info/namespace", InfoNamespaceHandler)
 	http.HandleFunc("/exit", ExitHandler)
 	http.HandleFunc("/analyzeStats", AnalyzeStatsHandler)
 
@@ -63,6 +64,20 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
 	data, _ := representator.GetJsonFunctionReprWithFlag(fn)
+	fmt.Fprintln(w, data)
+}
+
+func InfoNamespaceHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+
+	ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(name)
+	if !ok {
+		data, _ := representator.GetJsonNamespaceReprWithFlag(nil)
+		fmt.Fprintln(w, data)
+		return
+	}
+
+	data, _ := representator.GetJsonNamespaceReprWithFlag(ns)
 	fmt.Fprintln(w, data)
 }
 
