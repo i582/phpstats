@@ -20,6 +20,8 @@ type FunctionData struct {
 
 	CountDeps   int64 `json:"countDeps"`
 	CountDepsBy int64 `json:"countDepsBy"`
+
+	CyclomaticComplexity int64 `json:"cc"`
 }
 
 func funcToData(f *stats.Function) *FunctionData {
@@ -35,14 +37,15 @@ func funcToData(f *stats.Function) *FunctionData {
 	}
 
 	return &FunctionData{
-		Name:          f.Name.String(),
-		Type:          tp,
-		Class:         f.Name.ClassName,
-		UsesCount:     f.UsesCount,
-		CountCalled:   int64(f.Called.Len()),
-		CountCalledBy: int64(f.CalledBy.Len()),
-		CountDeps:     f.CountDeps(),
-		CountDepsBy:   f.CountDepsBy(),
+		Name:                 f.Name.String(),
+		Type:                 tp,
+		Class:                f.Name.ClassName,
+		UsesCount:            f.UsesCount,
+		CountCalled:          int64(f.Called.Len()),
+		CountCalledBy:        int64(f.CalledBy.Len()),
+		CountDeps:            f.CountDeps(),
+		CountDepsBy:          f.CountDepsBy(),
+		CyclomaticComplexity: f.CyclomaticComplexity,
 	}
 }
 
@@ -67,13 +70,14 @@ func GetFunctionRepr(f *stats.Function) string {
 
 	res += fmt.Sprintf("%s %s\n", data.Type, data.Name)
 	if data.Class != "" {
-		res += fmt.Sprintf("  Class:               %s\n", data.Class)
+		res += fmt.Sprintf("  Class:                 %s\n", data.Class)
 	}
-	res += fmt.Sprintf("  Number of uses:      %d\n", data.UsesCount)
-	res += fmt.Sprintf("  Depends of classes:  %d\n", data.CountDeps)
-	res += fmt.Sprintf("  Classes depends:     %d\n", data.CountDepsBy)
-	res += fmt.Sprintf("  Called functions:    %d\n", data.CountCalled)
-	res += fmt.Sprintf("  Called by functions: %d\n", data.CountCalledBy)
+	res += fmt.Sprintf("  Number of uses:        %d\n", data.UsesCount)
+	res += fmt.Sprintf("  Depends of classes:    %d\n", data.CountDeps)
+	res += fmt.Sprintf("  Classes depends:       %d\n", data.CountDepsBy)
+	res += fmt.Sprintf("  Called functions:      %d\n", data.CountCalled)
+	res += fmt.Sprintf("  Called by functions:   %d\n", data.CountCalledBy)
+	res += fmt.Sprintf("  Cyclomatic complexity: %d (>15 hard to understand, >30 extremply complex)\n", data.CyclomaticComplexity)
 
 	return res
 }

@@ -30,6 +30,10 @@ func Top() *shell.Executor {
 				Help: "top functions by uses count",
 			},
 			&flags.Flag{
+				Name: "-by-cc",
+				Help: "top functions by cyclomatic complexity",
+			},
+			&flags.Flag{
 				Name: "-r",
 				Help: "sort reverse",
 			},
@@ -58,6 +62,7 @@ func Top() *shell.Executor {
 			byDeps := c.Flags.Contains("-by-deps")
 			byAsDeps := c.Flags.Contains("-by-as-deps")
 			byUses := c.Flags.Contains("-by-uses")
+			byCC := c.Flags.Contains("-by-cc")
 
 			allFuncs := stats.GlobalCtx.Funcs.GetAll(true, true, true, -1, 0, false, true)
 
@@ -84,6 +89,13 @@ func Top() *shell.Executor {
 						usesI, usesJ = usesJ, usesI
 					}
 					return usesI > usesJ
+				case byCC:
+					ccI := allFuncs[i].CyclomaticComplexity
+					ccJ := allFuncs[j].CyclomaticComplexity
+					if reverse {
+						ccI, ccJ = ccJ, ccI
+					}
+					return ccI > ccJ
 				}
 
 				nameI := allFuncs[i].Name.Name

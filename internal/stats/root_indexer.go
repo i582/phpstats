@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/VKCOM/noverify/src/ir"
+	"github.com/VKCOM/noverify/src/ir/irutil"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
 	"github.com/VKCOM/noverify/src/solver"
@@ -94,9 +95,29 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 		funcName := n.FunctionName.Value
 		pos := r.getElementPos(n)
 
+		cc := r.calculateCyclomaticComplexity(&ir.StmtList{
+			Stmts: n.Stmts,
+		})
+
 		fn := NewFunctionInfo(NewFuncKey(funcName), pos)
+		fn.CyclomaticComplexity = cc
 		r.meta.Funcs.Add(fn)
 	}
+}
+
+func (r *rootIndexer) calculateCyclomaticComplexity(stmts *ir.StmtList) int64 {
+	var complexity int64
+	irutil.Inspect(stmts, func(n ir.Node) bool {
+		switch n.(type) {
+		case *ir.IfStmt, *ir.ForStmt, *ir.WhileStmt, *ir.ForeachStmt,
+			*ir.CaseStmt, *ir.DefaultStmt, *ir.ContinueStmt, *ir.BreakStmt,
+			*ir.GotoStmt, *ir.CatchStmt, *ir.TernaryExpr, *ir.CoalesceExpr,
+			*ir.BooleanOrExpr, *ir.BooleanAndExpr:
+			complexity++
+		}
+		return true
+	})
+	return complexity
 }
 
 func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *Class, n ir.Node) {
@@ -105,7 +126,13 @@ func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *Class, n ir.No
 		methodName := n.MethodName.Value
 		pos := r.getElementPos(n)
 
+		var cc int64
+		if n, ok := n.Stmt.(*ir.StmtList); ok {
+			cc = r.calculateCyclomaticComplexity(n)
+		}
+
 		fn := NewFunctionInfo(NewMethodKey(methodName, class.Name), pos)
+		fn.CyclomaticComplexity = cc
 		r.meta.Funcs.Add(fn)
 
 	case *ir.ClassConstListStmt:
