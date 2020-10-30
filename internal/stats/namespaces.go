@@ -118,6 +118,35 @@ func (n *Namespaces) Get(name string) (*Namespace, bool) {
 	return ns, ok
 }
 
+func (n *Namespaces) GetNamespacesWithSpecificLevel(level int64) []*Namespace {
+	if level < 0 {
+		return nil
+	}
+
+	return n.getNamespacesWithSpecificLevel(0, level)
+}
+
+func (n *Namespaces) getNamespacesWithSpecificLevel(curLevel int64, level int64) []*Namespace {
+	if curLevel == level {
+		res := make([]*Namespace, 0, len(n.Namespaces))
+
+		for _, ns := range n.Namespaces {
+			res = append(res, ns)
+		}
+
+		return res
+	}
+
+	res := make([]*Namespace, 0, len(n.Namespaces)*10)
+
+	for _, ns := range n.Namespaces {
+		nss := ns.Childs.getNamespacesWithSpecificLevel(curLevel+1, level)
+		res = append(res, nss...)
+	}
+
+	return res
+}
+
 type Namespace struct {
 	Name     string
 	FullName string
