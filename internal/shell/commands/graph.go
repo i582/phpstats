@@ -223,6 +223,86 @@ func Graph() *shell.Executor {
 		},
 	}
 
+	graphNamespacesExecutor := &shell.Executor{
+		Name: "namespaces",
+		Help: "show graph with all namespaces",
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Required:  true,
+				Help:      "output file",
+			},
+			&flags.Flag{
+				Name: "-show",
+				Help: "show graph file in console",
+			},
+		),
+		Func: func(c *shell.Context) {
+			show := c.Flags.Contains("-show")
+
+			output, err := c.ValidateFile("-o")
+			if err != nil {
+				c.Error(err)
+				return
+			}
+			defer output.Close()
+
+			g := grapher.NewGrapher()
+			graph := g.Namespaces(stats.GlobalCtx.Namespaces)
+
+			fmt.Fprint(output, graph)
+
+			if show {
+				fmt.Println(graph)
+			}
+		},
+	}
+
+	graphNamespaceExecutor := &shell.Executor{
+		Name:      "namespace",
+		Help:      "show graph with namespace",
+		WithValue: true,
+		CountArgs: 1,
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Required:  true,
+				Help:      "output file",
+			},
+			&flags.Flag{
+				Name: "-show",
+				Help: "show graph file in console",
+			},
+		),
+		Func: func(c *shell.Context) {
+			show := c.Flags.Contains("-show")
+
+			output, err := c.ValidateFile("-o")
+			if err != nil {
+				c.Error(err)
+				return
+			}
+			defer output.Close()
+
+			ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
+			if !ok {
+				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
+				return
+			}
+
+			g := grapher.NewGrapher()
+			graph := g.Namespace(ns)
+
+			fmt.Fprint(output, graph)
+
+			if show {
+				fmt.Println(graph)
+			}
+		},
+	}
+
 	graphExecutor := &shell.Executor{
 		Name: "graph",
 		Help: "dependencies graph view",
@@ -235,6 +315,8 @@ func Graph() *shell.Executor {
 	graphExecutor.AddExecutor(graphClassExecutor)
 	graphExecutor.AddExecutor(graphFuncExecutor)
 	graphExecutor.AddExecutor(graphLcom4Executor)
+	graphExecutor.AddExecutor(graphNamespacesExecutor)
+	graphExecutor.AddExecutor(graphNamespaceExecutor)
 
 	return graphExecutor
 }

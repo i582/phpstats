@@ -7,7 +7,12 @@ import (
 )
 
 func (g *Grapher) Namespace(ns *stats.Namespace) string {
-	return g.namespace(ns)
+	var res string
+
+	res += graphHeader
+	res += g.namespace(ns)
+
+	return g.graphWrapper(res, utils.ClassNameNormalize(ns.FullName))
 }
 
 func (g *Grapher) Namespaces(ns *stats.Namespaces) string {
