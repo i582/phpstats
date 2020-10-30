@@ -6,7 +6,7 @@ phpstats is a small utility for collecting project statistics and building depen
 
 It tries to be fast, ~80k LOC/s (lines of code per second) on Core i7.
 
-#### Metrics
+### Metrics
 
 The following metrics are currently available:
 
@@ -23,7 +23,7 @@ The following metrics are currently available:
 5. Lack of Cohesion in Methods 4 for classes;
 6. Cyclomatic Complexity.
 
-#### Graph output (Graphviz format)
+### Graph output (Graphviz format)
 
 1. File dependencies, both for root and inside functions.
 
