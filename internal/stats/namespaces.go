@@ -31,13 +31,23 @@ func (n *Namespaces) CreateNamespace(nsName string) *Namespace {
 }
 
 func (n *Namespaces) AddFileToNamespace(nsName string, file *File) {
-	splitted := splitNsName(nsName)
-	ns, _ := n.createNamespace(splitted, "")
+	ns, ok := n.GetNamespace(nsName)
+	if !ok {
+		return
+	}
 	ns.Files.Add(file)
 }
 
+func (n *Namespaces) AddClassToNamespace(nsName string, class *Class) {
+	ns, ok := n.GetNamespace(nsName)
+	if !ok {
+		return
+	}
+	ns.Classes.Add(class)
+}
+
 func (n *Namespaces) createNamespace(nsParts []string, fullName string) (*Namespace, bool) {
-	if len(nsParts) == 1 {
+	if len(nsParts) == 0 {
 		return nil, false
 	}
 
@@ -112,9 +122,15 @@ type Namespace struct {
 	Name     string
 	FullName string
 
-	Files *Files
+	Files   *Files
+	Classes *Classes
 
 	Childs *Namespaces
+
+	MetricsResolved bool
+	Aff             float64
+	Eff             float64
+	Instab          float64
 }
 
 func NewNamespace(name string, fullName string) *Namespace {
@@ -122,6 +138,7 @@ func NewNamespace(name string, fullName string) *Namespace {
 		Name:     name,
 		FullName: fullName,
 		Files:    NewFiles(),
+		Classes:  NewClasses(),
 		Childs:   NewNamespaces(),
 	}
 }

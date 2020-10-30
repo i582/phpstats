@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
@@ -149,46 +148,14 @@ func Info() *shell.Executor {
 		Func: func(c *shell.Context) {
 			namespace := c.Args[0]
 
-			classes := stats.NewClasses()
-			for _, class := range stats.GlobalCtx.Classes.Classes {
-				if strings.Contains(class.Name, namespace) {
-					classes.Add(class)
-				}
+			ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(namespace)
+			if !ok {
+				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
+				return
 			}
 
-			var aff float64
-			var eff float64
-
-			for _, class := range classes.Classes {
-				for _, dep := range class.Deps.Classes {
-					if !strings.Contains(dep.Name, namespace) {
-						aff++
-					}
-				}
-
-				for _, depBy := range class.DepsBy.Classes {
-					if !strings.Contains(depBy.Name, namespace) {
-						eff++
-					}
-				}
-			}
-
-			var instability float64
-			if eff+aff == 0 {
-				instability = 0
-			} else {
-				instability = eff / (eff + aff)
-			}
-
-			var res string
-
-			res += fmt.Sprintf("Namespace %s:\n", namespace)
-
-			res += fmt.Sprintf(" Afferent:  %.2f\n", aff)
-			res += fmt.Sprintf(" Efferent:  %.2f\n", eff)
-			res += fmt.Sprintf(" Instability: %.2f\n", instability)
-
-			fmt.Println(res)
+			data := representator.GetStringNamespaceRepr(ns)
+			fmt.Println(data)
 		},
 	}
 
