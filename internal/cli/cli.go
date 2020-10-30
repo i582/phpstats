@@ -8,7 +8,6 @@ import (
 	"github.com/i582/phpstats/internal/server"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/commands"
-	"github.com/i582/phpstats/internal/stats"
 )
 
 type PhplinterTool struct {
@@ -22,6 +21,8 @@ func errorFunc(format string, args ...interface{}) func() error {
 		return fmt.Errorf(format, args...)
 	}
 }
+
+var MainShell = shell.NewShell()
 
 func RunPhplinterTool(tool *PhplinterTool) {
 	subcmd := ""
@@ -48,23 +49,19 @@ func RunPhplinterTool(tool *PhplinterTool) {
 		}
 	}
 
+	server.RunServer()
+
 	log.SetFlags(0)
 	if err := run(); err != nil {
-		log.Printf("%s: run %q error: %+v", tool.Name, subcmd, err)
+		log.Printf("%MainShell: run %q error: %+v", tool.Name, subcmd, err)
 		return
 	}
 
-	if stats.WithServer {
-		server.RunServer()
-	}
+	MainShell.AddExecutor(commands.Info())
+	MainShell.AddExecutor(commands.List())
+	MainShell.AddExecutor(commands.Graph())
+	MainShell.AddExecutor(commands.Brief())
+	MainShell.AddExecutor(commands.Top())
 
-	s := shell.NewShell()
-
-	s.AddExecutor(commands.Info())
-	s.AddExecutor(commands.List())
-	s.AddExecutor(commands.Graph())
-	s.AddExecutor(commands.Brief())
-	s.AddExecutor(commands.Top())
-
-	s.Run()
+	MainShell.Run()
 }

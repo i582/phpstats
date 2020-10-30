@@ -33,6 +33,10 @@ func (f *Files) GetFullFileName(name string) ([]string, error) {
 	var res []string
 
 	for _, file := range f.Files {
+		if file.Path == name {
+			return []string{file.Path}, nil
+		}
+
 		if strings.Contains(file.Path, name) {
 			res = append(res, file.Path)
 		}
@@ -89,14 +93,14 @@ func (f *Files) GetAll(count int64, offset int64, sorted bool) []*File {
 
 func (f *Files) Add(file *File) {
 	f.Lock()
-	defer f.Unlock()
 	f.Files[file.Path] = file
+	f.Unlock()
 }
 
 func (f *Files) Get(path string) (*File, bool) {
 	f.Lock()
-	defer f.Unlock()
 	file, ok := f.Files[path]
+	f.Unlock()
 	return file, ok
 }
 

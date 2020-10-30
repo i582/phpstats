@@ -87,6 +87,10 @@ func (c *Classes) GetFullClassName(name string) ([]string, error) {
 	var res []string
 
 	for _, class := range c.Classes {
+		if class.Name == name {
+			return []string{class.Name}, nil
+		}
+
 		if strings.Contains(class.Name, name) {
 			res = append(res, class.Name)
 		}
@@ -133,6 +137,13 @@ type Class struct {
 	DepsBy *Classes
 
 	Vendor bool
+
+	// metrics
+	LcomResolved bool
+	Lcom         float64
+
+	Lcom4Resolved bool
+	Lcom4         int64
 }
 
 func NewClass(name string, file *File) *Class {

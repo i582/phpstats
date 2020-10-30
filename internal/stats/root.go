@@ -34,6 +34,12 @@ func (r *rootChecker) BeforeEnterFile() {
 
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
+	case *ir.NamespaceStmt:
+		nsName := n.NamespaceName.Value
+
+		GlobalCtx.Namespaces.CreateNamespace(nsName)
+		GlobalCtx.Namespaces.AddFileToNamespace(nsName, r.CurFile)
+
 	case *ir.ImportExpr:
 		filename, ok := utils.ResolveRequirePath(r.ctx.ClassParseState(), ProjectRoot, n.Expr)
 		if !ok {
@@ -96,6 +102,8 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 			extend.AddDepsBy(class)
 		}
 
+		GlobalCtx.Namespaces.AddClassToNamespace(r.ctx.ClassParseState().Namespace, class)
+
 	case *ir.InterfaceStmt:
 		ifaceName, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
 			Value: n.InterfaceName.Value,
@@ -110,6 +118,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		}
 
 		r.CurFile.AddClass(iface)
+		GlobalCtx.Namespaces.AddClassToNamespace(r.ctx.ClassParseState().Namespace, iface)
 
 	case *ir.ClassConstListStmt:
 		curClass, ok := r.GetCurrentClass()

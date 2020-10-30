@@ -85,8 +85,8 @@ func GetJsonFileRepr(f *stats.File) (string, error) {
 
 func GetJsonFileReprWithFile(f *stats.File) (string, error) {
 	type Response struct {
-		Data  *FileData
-		Found bool
+		Data  *FileData `json:"data"`
+		Found bool      `json:"found"`
 	}
 	var resp Response
 

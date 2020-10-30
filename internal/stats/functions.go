@@ -64,6 +64,10 @@ func (fi *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 	var res []FuncKey
 
 	for _, fn := range fi.Funcs {
+		if fn.Name.String() == name {
+			return []FuncKey{fn.Name}, nil
+		}
+
 		if strings.Contains(fn.Name.String(), name) {
 			res = append(res, fn.Name)
 		}

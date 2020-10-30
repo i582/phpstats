@@ -22,6 +22,10 @@ func AfferentEfferentStabilityOfClass(c *stats.Class) (aff, eff, stab float64) {
 }
 
 func LackOfCohesionInMethodsOfCLass(c *stats.Class) (float64, bool) {
+	if c.LcomResolved {
+		return c.Lcom, true
+	}
+
 	var usedSum int
 	for _, field := range c.Fields.Fields {
 		usedSum += len(field.Used)
@@ -30,13 +34,23 @@ func LackOfCohesionInMethodsOfCLass(c *stats.Class) (float64, bool) {
 	allFieldMethod := c.Fields.Len() * c.Methods.Len()
 
 	if allFieldMethod != 0 {
-		return 1 - float64(usedSum)/float64(allFieldMethod), true
+		c.LcomResolved = true
+		c.Lcom = 1 - float64(usedSum)/float64(allFieldMethod)
+
+		return c.Lcom, true
 	}
+
+	c.LcomResolved = true
+	c.Lcom = -1
 
 	return -1, false
 }
 
 func Lcom4(c *stats.Class) int64 {
+	if c.Lcom4Resolved {
+		return c.Lcom4
+	}
+
 	g := simple.NewUndirectedGraph()
 
 	for _, method := range c.Methods.Funcs {
@@ -72,5 +86,9 @@ func Lcom4(c *stats.Class) int64 {
 	}
 
 	connectedComponents := topo.ConnectedComponents(g)
-	return int64(len(connectedComponents))
+
+	c.Lcom4Resolved = true
+	c.Lcom4 = int64(len(connectedComponents))
+
+	return c.Lcom4
 }

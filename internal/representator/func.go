@@ -8,16 +8,18 @@ import (
 )
 
 type FunctionData struct {
-	Name stats.FuncKey `json:"name"`
-	Type string        `json:"type"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 
-	UsesCount int64 `json:"uses-count"`
+	Class string `json:"className"`
 
-	CountCalled   int64 `json:"count-called"`
-	CountCalledBy int64 `json:"count-called-by"`
+	UsesCount int64 `json:"usesCount"`
 
-	CountDeps   int64 `json:"count-deps"`
-	CountDepsBy int64 `json:"count-deps-by"`
+	CountCalled   int64 `json:"countCalled"`
+	CountCalledBy int64 `json:"countCalledBy"`
+
+	CountDeps   int64 `json:"countDeps"`
+	CountDepsBy int64 `json:"countDepsBy"`
 }
 
 func funcToData(f *stats.Function) *FunctionData {
@@ -33,8 +35,9 @@ func funcToData(f *stats.Function) *FunctionData {
 	}
 
 	return &FunctionData{
-		Name:          f.Name,
+		Name:          f.Name.String(),
 		Type:          tp,
+		Class:         f.Name.ClassName,
 		UsesCount:     f.UsesCount,
 		CountCalled:   int64(f.Called.Len()),
 		CountCalledBy: int64(f.CalledBy.Len()),
@@ -63,8 +66,8 @@ func GetFunctionRepr(f *stats.Function) string {
 	var res string
 
 	res += fmt.Sprintf("%s %s\n", data.Type, data.Name)
-	if data.Name.IsMethod() {
-		res += fmt.Sprintf("  Class:               %s\n", data.Name.ClassName)
+	if data.Class != "" {
+		res += fmt.Sprintf("  Class:               %s\n", data.Class)
 	}
 	res += fmt.Sprintf("  Number of uses:      %d\n", data.UsesCount)
 	res += fmt.Sprintf("  Depends of classes:  %d\n", data.CountDeps)
@@ -88,8 +91,8 @@ func GetJsonFunctionRepr(f *stats.Function) (string, error) {
 
 func GetJsonFunctionReprWithFlag(f *stats.Function) (string, error) {
 	type Response struct {
-		Data  *FunctionData
-		Found bool
+		Data  *FunctionData `json:"data"`
+		Found bool          `json:"found"`
 	}
 	var resp Response
 

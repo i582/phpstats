@@ -12,10 +12,11 @@ import (
 var ProjectRoot string
 
 type GlobalContext struct {
-	Funcs     *Functions
-	Classes   *Classes
-	Files     *Files
-	Constants *Constants
+	Funcs      *Functions
+	Classes    *Classes
+	Files      *Files
+	Constants  *Constants
+	Namespaces *Namespaces
 }
 
 func (ctx *GlobalContext) Version() string {
@@ -108,10 +109,11 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 
 func NewGlobalContext() *GlobalContext {
 	return &GlobalContext{
-		Funcs:     NewFunctions(),
-		Classes:   NewClasses(),
-		Files:     NewFiles(),
-		Constants: NewConstants(),
+		Funcs:      NewFunctions(),
+		Classes:    NewClasses(),
+		Files:      NewFiles(),
+		Constants:  NewConstants(),
+		Namespaces: NewNamespaces(),
 	}
 }
 

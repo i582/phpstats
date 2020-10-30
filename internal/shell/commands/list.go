@@ -197,6 +197,60 @@ func List() *shell.Executor {
 		},
 	}
 
+	listNamespacesByLevelExecutor := &shell.Executor{
+		Name: "namespaces",
+		Help: "show list of namespaces on specific level",
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-c",
+				WithValue: true,
+				Help:      "count in list",
+				Default:   "10",
+			},
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Help:      "offset in list",
+				Default:   "0",
+			},
+			&flags.Flag{
+				Name:      "-l",
+				WithValue: true,
+				Help:      "level of namespaces",
+				Default:   "0",
+			},
+			&flags.Flag{
+				Name: "-f",
+				Help: "show full information",
+			},
+		),
+		Func: func(c *shell.Context) {
+			countValue := c.GetFlagValue("-c")
+			count, _ := strconv.ParseInt(countValue, 0, 64)
+
+			offsetValue := c.GetFlagValue("-o")
+			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
+
+			levelValue := c.GetFlagValue("-l")
+			level, _ := strconv.ParseInt(levelValue, 0, 64)
+
+			nss := stats.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level)
+
+			if count+offset < int64(len(nss)) {
+				nss = nss[:count+offset]
+			}
+
+			if offset < int64(len(nss)) {
+				nss = nss[offset:]
+			}
+
+			for _, ns := range nss {
+				data := representator.GetStringNamespaceRepr(ns)
+				fmt.Println(data)
+			}
+		},
+	}
+
 	listExecutor := &shell.Executor{
 		Name: "list",
 		Help: "list of",
@@ -210,6 +264,7 @@ func List() *shell.Executor {
 	listExecutor.AddExecutor(listFilesExecutor)
 	listExecutor.AddExecutor(listClassesExecutor)
 	listExecutor.AddExecutor(listInterfaceExecutor)
+	listExecutor.AddExecutor(listNamespacesByLevelExecutor)
 
 	return listExecutor
 }

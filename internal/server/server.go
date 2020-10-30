@@ -12,6 +12,7 @@ import (
 func RunServer() {
 	http.HandleFunc("/info/class", InfoClassHandler)
 	http.HandleFunc("/info/func", InfoFunctionHandler)
+	http.HandleFunc("/info/namespace", InfoNamespaceHandler)
 	http.HandleFunc("/exit", ExitHandler)
 	http.HandleFunc("/analyzeStats", AnalyzeStatsHandler)
 
@@ -66,10 +67,32 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, data)
 }
 
+func InfoNamespaceHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+
+	ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(name)
+	if !ok {
+		data, _ := representator.GetJsonNamespaceReprWithFlag(nil)
+		fmt.Fprintln(w, data)
+		return
+	}
+
+	data, _ := representator.GetJsonNamespaceReprWithFlag(ns)
+	fmt.Fprintln(w, data)
+}
+
 func ExitHandler(w http.ResponseWriter, r *http.Request) {
 	os.Exit(0)
 }
 
 func AnalyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, float64(stats.BarLinting.Total())/float64(stats.GlobalCtx.Files.Len()))
+	if stats.BarLinting == nil {
+		fmt.Fprintf(w, "{\"state\": \"indexing\", \"current\": 0.0}")
+		return
+	}
+
+	count := float64(stats.BarLinting.Total())
+	cur := float64(stats.BarLinting.Current())
+
+	fmt.Fprintf(w, "{\"state\": \"linting\", \"current\": %f}", cur/count)
 }
