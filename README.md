@@ -75,14 +75,12 @@ go get github.com/i582/phpstats
 ## Using
 
 ```
-collect [--server] [--project-path <value>] [--cache-dir <value>] <dir>
+collect [--project-path <value>] [--cache-dir <value>] <dir>
 ```
 
 The `--project-path` flag sets the directory relative to which paths to files will be resolved when importing. If the flag is not set, the directory is set to the value of the current analyzed directory.
 
 The `--cache-dir` flag sets a custom cache directory.
-
-The `--server` flag sets whether the server will be available for queries while the analyzer is running.. See [server](#Server) part.
 
 After collecting information, you will be taken to an interactive shell, type `help` for help.
 
@@ -192,11 +190,11 @@ Commands:
 
 ## Server
 
-> Server and api are under development.
+> Server and API are under development.
 
-A local server is used to interact with the analyzer from other programs. To enable the server, pass the `--server` flag when starting the analyzer.
+A local server (port 8080) is used to interact with the analyzer from other programs. The server, by default, is started every time an analysis is started.
 
-The following APIs are currently available:
+### API
 
 `/info/class?name=value` — getting information about the class by its name (the name does not have to be completely the same, the search is not strict).
 
