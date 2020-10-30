@@ -140,6 +140,7 @@ Commands:
        [-by-deps]                     top functions by dependencies
        [-by-as-dep]                   top functions by as dependency
        [-by-uses]                     top functions by uses count
+       [-by-сс]                       top functions by cyclomatic complexity
        [-r]                           sort reverse
 
      classes                          show top of classes
