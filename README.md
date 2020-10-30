@@ -2,7 +2,7 @@
 
 # phpstats
 
-phpstats is a small utility for collecting statistics of PHP projects based on [NoVerify](https://github.com/VKCOM/noverify) written in Go. 
+phpstats is a small utility for collecting project statistics and building dependency graphs for PHP, based on [NoVerify](https://github.com/VKCOM/noverify) written in Go.
 
 It tries to be fast, ~80k LOC/s (lines of code per second) on Core i7.
 
@@ -20,7 +20,8 @@ The following metrics are currently available:
    1. for the classes;
    2. for namespaces;
 4. Lack of Cohesion in Methods for classes;
-5. Lack of Cohesion in Methods 4 for classes.
+5. Lack of Cohesion in Methods 4 for classes;
+6. Cyclomatic Complexity.
 
 #### Graph output (Graphviz format)
 
