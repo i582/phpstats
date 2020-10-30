@@ -97,6 +97,8 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 			fun.Class = class
 		}
 
+		fun.CyclomaticComplexity = fn.CyclomaticComplexity
+
 		ctx.Funcs.Add(fun)
 	}
 
