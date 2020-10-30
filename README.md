@@ -75,7 +75,7 @@ The following metrics are currently available:
 go get github.com/i582/phpstats
 ```
 
-## Using
+## Usage
 
 ```
 collect [--project-path <value>] [--cache-dir <value>] <dir>
