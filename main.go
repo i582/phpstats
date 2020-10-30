@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/i582/phpstats/internal/cli"
@@ -15,4 +16,6 @@ func main() {
 		Collect: stats.CollectMain,
 		Process: nil,
 	})
+
+	fmt.Println(1)
 }

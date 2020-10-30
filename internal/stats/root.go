@@ -34,6 +34,11 @@ func (r *rootChecker) BeforeEnterFile() {
 
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
+	case *ir.NamespaceStmt:
+		nsName := n.NamespaceName.Value
+
+		GlobalCtx.Namespaces.CreateNamespace(nsName)
+
 	case *ir.ImportExpr:
 		filename, ok := utils.ResolveRequirePath(r.ctx.ClassParseState(), ProjectRoot, n.Expr)
 		if !ok {

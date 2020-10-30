@@ -117,8 +117,8 @@ func GetJsonClassRepr(c *stats.Class) (string, error) {
 
 func GetJsonClassReprWithFlag(c *stats.Class) (string, error) {
 	type Response struct {
-		Data  *ClassData
-		Found bool
+		Data  *ClassData `json:"data"`
+		Found bool       `json:"found"`
 	}
 	var resp Response
 

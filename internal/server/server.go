@@ -71,5 +71,13 @@ func ExitHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AnalyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, float64(stats.BarLinting.Total())/float64(stats.GlobalCtx.Files.Len()))
+	if stats.BarLinting == nil {
+		fmt.Fprintf(w, "{\"state\": \"indexing\", \"current\": 0.0}")
+		return
+	}
+
+	count := float64(stats.BarLinting.Total())
+	cur := float64(stats.BarLinting.Current())
+
+	fmt.Fprintf(w, "{\"state\": \"linting\", \"current\": %f}", cur/count)
 }
