@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/i582/phpstats/internal/stats"
 	"github.com/i582/phpstats/internal/stats/metrics"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
 type NamespaceData struct {
@@ -22,7 +22,7 @@ type NamespaceData struct {
 	Childs int64 `json:"childs"`
 }
 
-func namespaceToData(n *stats.Namespace) *NamespaceData {
+func namespaceToData(n *symbols.Namespace) *NamespaceData {
 	if n == nil {
 		return nil
 	}
@@ -41,7 +41,7 @@ func namespaceToData(n *stats.Namespace) *NamespaceData {
 	}
 }
 
-func GetShortStringNamespaceRepr(f *stats.Namespace) string {
+func GetShortStringNamespaceRepr(f *symbols.Namespace) string {
 	if f == nil {
 		return ""
 	}
@@ -51,7 +51,7 @@ func GetShortStringNamespaceRepr(f *stats.Namespace) string {
 	return fmt.Sprintf("Namespace %s", data.FullName)
 }
 
-func GetStringNamespaceRepr(n *stats.Namespace) string {
+func GetStringNamespaceRepr(n *symbols.Namespace) string {
 	if n == nil {
 		return ""
 	}
@@ -72,7 +72,7 @@ func GetStringNamespaceRepr(n *stats.Namespace) string {
 	return res
 }
 
-func GetJsonNamespaceRepr(f *stats.Namespace) (string, error) {
+func GetJsonNamespaceRepr(f *symbols.Namespace) (string, error) {
 	data := namespaceToData(f)
 
 	res, err := json.Marshal(data)
@@ -83,7 +83,7 @@ func GetJsonNamespaceRepr(f *stats.Namespace) (string, error) {
 	return string(res), nil
 }
 
-func GetJsonNamespaceReprWithFlag(f *stats.Namespace) (string, error) {
+func GetJsonNamespaceReprWithFlag(f *symbols.Namespace) (string, error) {
 	type Response struct {
 		Data  *NamespaceData `json:"data"`
 		Found bool           `json:"found"`

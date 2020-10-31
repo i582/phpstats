@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/i582/phpstats/internal/cli"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	cli.RunPhplinterTool(&cli.PhplinterTool{
 		Name:    "stats",
-		Collect: stats.CollectMain,
+		Collect: walkers.CollectMain,
 		Process: nil,
 	})
 }

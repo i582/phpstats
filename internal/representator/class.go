@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/i582/phpstats/internal/stats"
 	"github.com/i582/phpstats/internal/stats/metrics"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
 type ClassData struct {
@@ -23,15 +23,15 @@ type ClassData struct {
 	CountDeps   int64 `json:"countDeps"`
 	CountDepsBy int64 `json:"countDepsBy"`
 
-	implements *stats.Classes
-	extends    *stats.Classes
+	implements *symbols.Classes
+	extends    *symbols.Classes
 
-	fields    *stats.Fields
-	methods   *stats.Functions
-	constants *stats.Constants
+	fields    *symbols.Fields
+	methods   *symbols.Functions
+	constants *symbols.Constants
 }
 
-func classToData(c *stats.Class) *ClassData {
+func classToData(c *symbols.Class) *ClassData {
 	if c == nil {
 		return nil
 	}
@@ -72,7 +72,7 @@ func classToData(c *stats.Class) *ClassData {
 	}
 }
 
-func GetShortClassRepr(c *stats.Class) string {
+func GetShortClassRepr(c *symbols.Class) string {
 	if c == nil {
 		return ""
 	}
@@ -82,7 +82,7 @@ func GetShortClassRepr(c *stats.Class) string {
 	return fmt.Sprintf("%s %s", data.Type, data.Name)
 }
 
-func GetClassRepr(c *stats.Class) string {
+func GetStringClassRepr(c *symbols.Class) string {
 	if c == nil {
 		return ""
 	}
@@ -104,7 +104,7 @@ func GetClassRepr(c *stats.Class) string {
 	return res
 }
 
-func GetJsonClassRepr(c *stats.Class) (string, error) {
+func GetJsonClassRepr(c *symbols.Class) (string, error) {
 	data := classToData(c)
 
 	res, err := json.Marshal(data)
@@ -115,7 +115,7 @@ func GetJsonClassRepr(c *stats.Class) (string, error) {
 	return string(res), nil
 }
 
-func GetJsonClassReprWithFlag(c *stats.Class) (string, error) {
+func GetJsonClassReprWithFlag(c *symbols.Class) (string, error) {
 	type Response struct {
 		Data  *ClassData `json:"data"`
 		Found bool       `json:"found"`

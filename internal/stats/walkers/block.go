@@ -1,4 +1,4 @@
-package stats
+package walkers
 
 import (
 	"github.com/VKCOM/noverify/src/ir"
@@ -6,13 +6,14 @@ import (
 	"github.com/VKCOM/noverify/src/meta"
 	"github.com/VKCOM/noverify/src/solver"
 
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
 type blockChecker struct {
 	linter.BlockCheckerDefaults
-	ctx  *linter.BlockContext
-	root *rootChecker
+	Ctx  *linter.BlockContext
+	Root *RootChecker
 }
 
 func (b *blockChecker) BeforeEnterNode(n ir.Node) {
@@ -25,19 +26,19 @@ func (b *blockChecker) BeforeEnterNode(n ir.Node) {
 			return
 		}
 
-		fun, ok := GlobalCtx.Funcs.Get(NewFuncKey(funcInfo.Name))
+		fun, ok := GlobalCtx.Funcs.Get(symbols.NewFuncKey(funcInfo.Name))
 		if !ok {
 			return
 		}
 
-		b.root.CurFile.AddFunc(fun)
+		b.Root.CurFile.AddFunc(fun)
 	}
 }
 
 func (b *blockChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.FunctionCallExpr:
-		funcName, ok := solver.GetFuncName(b.ctx.ClassParseState(), n.Function)
+		funcName, ok := solver.GetFuncName(b.Ctx.ClassParseState(), n.Function)
 		if !ok {
 			return
 		}
@@ -50,7 +51,7 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 		methodName := method.Value
-		classType := solver.ExprType(b.ctx.Scope(), b.ctx.ClassParseState(), n.Variable)
+		classType := solver.ExprType(b.Ctx.Scope(), b.Ctx.ClassParseState(), n.Variable)
 
 		b.handleMethod(methodName, classType)
 
@@ -60,7 +61,7 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 		methodName := method.Value
-		className, ok := solver.GetClassName(b.ctx.ClassParseState(), n.Class)
+		className, ok := solver.GetClassName(b.Ctx.ClassParseState(), n.Class)
 		if !ok {
 			return
 		}
@@ -74,7 +75,7 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		b.handleMethod(methodName, classType)
 
 	case *ir.ImportExpr:
-		filename, ok := utils.ResolveRequirePath(b.ctx.ClassParseState(), ProjectRoot, n.Expr)
+		filename, ok := utils.ResolveRequirePath(b.Ctx.ClassParseState(), ProjectRoot, n.Expr)
 		if !ok {
 			return
 		}
@@ -84,11 +85,11 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 
-		b.root.CurFile.AddRequiredFile(requiredFile)
-		requiredFile.AddRequiredByFile(b.root.CurFile)
+		b.Root.CurFile.AddRequiredFile(requiredFile)
+		requiredFile.AddRequiredByFile(b.Root.CurFile)
 
 	case *ir.NewExpr:
-		curClass, ok := b.root.GetCurrentClass()
+		curClass, ok := b.Root.GetCurrentClass()
 		if !ok {
 			return
 		}
@@ -113,12 +114,12 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 			return
 		}
 
-		curClass, ok := b.root.GetCurrentClass()
+		curClass, ok := b.Root.GetCurrentClass()
 		if !ok {
 			return
 		}
 
-		constClassName, ok := solver.GetClassName(b.root.ctx.ClassParseState(), classNameNode)
+		constClassName, ok := solver.GetClassName(b.Root.Ctx.ClassParseState(), classNameNode)
 		if !ok {
 			return
 		}
@@ -132,17 +133,17 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		class.AddDepsBy(curClass)
 
 	case *ir.SimpleVar:
-		curClass, ok := b.root.GetCurrentClass()
+		curClass, ok := b.Root.GetCurrentClass()
 		if !ok {
 			return
 		}
-		curMethod, ok := b.root.GetCurrentFunc()
+		curMethod, ok := b.Root.GetCurrentFunc()
 		if !ok {
 			return
 		}
 
 		name := n.Name
-		curClass.Fields.AddMethodAccess(NewFieldKey(name, curClass.Name), curMethod)
+		curClass.Fields.AddMethodAccess(symbols.NewFieldKey(name, curClass.Name), curMethod)
 
 	default:
 		return
@@ -166,7 +167,7 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 	}
 
 	calledName := calledMethodInfo.Info.Name
-	calledFuncKey := FuncKey{
+	calledFuncKey := symbols.FuncKey{
 		Name:      calledName,
 		ClassName: calledMethodInfo.ImplName(),
 	}
@@ -177,7 +178,10 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 		return
 	}
 
-	calledFunc := GlobalCtx.Funcs.GetOrCreateMethod(calledFuncKey, calledFunPos, calledClass)
+	calledFunc, found := GlobalCtx.Funcs.Get(calledFuncKey)
+	if !found {
+		calledFunc = symbols.NewMethod(calledFuncKey, calledFunPos, calledClass)
+	}
 
 	b.handleCalled(calledFunc)
 }
@@ -189,17 +193,21 @@ func (b *blockChecker) handleFunc(name string) {
 	}
 
 	calledName := name
-	calledFuncKey := FuncKey{
+	calledFuncKey := symbols.FuncKey{
 		Name: calledName,
 	}
 	calledFunPos := calledFuncInfo.Pos
-	calledFunc := GlobalCtx.Funcs.GetOrCreateFunction(calledFuncKey, calledFunPos)
+
+	calledFunc, found := GlobalCtx.Funcs.Get(calledFuncKey)
+	if !found {
+		calledFunc = symbols.NewFunction(calledFuncKey, calledFunPos)
+	}
 
 	b.handleCalled(calledFunc)
 }
 
-func (b *blockChecker) handleCalled(calledFunc *Function) {
-	curFunc, ok := b.root.GetCurrentFunc()
+func (b *blockChecker) handleCalled(calledFunc *symbols.Function) {
+	curFunc, ok := b.Root.GetCurrentFunc()
 	if !ok {
 		return
 	}

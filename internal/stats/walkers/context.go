@@ -1,4 +1,4 @@
-package stats
+package walkers
 
 import (
 	"encoding/gob"
@@ -7,16 +7,30 @@ import (
 
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
+
+	"github.com/i582/phpstats/internal/stats/filemeta"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
+var GlobalCtx = NewGlobalContext()
 var ProjectRoot string
 
 type GlobalContext struct {
-	Funcs      *Functions
-	Classes    *Classes
-	Files      *Files
-	Constants  *Constants
-	Namespaces *Namespaces
+	Funcs      *symbols.Functions
+	Classes    *symbols.Classes
+	Files      *symbols.Files
+	Constants  *symbols.Constants
+	Namespaces *symbols.Namespaces
+}
+
+func NewGlobalContext() *GlobalContext {
+	return &GlobalContext{
+		Funcs:      symbols.NewFunctions(),
+		Classes:    symbols.NewClasses(),
+		Files:      symbols.NewFiles(),
+		Constants:  symbols.NewConstants(),
+		Namespaces: symbols.NewNamespaces(),
+	}
 }
 
 func (ctx *GlobalContext) Version() string {
@@ -28,11 +42,11 @@ func (ctx *GlobalContext) Encode(writer io.Writer, checker linter.RootChecker) e
 		return nil
 	}
 
-	ind := checker.(*rootIndexer)
+	ind := checker.(*RootIndexer)
 
 	enc := gob.NewEncoder(writer)
-	if err := enc.Encode(&ind.meta); err != nil {
-		log.Printf("cache error: encode %s: %v", ind.ctx.Filename(), err)
+	if err := enc.Encode(&ind.Meta); err != nil {
+		log.Printf("cache error: encode %s: %v", ind.Ctx.Filename(), err)
 		return err
 	}
 
@@ -44,7 +58,7 @@ func (ctx *GlobalContext) Decode(r io.Reader, filename string) error {
 		return nil
 	}
 
-	var m FileMeta
+	var m filemeta.FileMeta
 
 	dec := gob.NewDecoder(r)
 	if err := dec.Decode(&m); err != nil {
@@ -52,20 +66,20 @@ func (ctx *GlobalContext) Decode(r io.Reader, filename string) error {
 		return err
 	}
 
-	ctx.updateMeta(&m)
+	ctx.UpdateMeta(&m)
 
 	return nil
 }
 
-func (ctx *GlobalContext) updateMeta(f *FileMeta) {
+func (ctx *GlobalContext) UpdateMeta(f *filemeta.FileMeta) {
 	for _, file := range f.Files.Files {
-		f := NewFile(file.Path)
+		f := symbols.NewFile(file.Path)
 
 		ctx.Files.Add(f)
 	}
 
 	for _, class := range f.Classes.Classes {
-		var cl *Class
+		var cl *symbols.Class
 
 		file, ok := ctx.Files.Get(class.File.Path)
 		if !ok {
@@ -73,11 +87,11 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 		}
 
 		if class.IsInterface {
-			cl = NewInterface(class.Name, file)
+			cl = symbols.NewInterface(class.Name, file)
 		} else if class.IsAbstract {
-			cl = NewAbstractClass(class.Name, file)
+			cl = symbols.NewAbstractClass(class.Name, file)
 		} else {
-			cl = NewClass(class.Name, file)
+			cl = symbols.NewClass(class.Name, file)
 		}
 
 		cl.Vendor = class.Vendor
@@ -86,7 +100,7 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 	}
 
 	for _, fn := range f.Funcs.Funcs {
-		fun := NewFunctionInfo(fn.Name, fn.Pos)
+		fun := symbols.NewFunction(fn.Name, fn.Pos)
 
 		if fun.IsMethod() {
 			class, ok := ctx.Classes.Get(fun.Name.ClassName)
@@ -106,33 +120,5 @@ func (ctx *GlobalContext) updateMeta(f *FileMeta) {
 		for _, constant := range f.Constants.Constants {
 			ctx.Constants.Add(constant)
 		}
-	}
-}
-
-func NewGlobalContext() *GlobalContext {
-	return &GlobalContext{
-		Funcs:      NewFunctions(),
-		Classes:    NewClasses(),
-		Files:      NewFiles(),
-		Constants:  NewConstants(),
-		Namespaces: NewNamespaces(),
-	}
-}
-
-var GlobalCtx = NewGlobalContext()
-
-type FileMeta struct {
-	Classes   *Classes
-	Funcs     *Functions
-	Files     *Files
-	Constants *Constants
-}
-
-func NewFileMeta() FileMeta {
-	return FileMeta{
-		Classes:   NewClasses(),
-		Funcs:     NewFunctions(),
-		Files:     NewFiles(),
-		Constants: NewConstants(),
 	}
 }

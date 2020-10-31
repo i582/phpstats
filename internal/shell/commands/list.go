@@ -7,7 +7,7 @@ import (
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func List() *shell.Executor {
@@ -41,10 +41,10 @@ func List() *shell.Executor {
 
 			withEmbeddedFuncs := c.Flags.Contains("-e")
 
-			funcs := stats.GlobalCtx.Funcs.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
+			funcs := walkers.GlobalCtx.Funcs.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
 
 			for _, fn := range funcs {
-				data := representator.GetFunctionRepr(fn)
+				data := representator.GetStringFunctionRepr(fn)
 				fmt.Println(data)
 			}
 		},
@@ -74,10 +74,10 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			funcs := stats.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true, false)
+			funcs := walkers.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true, false)
 
 			for _, fn := range funcs {
-				data := representator.GetFunctionRepr(fn)
+				data := representator.GetStringFunctionRepr(fn)
 				fmt.Println(data)
 			}
 		},
@@ -113,14 +113,14 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			files := stats.GlobalCtx.Files.GetAll(count, offset, true)
+			files := walkers.GlobalCtx.Files.GetAll(count, offset, true)
 
 			for _, file := range files {
 				var data string
 				if full {
-					data = representator.GetFileRepr(file)
+					data = representator.GetStringFileRepr(file)
 				} else {
-					data = representator.GetShortFileRepr(file)
+					data = representator.GetShortStringFileRepr(file)
 				}
 				fmt.Println(data)
 			}
@@ -151,10 +151,10 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			classes := stats.GlobalCtx.Classes.GetAllClasses(count, offset, true)
+			classes := walkers.GlobalCtx.Classes.GetAllClasses(count, offset, true)
 
 			for _, class := range classes {
-				data := representator.GetClassRepr(class)
+				data := representator.GetStringClassRepr(class)
 				fmt.Println(data)
 			}
 		},
@@ -188,10 +188,10 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			classes := stats.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
+			classes := walkers.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
 
 			for _, class := range classes {
-				data := representator.GetClassRepr(class)
+				data := representator.GetStringClassRepr(class)
 				fmt.Println(data)
 			}
 		},
@@ -234,7 +234,7 @@ func List() *shell.Executor {
 			levelValue := c.GetFlagValue("-l")
 			level, _ := strconv.ParseInt(levelValue, 0, 64)
 
-			nss := stats.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level)
+			nss := walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level)
 
 			if count+offset < int64(len(nss)) {
 				nss = nss[:count+offset]

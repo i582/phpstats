@@ -7,7 +7,7 @@ import (
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func Info() *shell.Executor {
@@ -19,7 +19,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			classNames, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			classNames, err := walkers.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -35,8 +35,8 @@ func Info() *shell.Executor {
 				className = classNames[0]
 			}
 
-			class, _ := stats.GlobalCtx.Classes.Get(className)
-			data := representator.GetClassRepr(class)
+			class, _ := walkers.GlobalCtx.Classes.Get(className)
+			data := representator.GetStringClassRepr(class)
 
 			fmt.Println(data)
 		},
@@ -51,7 +51,7 @@ func Info() *shell.Executor {
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
 
-			funcNameKeys, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
+			funcNameKeys, err := walkers.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -71,11 +71,11 @@ func Info() *shell.Executor {
 				funcKeyIndex = 0
 			}
 
-			fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
+			fn, _ := walkers.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
 			dataJson, _ := representator.GetJsonFunctionReprWithFlag(fn)
 			fmt.Println(dataJson)
-			data := representator.GetFunctionRepr(fn)
+			data := representator.GetStringFunctionRepr(fn)
 			fmt.Println(data)
 		},
 	}
@@ -101,7 +101,7 @@ func Info() *shell.Executor {
 			full := c.Flags.Contains("-f")
 			recursiveFlag, recursive := c.Flags.Get("-r")
 
-			patches, err := stats.GlobalCtx.Files.GetFullFileName(c.Args[0])
+			patches, err := walkers.GlobalCtx.Files.GetFullFileName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -117,7 +117,7 @@ func Info() *shell.Executor {
 				patch = patches[0]
 			}
 
-			file, _ := stats.GlobalCtx.Files.Get(patch)
+			file, _ := walkers.GlobalCtx.Files.Get(patch)
 
 			if recursive {
 				count, err := strconv.ParseInt(recursiveFlag.Value, 0, 64)
@@ -131,9 +131,9 @@ func Info() *shell.Executor {
 
 			var data string
 			if full {
-				data = representator.GetFileRepr(file)
+				data = representator.GetStringFileRepr(file)
 			} else {
-				data = representator.GetShortFileRepr(file)
+				data = representator.GetShortStringFileRepr(file)
 			}
 			fmt.Println(data)
 		},
@@ -148,7 +148,7 @@ func Info() *shell.Executor {
 		Func: func(c *shell.Context) {
 			namespace := c.Args[0]
 
-			ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(namespace)
+			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(namespace)
 			if !ok {
 				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
 				return

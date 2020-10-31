@@ -8,8 +8,8 @@ import (
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
-	"github.com/i582/phpstats/internal/stats"
 	"github.com/i582/phpstats/internal/stats/metrics"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func Top() *shell.Executor {
@@ -64,7 +64,7 @@ func Top() *shell.Executor {
 			byUses := c.Flags.Contains("-by-uses")
 			byCC := c.Flags.Contains("-by-cc")
 
-			allFuncs := stats.GlobalCtx.Funcs.GetAll(true, true, true, -1, 0, false, true)
+			allFuncs := walkers.GlobalCtx.Funcs.GetAll(true, true, true, -1, 0, false, true)
 
 			sort.Slice(allFuncs, func(i, j int) bool {
 				switch {
@@ -131,7 +131,7 @@ func Top() *shell.Executor {
 			allFuncs = allFuncs[:count]
 
 			for _, fn := range allFuncs {
-				data := representator.GetFunctionRepr(fn)
+				data := representator.GetStringFunctionRepr(fn)
 				fmt.Println(data)
 			}
 		},
@@ -203,7 +203,7 @@ func Top() *shell.Executor {
 			byDeps := c.Flags.Contains("-by-deps")
 			byAsDeps := c.Flags.Contains("-by-as-deps")
 
-			allClasses := stats.GlobalCtx.Classes.GetAll(false, -1, 0, false)
+			allClasses := walkers.GlobalCtx.Classes.GetAll(false, -1, 0, false)
 
 			sort.Slice(allClasses, func(i, j int) bool {
 				affI, effI, instabI := metrics.AfferentEfferentStabilityOfClass(allClasses[i])
@@ -288,7 +288,7 @@ func Top() *shell.Executor {
 			allClasses = allClasses[:count]
 
 			for _, class := range allClasses {
-				data := representator.GetClassRepr(class)
+				data := representator.GetStringClassRepr(class)
 				fmt.Println(data)
 			}
 		},

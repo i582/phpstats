@@ -1,4 +1,4 @@
-package stats
+package symbols
 
 import (
 	"bytes"
@@ -151,28 +151,6 @@ func (fi *Functions) Get(fn FuncKey) (*Function, bool) {
 	return f, ok
 }
 
-func (fi *Functions) GetOrCreateFunction(fn FuncKey, pos meta.ElementPosition) *Function {
-	fi.Lock()
-	f, ok := fi.Funcs[fn]
-	fi.Unlock()
-	if !ok {
-		f = NewFunctionInfo(fn, pos)
-		GlobalCtx.Funcs.Add(f)
-	}
-	return f
-}
-
-func (fi *Functions) GetOrCreateMethod(fn FuncKey, pos meta.ElementPosition, class *Class) *Function {
-	fi.Lock()
-	f, ok := fi.Funcs[fn]
-	fi.Unlock()
-	if !ok {
-		f = NewMethodInfo(fn, pos, class)
-		GlobalCtx.Funcs.Add(f)
-	}
-	return f
-}
-
 var FunctionCount int64
 
 type Function struct {
@@ -202,7 +180,7 @@ func (f *Function) ID() int64 {
 	return f.Id
 }
 
-func NewFunctionInfo(name FuncKey, pos meta.ElementPosition) *Function {
+func NewFunction(name FuncKey, pos meta.ElementPosition) *Function {
 	atomic.AddInt64(&FunctionCount, 1)
 	return &Function{
 		Name:     name,
@@ -215,8 +193,8 @@ func NewFunctionInfo(name FuncKey, pos meta.ElementPosition) *Function {
 	}
 }
 
-func NewMethodInfo(name FuncKey, pos meta.ElementPosition, class *Class) *Function {
-	method := NewFunctionInfo(name, pos)
+func NewMethod(name FuncKey, pos meta.ElementPosition, class *Class) *Function {
+	method := NewFunction(name, pos)
 	method.Class = class
 	return method
 }

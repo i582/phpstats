@@ -1,4 +1,4 @@
-package stats
+package walkers
 
 import (
 	"bytes"
@@ -7,19 +7,20 @@ import (
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/solver"
 
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
-type rootChecker struct {
+type RootChecker struct {
 	linter.RootCheckerDefaults
 
-	ctx *linter.RootContext
+	Ctx *linter.RootContext
 
-	CurFile *File
+	CurFile *symbols.File
 }
 
-func (r *rootChecker) BeforeEnterFile() {
-	filename := r.ctx.Filename()
+func (r *RootChecker) BeforeEnterFile() {
+	filename := r.Ctx.Filename()
 
 	var ok bool
 	r.CurFile, ok = GlobalCtx.Files.Get(filename)
@@ -27,12 +28,12 @@ func (r *rootChecker) BeforeEnterFile() {
 		return
 	}
 	// hack, yet
-	r.CurFile.CountLines = int64(bytes.Count(r.ctx.FileContents(), []byte("\n")) + 1)
+	r.CurFile.CountLines = int64(bytes.Count(r.Ctx.FileContents(), []byte("\n")) + 1)
 
 	BarLinting.Increment()
 }
 
-func (r *rootChecker) AfterEnterNode(n ir.Node) {
+func (r *RootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.NamespaceStmt:
 		nsName := n.NamespaceName.Value
@@ -41,7 +42,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		GlobalCtx.Namespaces.AddFileToNamespace(nsName, r.CurFile)
 
 	case *ir.ImportExpr:
-		filename, ok := utils.ResolveRequirePath(r.ctx.ClassParseState(), ProjectRoot, n.Expr)
+		filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), ProjectRoot, n.Expr)
 		if !ok {
 			return
 		}
@@ -55,7 +56,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		requiredFile.AddRequiredByFile(r.CurFile)
 
 	case *ir.ClassStmt:
-		className, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
+		className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
 			Value: n.ClassName.Value,
 		})
 		if !ok {
@@ -85,7 +86,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		}
 
 		if n.Extends != nil {
-			className, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
+			className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
 				Value: n.Extends.ClassName.Value,
 			})
 			if !ok {
@@ -102,10 +103,10 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 			extend.AddDepsBy(class)
 		}
 
-		GlobalCtx.Namespaces.AddClassToNamespace(r.ctx.ClassParseState().Namespace, class)
+		GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, class)
 
 	case *ir.InterfaceStmt:
-		ifaceName, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
+		ifaceName, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
 			Value: n.InterfaceName.Value,
 		})
 		if !ok {
@@ -118,7 +119,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		}
 
 		r.CurFile.AddClass(iface)
-		GlobalCtx.Namespaces.AddClassToNamespace(r.ctx.ClassParseState().Namespace, iface)
+		GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, iface)
 
 	case *ir.ClassConstListStmt:
 		curClass, ok := r.GetCurrentClass()
@@ -127,7 +128,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		}
 
 		for _, c := range n.Consts {
-			constant, ok := GlobalCtx.Constants.Get(*NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass.Name))
+			constant, ok := GlobalCtx.Constants.Get(*symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass.Name))
 			if !ok {
 				continue
 			}
@@ -144,19 +145,19 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		for _, prop := range n.Properties {
 			prop := prop.(*ir.PropertyStmt)
 
-			curClass.Fields.Add(NewField(prop.Variable.Name, curClass.Name))
+			curClass.Fields.Add(symbols.NewField(prop.Variable.Name, curClass.Name))
 		}
 	}
 }
 
-func (r *rootChecker) GetCurrentFunc() (*Function, bool) {
-	if r.ctx.ClassParseState().CurrentFunction == "" {
+func (r *RootChecker) GetCurrentFunc() (*symbols.Function, bool) {
+	if r.Ctx.ClassParseState().CurrentFunction == "" {
 		return nil, false
 	}
 
 	class, ok := r.GetCurrentClass()
 	if ok {
-		method, ok := class.Methods.Get(NewMethodKey(r.ctx.ClassParseState().CurrentFunction, class.Name))
+		method, ok := class.Methods.Get(symbols.NewMethodKey(r.Ctx.ClassParseState().CurrentFunction, class.Name))
 		if !ok {
 			return nil, false
 		}
@@ -164,14 +165,14 @@ func (r *rootChecker) GetCurrentFunc() (*Function, bool) {
 		return method, true
 	}
 
-	funcName, ok := solver.GetFuncName(r.ctx.ClassParseState(), &ir.Name{
-		Value: r.ctx.ClassParseState().CurrentFunction,
+	funcName, ok := solver.GetFuncName(r.Ctx.ClassParseState(), &ir.Name{
+		Value: r.Ctx.ClassParseState().CurrentFunction,
 	})
 	if !ok {
 		return nil, false
 	}
 
-	fn, ok := GlobalCtx.Funcs.Get(NewFuncKey(funcName))
+	fn, ok := GlobalCtx.Funcs.Get(symbols.NewFuncKey(funcName))
 	if !ok {
 		return nil, false
 	}
@@ -179,13 +180,13 @@ func (r *rootChecker) GetCurrentFunc() (*Function, bool) {
 	return fn, true
 }
 
-func (r *rootChecker) GetCurrentClass() (*Class, bool) {
-	if r.ctx.ClassParseState().CurrentClass == "" {
+func (r *RootChecker) GetCurrentClass() (*symbols.Class, bool) {
+	if r.Ctx.ClassParseState().CurrentClass == "" {
 		return nil, false
 	}
 
-	className, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
-		Value: r.ctx.ClassParseState().CurrentClass,
+	className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
+		Value: r.Ctx.ClassParseState().CurrentClass,
 	})
 	if !ok {
 		return nil, false

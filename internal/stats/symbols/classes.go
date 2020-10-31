@@ -1,4 +1,4 @@
-package stats
+package symbols
 
 import (
 	"bytes"
@@ -177,7 +177,7 @@ func NewAbstractClass(name string, file *File) *Class {
 func (c *Class) Lcom4Graph() string {
 	var res string
 
-	res += "digraph \"Lcom4" + utils.NameNormalize(c.Name) + "\" {\n"
+	res += "digraph \"Lcom4" + utils.NormalizeSlashes(c.Name) + "\" {\n"
 
 	showed := map[string]struct{}{}
 

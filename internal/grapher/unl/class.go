@@ -4,28 +4,28 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
-func GetUmlForClass(c *stats.Class) string {
-	return GetUmlForClassWithFilter(c, func(*stats.Function) bool {
+func GetUmlForClass(c *symbols.Class) string {
+	return GetUmlForClassWithFilter(c, func(*symbols.Function) bool {
 		return true
-	}, func(*stats.Field) bool {
+	}, func(*symbols.Field) bool {
 		return true
 	})
 }
 
-func GetShortUmlForClass(c *stats.Class) string {
-	return GetUmlForClassWithFilter(c, func(*stats.Function) bool {
+func GetShortUmlForClass(c *symbols.Class) string {
+	return GetUmlForClassWithFilter(c, func(*symbols.Function) bool {
 		return false
-	}, func(*stats.Field) bool {
+	}, func(*symbols.Field) bool {
 		return false
 	})
 }
 
-func GetUmlForClassWithFilter(c *stats.Class, predMethods func(m *stats.Function) bool, predFields func(f *stats.Field) bool) string {
-	id := utils.ClassNameNormalize(c.Name)
+func GetUmlForClassWithFilter(c *symbols.Class, predMethods func(m *symbols.Function) bool, predFields func(f *symbols.Field) bool) string {
+	id := utils.NameToIdentifier(c.Name)
 	idParts := strings.Split(c.Name, `\`)
 	shortName := idParts[len(idParts)-1]
 

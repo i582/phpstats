@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
 type FileData struct {
@@ -15,12 +15,12 @@ type FileData struct {
 	CountRequiredBlock int64
 	CountRequiredBy    int64
 
-	requiredRoot  *stats.Files
-	requiredBlock *stats.Files
-	requiredBy    *stats.Files
+	requiredRoot  *symbols.Files
+	requiredBlock *symbols.Files
+	requiredBy    *symbols.Files
 }
 
-func fileToData(f *stats.File) *FileData {
+func fileToData(f *symbols.File) *FileData {
 	return &FileData{
 		Name: f.Name,
 		Path: f.Path,
@@ -35,7 +35,7 @@ func fileToData(f *stats.File) *FileData {
 	}
 }
 
-func GetShortFileRepr(f *stats.File) string {
+func GetShortStringFileRepr(f *symbols.File) string {
 	if f == nil {
 		return ""
 	}
@@ -45,7 +45,7 @@ func GetShortFileRepr(f *stats.File) string {
 	return fmt.Sprintf("%-40s (%s)", data.Name, data.Path)
 }
 
-func GetFileRepr(f *stats.File) string {
+func GetStringFileRepr(f *symbols.File) string {
 	if f == nil {
 		return ""
 	}
@@ -72,7 +72,7 @@ func GetFileRepr(f *stats.File) string {
 	return res
 }
 
-func GetJsonFileRepr(f *stats.File) (string, error) {
+func GetJsonFileRepr(f *symbols.File) (string, error) {
 	data := fileToData(f)
 
 	res, err := json.Marshal(data)
@@ -83,7 +83,7 @@ func GetJsonFileRepr(f *stats.File) (string, error) {
 	return string(res), nil
 }
 
-func GetJsonFileReprWithFile(f *stats.File) (string, error) {
+func GetJsonFileReprWithFile(f *symbols.File) (string, error) {
 	type Response struct {
 		Data  *FileData `json:"data"`
 		Found bool      `json:"found"`

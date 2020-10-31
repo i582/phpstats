@@ -85,10 +85,10 @@ func DefaultCacheDir() string {
 	return defaultCacheDir
 }
 
-func NameNormalize(str string) string {
+func NormalizeSlashes(str string) string {
 	return strings.ReplaceAll(str, `\`, `\\`)
 }
 
-func ClassNameNormalize(str string) string {
+func NameToIdentifier(str string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(str, `\`, `_`), "::", "__")
 }

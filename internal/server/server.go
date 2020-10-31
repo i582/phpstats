@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/i582/phpstats/internal/representator"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func RunServer() {
@@ -22,7 +22,7 @@ func RunServer() {
 func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
-	classNames, err := stats.GlobalCtx.Classes.GetFullClassName(name)
+	classNames, err := walkers.GlobalCtx.Classes.GetFullClassName(name)
 	if err != nil {
 		data, _ := representator.GetJsonClassReprWithFlag(nil)
 		fmt.Fprintln(w, data)
@@ -37,7 +37,7 @@ func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 		className = classNames[0]
 	}
 
-	class, _ := stats.GlobalCtx.Classes.Get(className)
+	class, _ := walkers.GlobalCtx.Classes.Get(className)
 
 	data, _ := representator.GetJsonClassReprWithFlag(class)
 	fmt.Fprintln(w, data)
@@ -46,7 +46,7 @@ func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
-	funcNameKeys, err := stats.GlobalCtx.Funcs.GetFullFuncName(name)
+	funcNameKeys, err := walkers.GlobalCtx.Funcs.GetFullFuncName(name)
 	if err != nil {
 		data, _ := representator.GetJsonFunctionReprWithFlag(nil)
 		fmt.Fprintln(w, data)
@@ -61,7 +61,7 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 		funcKeyIndex = 0
 	}
 
-	fn, _ := stats.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
+	fn, _ := walkers.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
 	data, _ := representator.GetJsonFunctionReprWithFlag(fn)
 	fmt.Fprintln(w, data)
@@ -70,7 +70,7 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 func InfoNamespaceHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
-	ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(name)
+	ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(name)
 	if !ok {
 		data, _ := representator.GetJsonNamespaceReprWithFlag(nil)
 		fmt.Fprintln(w, data)
@@ -86,13 +86,13 @@ func ExitHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AnalyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
-	if stats.BarLinting == nil {
+	if walkers.BarLinting == nil {
 		fmt.Fprintf(w, "{\"state\": \"indexing\", \"current\": 0.0}")
 		return
 	}
 
-	count := float64(stats.BarLinting.Total())
-	cur := float64(stats.BarLinting.Current())
+	count := float64(walkers.BarLinting.Total())
+	cur := float64(walkers.BarLinting.Current())
 
 	fmt.Fprintf(w, "{\"state\": \"linting\", \"current\": %f}", cur/count)
 }

@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	uml "github.com/i582/phpstats/internal/grapher/unl"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
-func (g *Grapher) ClassDeps(c *stats.Class, maxRecursion int64) string {
+func (g *Grapher) ClassDeps(c *symbols.Class, maxRecursion int64) string {
 	var res string
 
 	res += graphHeader
@@ -18,16 +18,16 @@ func (g *Grapher) ClassDeps(c *stats.Class, maxRecursion int64) string {
 	res += g.subGraphVendorWrapper(sub)
 	res += main
 
-	return g.graphWrapper(res, utils.ClassNameNormalize(c.Name))
+	return g.graphWrapper(res, utils.NameToIdentifier(c.Name))
 }
 
-func (g *Grapher) classDepsRecursive(c *stats.Class, levelRecursion, maxRecursion int64, visited visitedMap) (string, string) {
+func (g *Grapher) classDepsRecursive(c *symbols.Class, levelRecursion, maxRecursion int64, visited visitedMap) (string, string) {
 	var res string
 	var sub string
 
-	classUml := uml.GetUmlForClassWithFilter(c, func(m *stats.Function) bool {
+	classUml := uml.GetUmlForClassWithFilter(c, func(m *symbols.Function) bool {
 		return m.Deps().Len() != 0
-	}, func(f *stats.Field) bool {
+	}, func(f *symbols.Field) bool {
 		return len(f.Used) != 0
 	})
 
@@ -47,7 +47,7 @@ func (g *Grapher) classDepsRecursive(c *stats.Class, levelRecursion, maxRecursio
 	}
 
 	for _, implement := range c.Implements.Classes {
-		str := fmt.Sprintf("   %s -> %s\n", utils.ClassNameNormalize(c.Name), utils.ClassNameNormalize(implement.Name))
+		str := fmt.Sprintf("   %s -> %s\n", utils.NameToIdentifier(c.Name), utils.NameToIdentifier(implement.Name))
 
 		if _, ok := visited[str]; ok {
 			continue
@@ -64,7 +64,7 @@ func (g *Grapher) classDepsRecursive(c *stats.Class, levelRecursion, maxRecursio
 	for _, field := range c.Fields.Fields {
 		for caller := range field.Used {
 			for _, class := range caller.Deps().Classes {
-				str := fmt.Sprintf("   %s:fields -> %s\n", utils.ClassNameNormalize(c.Name), utils.ClassNameNormalize(class.Name))
+				str := fmt.Sprintf("   %s:fields -> %s\n", utils.NameToIdentifier(c.Name), utils.NameToIdentifier(class.Name))
 
 				if _, ok := visited[str]; ok {
 					continue
@@ -87,7 +87,7 @@ func (g *Grapher) classDepsRecursive(c *stats.Class, levelRecursion, maxRecursio
 		}
 
 		for _, class := range deps.Classes {
-			str := fmt.Sprintf("   %s:methods -> %s\n", utils.ClassNameNormalize(c.Name), utils.ClassNameNormalize(class.Name))
+			str := fmt.Sprintf("   %s:methods -> %s\n", utils.NameToIdentifier(c.Name), utils.NameToIdentifier(class.Name))
 
 			if _, ok := visited[str]; ok {
 				continue

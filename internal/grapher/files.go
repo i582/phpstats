@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/i582/phpstats/internal/grapher/unl"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-func (g *Grapher) FileDeps(f *stats.File, maxRecursion int64, root, block bool) string {
+func (g *Grapher) FileDeps(f *symbols.File, maxRecursion int64, root, block bool) string {
 	var res string
 
 	res += graphHeader
@@ -19,7 +19,7 @@ func (g *Grapher) FileDeps(f *stats.File, maxRecursion int64, root, block bool) 
 	return g.graphWrapper(res, f.UniqueId())
 }
 
-func (g *Grapher) fileDepsRecursive(f *stats.File, levelRecursion, maxRecursion int64, root, block bool, visited visitedMap) string {
+func (g *Grapher) fileDepsRecursive(f *symbols.File, levelRecursion, maxRecursion int64, root, block bool, visited visitedMap) string {
 	var res string
 
 	classUml := uml.GetUmlForFile(f)

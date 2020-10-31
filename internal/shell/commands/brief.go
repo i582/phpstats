@@ -5,7 +5,7 @@ import (
 
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func Brief() *shell.Executor {
@@ -17,7 +17,7 @@ func Brief() *shell.Executor {
 			var countMethods int64
 			var countFuncs int64
 
-			for _, fn := range stats.GlobalCtx.Funcs.Funcs {
+			for _, fn := range walkers.GlobalCtx.Funcs.Funcs {
 				if fn.IsMethod() {
 					countMethods++
 					continue
@@ -33,16 +33,16 @@ func Brief() *shell.Executor {
 			}
 
 			var countLines int64
-			for _, file := range stats.GlobalCtx.Files.Files {
+			for _, file := range walkers.GlobalCtx.Files.Files {
 				countLines += file.CountLines
 			}
 
 			fmt.Printf("General project statistics\n")
-			fmt.Printf("Classes:       %d\n", stats.GlobalCtx.Classes.Len())
+			fmt.Printf("Classes:       %d\n", walkers.GlobalCtx.Classes.Len())
 			fmt.Printf("  Methods:     %d\n", countMethods)
-			fmt.Printf("  Constants:   %d\n", stats.GlobalCtx.Constants.Len())
+			fmt.Printf("  Constants:   %d\n", walkers.GlobalCtx.Constants.Len())
 			fmt.Printf("Functions:     %d\n", countFuncs)
-			fmt.Printf("Files:         %d\n", stats.GlobalCtx.Files.Len())
+			fmt.Printf("Files:         %d\n", walkers.GlobalCtx.Files.Len())
 			fmt.Printf("Lines of code: %d\n", countLines)
 
 			fmt.Println()

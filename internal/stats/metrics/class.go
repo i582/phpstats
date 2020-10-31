@@ -4,10 +4,10 @@ import (
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
 
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-func AfferentEfferentStabilityOfClass(c *stats.Class) (aff, eff, stab float64) {
+func AfferentEfferentStabilityOfClass(c *symbols.Class) (aff, eff, stab float64) {
 	efferent := float64(c.Deps.Len())
 	afferent := float64(c.DepsBy.Len())
 
@@ -21,7 +21,7 @@ func AfferentEfferentStabilityOfClass(c *stats.Class) (aff, eff, stab float64) {
 	return afferent, efferent, instability
 }
 
-func LackOfCohesionInMethodsOfCLass(c *stats.Class) (float64, bool) {
+func LackOfCohesionInMethodsOfCLass(c *symbols.Class) (float64, bool) {
 	if c.LcomResolved {
 		return c.Lcom, true
 	}
@@ -46,7 +46,7 @@ func LackOfCohesionInMethodsOfCLass(c *stats.Class) (float64, bool) {
 	return -1, false
 }
 
-func Lcom4(c *stats.Class) int64 {
+func Lcom4(c *symbols.Class) int64 {
 	if c.Lcom4Resolved {
 		return c.Lcom4
 	}
@@ -69,7 +69,7 @@ func Lcom4(c *stats.Class) int64 {
 	}
 
 	for _, field := range c.Fields.Fields {
-		functions := make([]*stats.Function, 0, len(field.Used))
+		functions := make([]*symbols.Function, 0, len(field.Used))
 
 		for used := range field.Used {
 			functions = append(functions, used)
