@@ -3,7 +3,7 @@ package grapher
 import (
 	"fmt"
 
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
@@ -43,7 +43,7 @@ func (g *Grapher) subGraphWrapper(str string, name string) string {
 
 func (g *Grapher) subGraphWrapperColor(str string, name string, color string) string {
 	var res string
-	res += "\tsubgraph cluster_" + utils.ClassNameNormalize(name) + "{\n"
+	res += "\tsubgraph cluster_" + utils.NameToIdentifier(name) + "{\n"
 	res += "\tlabel=\"" + name + "\";\n"
 	res += "\tfillcolor=\"" + color + "\";\n"
 	res += "\t" + subGraphHeader + "\n"
@@ -65,7 +65,7 @@ func (g *Grapher) outputWithColor(str string, newColor, oldColor string) string 
 	return res
 }
 
-func (g *Grapher) getColorForClass(c *stats.Class) string {
+func (g *Grapher) getColorForClass(c *symbols.Class) string {
 	if c.IsInterface {
 		return "#bbbbbb"
 	}

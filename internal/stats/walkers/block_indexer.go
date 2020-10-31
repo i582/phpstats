@@ -1,4 +1,4 @@
-package stats
+package walkers
 
 import (
 	"github.com/VKCOM/noverify/src/linter"
@@ -7,6 +7,6 @@ import (
 type blockIndexer struct {
 	linter.BlockCheckerDefaults
 
-	ctx  *linter.BlockContext
-	root *rootIndexer
+	Ctx  *linter.BlockContext
+	Root *rootIndexer
 }

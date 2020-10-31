@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
 type FunctionData struct {
@@ -24,7 +24,7 @@ type FunctionData struct {
 	CyclomaticComplexity int64 `json:"cc"`
 }
 
-func funcToData(f *stats.Function) *FunctionData {
+func funcToData(f *symbols.Function) *FunctionData {
 	if f == nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func funcToData(f *stats.Function) *FunctionData {
 	}
 }
 
-func GetShortFunctionRepr(f *stats.Function) string {
+func GetShortStringFunctionRepr(f *symbols.Function) string {
 	if f == nil {
 		return ""
 	}
@@ -59,7 +59,7 @@ func GetShortFunctionRepr(f *stats.Function) string {
 	return fmt.Sprintf("%s %s", data.Type, data.Name)
 }
 
-func GetFunctionRepr(f *stats.Function) string {
+func GetStringFunctionRepr(f *symbols.Function) string {
 	if f == nil {
 		return ""
 	}
@@ -82,7 +82,7 @@ func GetFunctionRepr(f *stats.Function) string {
 	return res
 }
 
-func GetJsonFunctionRepr(f *stats.Function) (string, error) {
+func GetJsonFunctionRepr(f *symbols.Function) (string, error) {
 	data := funcToData(f)
 
 	res, err := json.Marshal(data)
@@ -93,7 +93,7 @@ func GetJsonFunctionRepr(f *stats.Function) (string, error) {
 	return string(res), nil
 }
 
-func GetJsonFunctionReprWithFlag(f *stats.Function) (string, error) {
+func GetJsonFunctionReprWithFlag(f *symbols.Function) (string, error) {
 	type Response struct {
 		Data  *FunctionData `json:"data"`
 		Found bool          `json:"found"`

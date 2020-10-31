@@ -2,20 +2,20 @@ package grapher
 
 import (
 	"github.com/i582/phpstats/internal/grapher/unl"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
-func (g *Grapher) Namespace(ns *stats.Namespace) string {
+func (g *Grapher) Namespace(ns *symbols.Namespace) string {
 	var res string
 
 	res += graphHeader
 	res += g.namespace(ns)
 
-	return g.graphWrapper(res, utils.ClassNameNormalize(ns.FullName))
+	return g.graphWrapper(res, utils.NameToIdentifier(ns.FullName))
 }
 
-func (g *Grapher) Namespaces(ns *stats.Namespaces) string {
+func (g *Grapher) Namespaces(ns *symbols.Namespaces) string {
 	var res string
 
 	res += graphHeader
@@ -27,7 +27,7 @@ func (g *Grapher) Namespaces(ns *stats.Namespaces) string {
 	return g.graphWrapper(res, "allNamespacesGraph")
 }
 
-func (g *Grapher) namespace(ns *stats.Namespace) string {
+func (g *Grapher) namespace(ns *symbols.Namespace) string {
 	var res string
 
 	for _, n := range ns.Childs.Namespaces {
@@ -37,5 +37,5 @@ func (g *Grapher) namespace(ns *stats.Namespace) string {
 		res += uml.GetUmlForNamespace(ns)
 	}
 
-	return g.subGraphWrapper(res, utils.NameNormalize(ns.FullName))
+	return g.subGraphWrapper(res, utils.NormalizeSlashes(ns.FullName))
 }

@@ -1,4 +1,4 @@
-package stats
+package walkers
 
 import (
 	"log"
@@ -10,6 +10,7 @@ import (
 	"github.com/cheggaaa/pb/v3"
 
 	"github.com/i582/phpstats/internal/shell/flags"
+	"github.com/i582/phpstats/internal/stats/filemeta"
 	"github.com/i582/phpstats/internal/utils"
 )
 
@@ -20,29 +21,29 @@ func CollectMain() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
 		if meta.IsIndexingComplete() {
 			return &blockChecker{
-				ctx:  ctx,
-				root: ctx.RootState()["vklints-root"].(*rootChecker),
+				Ctx:  ctx,
+				Root: ctx.RootState()["vklints-root"].(*rootChecker),
 			}
 		}
 
 		return &blockIndexer{
-			ctx:  ctx,
-			root: ctx.RootState()["vklints-root"].(*rootIndexer),
+			Ctx:  ctx,
+			Root: ctx.RootState()["vklints-root"].(*rootIndexer),
 		}
 	})
 
 	linter.RegisterRootCheckerWithCacher(GlobalCtx, func(ctx *linter.RootContext) linter.RootChecker {
 		if meta.IsIndexingComplete() {
 			checker := &rootChecker{
-				ctx: ctx,
+				Ctx: ctx,
 			}
 			ctx.State()["vklints-root"] = checker
 			return checker
 		}
 
 		indexer := &rootIndexer{
-			ctx:  ctx,
-			meta: NewFileMeta(),
+			Ctx:  ctx,
+			Meta: filemeta.NewFileMeta(),
 		}
 		ctx.State()["vklints-root"] = indexer
 		return indexer

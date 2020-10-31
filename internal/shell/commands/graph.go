@@ -7,7 +7,7 @@ import (
 	"github.com/i582/phpstats/internal/grapher"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func Graph() *shell.Executor {
@@ -57,13 +57,13 @@ func Graph() *shell.Executor {
 			}
 			defer output.Close()
 
-			paths, err := stats.GlobalCtx.Files.GetFullFileName(c.Args[0])
+			paths, err := walkers.GlobalCtx.Files.GetFullFileName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			file, _ := stats.GlobalCtx.Files.Get(paths[0])
+			file, _ := walkers.GlobalCtx.Files.Get(paths[0])
 
 			g := grapher.NewGrapher()
 			graph := g.FileDeps(file, recursiveLevel, root, block)
@@ -113,13 +113,13 @@ func Graph() *shell.Executor {
 			}
 			defer output.Close()
 
-			classes, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			classes, err := walkers.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
+			class, _ := walkers.GlobalCtx.Classes.Get(classes[0])
 
 			g := grapher.NewGrapher()
 			graph := g.ClassDeps(class, recursiveLevel)
@@ -160,13 +160,13 @@ func Graph() *shell.Executor {
 			}
 			defer output.Close()
 
-			funcs, err := stats.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
+			funcs, err := walkers.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			fun, _ := stats.GlobalCtx.Funcs.Get(funcs[0])
+			fun, _ := walkers.GlobalCtx.Funcs.Get(funcs[0])
 
 			g := grapher.NewGrapher()
 			graph := g.FuncDeps(fun)
@@ -206,13 +206,13 @@ func Graph() *shell.Executor {
 			}
 			defer output.Close()
 
-			classes, err := stats.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			classes, err := walkers.GlobalCtx.Classes.GetFullClassName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			class, _ := stats.GlobalCtx.Classes.Get(classes[0])
+			class, _ := walkers.GlobalCtx.Classes.Get(classes[0])
 			graph := class.Lcom4Graph()
 
 			fmt.Fprint(output, graph)
@@ -249,7 +249,7 @@ func Graph() *shell.Executor {
 			defer output.Close()
 
 			g := grapher.NewGrapher()
-			graph := g.Namespaces(stats.GlobalCtx.Namespaces)
+			graph := g.Namespaces(walkers.GlobalCtx.Namespaces)
 
 			fmt.Fprint(output, graph)
 
@@ -286,7 +286,7 @@ func Graph() *shell.Executor {
 			}
 			defer output.Close()
 
-			ns, ok := stats.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
+			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
 			if !ok {
 				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
 				return

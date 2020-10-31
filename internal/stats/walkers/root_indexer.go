@@ -1,4 +1,4 @@
-package stats
+package walkers
 
 import (
 	"log"
@@ -9,37 +9,40 @@ import (
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
 	"github.com/VKCOM/noverify/src/solver"
+
+	"github.com/i582/phpstats/internal/stats/filemeta"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
 type rootIndexer struct {
 	linter.RootCheckerDefaults
 
-	ctx  *linter.RootContext
-	meta FileMeta
+	Ctx  *linter.RootContext
+	Meta filemeta.FileMeta
 }
 
 func (r *rootIndexer) inVendor() bool {
-	curFileName := r.ctx.Filename()
+	curFileName := r.Ctx.Filename()
 	return strings.Contains(curFileName, "vendor") || strings.Contains(curFileName, "phpstorm-stubs")
 }
 
 func (r *rootIndexer) BeforeEnterFile() {
-	curFileName := r.ctx.Filename()
-	curFile := NewFile(curFileName)
+	curFileName := r.Ctx.Filename()
+	curFile := symbols.NewFile(curFileName)
 
-	r.meta.Files.Add(curFile)
+	r.Meta.Files.Add(curFile)
 }
 
 func (r *rootIndexer) AfterLeaveFile() {
-	GlobalCtx.updateMeta(&r.meta)
+	GlobalCtx.UpdateMeta(&r.Meta)
 }
 
 func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.ClassStmt:
-		curFileName := r.ctx.Filename()
+		curFileName := r.Ctx.Filename()
 
-		className, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
+		className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
 			Value: n.ClassName.Value,
 		})
 		if !ok {
@@ -53,39 +56,39 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 			}
 		}
 
-		curFile, ok := r.meta.Files.Get(curFileName)
+		curFile, ok := r.Meta.Files.Get(curFileName)
 		if !ok {
 			log.Fatalf("file not found")
 		}
 
-		class := NewClass(className, curFile)
+		class := symbols.NewClass(className, curFile)
 		class.IsAbstract = isAbstract
 		class.Vendor = r.inVendor()
 
-		r.meta.Classes.Add(class)
+		r.Meta.Classes.Add(class)
 
 		for _, n := range n.Stmts {
 			r.handleClassInterfaceMethodsConstants(class, n)
 		}
 
 	case *ir.InterfaceStmt:
-		curFileName := r.ctx.Filename()
+		curFileName := r.Ctx.Filename()
 
-		ifaceName, ok := solver.GetClassName(r.ctx.ClassParseState(), &ir.Name{
+		ifaceName, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
 			Value: n.InterfaceName.Value,
 		})
 		if !ok {
 			return
 		}
 
-		curFile, ok := r.meta.Files.Get(curFileName)
+		curFile, ok := r.Meta.Files.Get(curFileName)
 		if !ok {
 			log.Fatalf("file not found")
 		}
 
-		iface := NewInterface(ifaceName, curFile)
+		iface := symbols.NewInterface(ifaceName, curFile)
 		iface.Vendor = r.inVendor()
-		r.meta.Classes.Add(iface)
+		r.Meta.Classes.Add(iface)
 
 		for _, n := range n.Stmts {
 			r.handleClassInterfaceMethodsConstants(iface, n)
@@ -99,9 +102,9 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 			Stmts: n.Stmts,
 		})
 
-		fn := NewFunctionInfo(NewFuncKey(funcName), pos)
+		fn := symbols.NewFunction(symbols.NewFuncKey(funcName), pos)
 		fn.CyclomaticComplexity = cc
-		r.meta.Funcs.Add(fn)
+		r.Meta.Funcs.Add(fn)
 	}
 }
 
@@ -120,7 +123,7 @@ func (r *rootIndexer) calculateCyclomaticComplexity(stmts *ir.StmtList) int64 {
 	return complexity
 }
 
-func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *Class, n ir.Node) {
+func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class, n ir.Node) {
 	switch n := n.(type) {
 	case *ir.ClassMethodStmt:
 		methodName := n.MethodName.Value
@@ -131,13 +134,13 @@ func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *Class, n ir.No
 			cc = r.calculateCyclomaticComplexity(n)
 		}
 
-		fn := NewFunctionInfo(NewMethodKey(methodName, class.Name), pos)
+		fn := symbols.NewFunction(symbols.NewMethodKey(methodName, class.Name), pos)
 		fn.CyclomaticComplexity = cc
-		r.meta.Funcs.Add(fn)
+		r.Meta.Funcs.Add(fn)
 
 	case *ir.ClassConstListStmt:
 		for _, c := range n.Consts {
-			r.meta.Constants.Add(NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, class.Name))
+			r.Meta.Constants.Add(symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, class.Name))
 		}
 	}
 }
@@ -146,7 +149,7 @@ func (r *rootIndexer) getElementPos(n ir.Node) meta.ElementPosition {
 	pos := ir.GetPosition(n)
 
 	return meta.ElementPosition{
-		Filename:  r.ctx.ClassParseState().CurrentFile,
+		Filename:  r.Ctx.ClassParseState().CurrentFile,
 		Character: int32(0),
 		Line:      int32(pos.StartLine),
 		EndLine:   int32(pos.EndLine),

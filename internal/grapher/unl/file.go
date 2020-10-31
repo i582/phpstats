@@ -3,10 +3,10 @@ package uml
 import (
 	"fmt"
 
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-func GetUmlForFile(f *stats.File) string {
+func GetUmlForFile(f *symbols.File) string {
 	id := f.UniqueId()
 	shortName := f.Name
 

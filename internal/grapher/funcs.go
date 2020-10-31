@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"github.com/i582/phpstats/internal/grapher/unl"
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/utils"
 )
 
-func (g *Grapher) FuncDeps(f *stats.Function) string {
+func (g *Grapher) FuncDeps(f *symbols.Function) string {
 	var res string
 
 	res += graphHeader
@@ -27,7 +27,7 @@ func (g *Grapher) FuncDeps(f *stats.Function) string {
 	shovedDef := map[string]struct{}{}
 
 	for _, dep := range deps.Classes {
-		name := utils.ClassNameNormalize(dep.Name)
+		name := utils.NameToIdentifier(dep.Name)
 
 		var depSubGraph string
 
@@ -38,11 +38,11 @@ func (g *Grapher) FuncDeps(f *stats.Function) string {
 			}
 		}
 
-		res += g.subGraphWrapper(depSubGraph, utils.NameNormalize(dep.Name))
+		res += g.subGraphWrapper(depSubGraph, utils.NormalizeSlashes(dep.Name))
 	}
 
 	for _, dep := range depsBy.Classes {
-		name := utils.ClassNameNormalize(dep.Name)
+		name := utils.NameToIdentifier(dep.Name)
 
 		var depSubGraph string
 
@@ -53,11 +53,11 @@ func (g *Grapher) FuncDeps(f *stats.Function) string {
 			}
 		}
 
-		res += g.subGraphWrapper(depSubGraph, utils.NameNormalize(dep.Name))
+		res += g.subGraphWrapper(depSubGraph, utils.NormalizeSlashes(dep.Name))
 	}
 
 	if f.Class != nil {
-		name := utils.ClassNameNormalize(f.Class.Name)
+		name := utils.NameToIdentifier(f.Class.Name)
 
 		var depSubGraph string
 
@@ -68,7 +68,7 @@ func (g *Grapher) FuncDeps(f *stats.Function) string {
 			}
 		}
 
-		res += g.subGraphWrapperColor(depSubGraph, utils.NameNormalize(f.Class.Name), "#bbbbbb")
+		res += g.subGraphWrapperColor(depSubGraph, utils.NormalizeSlashes(f.Class.Name), "#bbbbbb")
 	}
 
 	for def := range definitions {
@@ -83,15 +83,15 @@ func (g *Grapher) FuncDeps(f *stats.Function) string {
 		res += con
 	}
 
-	return g.graphWrapper(res, utils.ClassNameNormalize(f.Name.String()))
+	return g.graphWrapper(res, utils.NameToIdentifier(f.Name.String()))
 }
 
-func (g *Grapher) funcDeps(f *stats.Function) (map[string]struct{}, map[string]struct{}) {
+func (g *Grapher) funcDeps(f *symbols.Function) (map[string]struct{}, map[string]struct{}) {
 	definitions := make(map[string]struct{}, f.Called.Len()+f.CalledBy.Len())
 	connections := make(map[string]struct{}, f.Called.Len()+f.CalledBy.Len())
 
 	for _, called := range f.Called.Funcs {
-		str := fmt.Sprintf("   %s -> %s\n", utils.ClassNameNormalize(f.Name.String()), utils.ClassNameNormalize(called.Name.String()))
+		str := fmt.Sprintf("   %s -> %s\n", utils.NameToIdentifier(f.Name.String()), utils.NameToIdentifier(called.Name.String()))
 		connections[str] = struct{}{}
 
 		funcUml := uml.GetUmlForFunction(called)
@@ -100,7 +100,7 @@ func (g *Grapher) funcDeps(f *stats.Function) (map[string]struct{}, map[string]s
 	}
 
 	for _, calledBy := range f.CalledBy.Funcs {
-		str := fmt.Sprintf("   %s -> %s\n", utils.ClassNameNormalize(calledBy.Name.String()), utils.ClassNameNormalize(f.Name.String()))
+		str := fmt.Sprintf("   %s -> %s\n", utils.NameToIdentifier(calledBy.Name.String()), utils.NameToIdentifier(f.Name.String()))
 		connections[str] = struct{}{}
 
 		funcUml := uml.GetUmlForFunction(calledBy)
@@ -111,7 +111,7 @@ func (g *Grapher) funcDeps(f *stats.Function) (map[string]struct{}, map[string]s
 	return definitions, connections
 }
 
-func (g *Grapher) getColorForFunction(c *stats.Function) string {
+func (g *Grapher) getColorForFunction(c *symbols.Function) string {
 	if c.Class != nil {
 		return "#bbbbbb"
 	}

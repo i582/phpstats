@@ -1,10 +1,10 @@
 package metrics
 
 import (
-	"github.com/i582/phpstats/internal/stats"
+	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-func AfferentEfferentStabilityOfNamespace(n *stats.Namespace) (aff, eff, stab float64) {
+func AfferentEfferentStabilityOfNamespace(n *symbols.Namespace) (aff, eff, stab float64) {
 	if n.MetricsResolved {
 		return n.Aff, n.Eff, n.Instab
 	}
