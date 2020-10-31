@@ -73,8 +73,6 @@ func Info() *shell.Executor {
 
 			fn, _ := walkers.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
 
-			dataJson, _ := representator.GetJsonFunctionReprWithFlag(fn)
-			fmt.Println(dataJson)
 			data := representator.GetStringFunctionRepr(fn)
 			fmt.Println(data)
 		},

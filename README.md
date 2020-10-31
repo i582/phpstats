@@ -1,4 +1,4 @@
-![](/doc/logo.png)
+![](doc/logo.png)
 
 # phpstats
 
@@ -37,7 +37,7 @@ The following metrics are currently available:
    graph class -o file.gv Symfony\Component\Routing\Router
    ```
 
-  ![](/doc/class_graph.svg)
+  ![](doc/class_graph.svg)
 
 3. Function/method dependencies.
 
@@ -45,7 +45,7 @@ The following metrics are currently available:
    graph func -o file.gv \Symfony\Component\Routing\Route::setDefaults
    ```
 
-  ![](/doc/func_graph.svg)
+  ![](doc/func_graph.svg)
 
 4. All project namespaces
 
@@ -53,7 +53,7 @@ The following metrics are currently available:
    graph namespaces -o file.gv
    ```
 
-  ![](/doc/all_namespaces_graph.svg)
+  ![](doc/all_namespaces_graph.svg)
 
 5. Specific namespace
 
@@ -61,7 +61,7 @@ The following metrics are currently available:
    graph namespace -o file.gv Symfony\Component\Lock
    ```
 
-  ![](/doc/specific_namespaces_graph.svg)
+  ![](doc/specific_namespaces_graph.svg)
 
 7. LCOM4
 
