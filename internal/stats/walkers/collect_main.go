@@ -22,26 +22,26 @@ func CollectMain() error {
 		if meta.IsIndexingComplete() {
 			return &blockChecker{
 				Ctx:  ctx,
-				Root: ctx.RootState()["vklints-root"].(*RootChecker),
+				Root: ctx.RootState()["vklints-root"].(*rootChecker),
 			}
 		}
 
-		return &BlockIndexer{
+		return &blockIndexer{
 			Ctx:  ctx,
-			Root: ctx.RootState()["vklints-root"].(*RootIndexer),
+			Root: ctx.RootState()["vklints-root"].(*rootIndexer),
 		}
 	})
 
 	linter.RegisterRootCheckerWithCacher(GlobalCtx, func(ctx *linter.RootContext) linter.RootChecker {
 		if meta.IsIndexingComplete() {
-			checker := &RootChecker{
+			checker := &rootChecker{
 				Ctx: ctx,
 			}
 			ctx.State()["vklints-root"] = checker
 			return checker
 		}
 
-		indexer := &RootIndexer{
+		indexer := &rootIndexer{
 			Ctx:  ctx,
 			Meta: filemeta.NewFileMeta(),
 		}

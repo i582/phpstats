@@ -4,9 +4,9 @@ import (
 	"github.com/VKCOM/noverify/src/linter"
 )
 
-type BlockIndexer struct {
+type blockIndexer struct {
 	linter.BlockCheckerDefaults
 
 	Ctx  *linter.BlockContext
-	Root *RootIndexer
+	Root *rootIndexer
 }

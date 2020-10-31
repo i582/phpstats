@@ -11,7 +11,7 @@ import (
 	"github.com/i582/phpstats/internal/utils"
 )
 
-type RootChecker struct {
+type rootChecker struct {
 	linter.RootCheckerDefaults
 
 	Ctx *linter.RootContext
@@ -19,7 +19,7 @@ type RootChecker struct {
 	CurFile *symbols.File
 }
 
-func (r *RootChecker) BeforeEnterFile() {
+func (r *rootChecker) BeforeEnterFile() {
 	filename := r.Ctx.Filename()
 
 	var ok bool
@@ -33,7 +33,7 @@ func (r *RootChecker) BeforeEnterFile() {
 	BarLinting.Increment()
 }
 
-func (r *RootChecker) AfterEnterNode(n ir.Node) {
+func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.NamespaceStmt:
 		nsName := n.NamespaceName.Value
@@ -150,7 +150,7 @@ func (r *RootChecker) AfterEnterNode(n ir.Node) {
 	}
 }
 
-func (r *RootChecker) GetCurrentFunc() (*symbols.Function, bool) {
+func (r *rootChecker) GetCurrentFunc() (*symbols.Function, bool) {
 	if r.Ctx.ClassParseState().CurrentFunction == "" {
 		return nil, false
 	}
@@ -180,7 +180,7 @@ func (r *RootChecker) GetCurrentFunc() (*symbols.Function, bool) {
 	return fn, true
 }
 
-func (r *RootChecker) GetCurrentClass() (*symbols.Class, bool) {
+func (r *rootChecker) GetCurrentClass() (*symbols.Class, bool) {
 	if r.Ctx.ClassParseState().CurrentClass == "" {
 		return nil, false
 	}

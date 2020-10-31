@@ -15,7 +15,7 @@ import (
 var GlobalCtx = NewGlobalContext()
 var ProjectRoot string
 
-type GlobalContext struct {
+type globalContext struct {
 	Funcs      *symbols.Functions
 	Classes    *symbols.Classes
 	Files      *symbols.Files
@@ -23,8 +23,8 @@ type GlobalContext struct {
 	Namespaces *symbols.Namespaces
 }
 
-func NewGlobalContext() *GlobalContext {
-	return &GlobalContext{
+func NewGlobalContext() *globalContext {
+	return &globalContext{
 		Funcs:      symbols.NewFunctions(),
 		Classes:    symbols.NewClasses(),
 		Files:      symbols.NewFiles(),
@@ -33,16 +33,16 @@ func NewGlobalContext() *GlobalContext {
 	}
 }
 
-func (ctx *GlobalContext) Version() string {
+func (ctx *globalContext) Version() string {
 	return "1.0.0"
 }
 
-func (ctx *GlobalContext) Encode(writer io.Writer, checker linter.RootChecker) error {
+func (ctx *globalContext) Encode(writer io.Writer, checker linter.RootChecker) error {
 	if meta.IsLoadingStubs() {
 		return nil
 	}
 
-	ind := checker.(*RootIndexer)
+	ind := checker.(*rootIndexer)
 
 	enc := gob.NewEncoder(writer)
 	if err := enc.Encode(&ind.Meta); err != nil {
@@ -53,7 +53,7 @@ func (ctx *GlobalContext) Encode(writer io.Writer, checker linter.RootChecker) e
 	return nil
 }
 
-func (ctx *GlobalContext) Decode(r io.Reader, filename string) error {
+func (ctx *globalContext) Decode(r io.Reader, filename string) error {
 	if meta.IsLoadingStubs() {
 		return nil
 	}
@@ -71,7 +71,7 @@ func (ctx *GlobalContext) Decode(r io.Reader, filename string) error {
 	return nil
 }
 
-func (ctx *GlobalContext) UpdateMeta(f *filemeta.FileMeta) {
+func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta) {
 	for _, file := range f.Files.Files {
 		f := symbols.NewFile(file.Path)
 

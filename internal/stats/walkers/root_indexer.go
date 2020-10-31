@@ -14,30 +14,30 @@ import (
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-type RootIndexer struct {
+type rootIndexer struct {
 	linter.RootCheckerDefaults
 
 	Ctx  *linter.RootContext
 	Meta filemeta.FileMeta
 }
 
-func (r *RootIndexer) inVendor() bool {
+func (r *rootIndexer) inVendor() bool {
 	curFileName := r.Ctx.Filename()
 	return strings.Contains(curFileName, "vendor") || strings.Contains(curFileName, "phpstorm-stubs")
 }
 
-func (r *RootIndexer) BeforeEnterFile() {
+func (r *rootIndexer) BeforeEnterFile() {
 	curFileName := r.Ctx.Filename()
 	curFile := symbols.NewFile(curFileName)
 
 	r.Meta.Files.Add(curFile)
 }
 
-func (r *RootIndexer) AfterLeaveFile() {
+func (r *rootIndexer) AfterLeaveFile() {
 	GlobalCtx.UpdateMeta(&r.Meta)
 }
 
-func (r *RootIndexer) AfterEnterNode(n ir.Node) {
+func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.ClassStmt:
 		curFileName := r.Ctx.Filename()
@@ -108,7 +108,7 @@ func (r *RootIndexer) AfterEnterNode(n ir.Node) {
 	}
 }
 
-func (r *RootIndexer) calculateCyclomaticComplexity(stmts *ir.StmtList) int64 {
+func (r *rootIndexer) calculateCyclomaticComplexity(stmts *ir.StmtList) int64 {
 	var complexity int64
 	irutil.Inspect(stmts, func(n ir.Node) bool {
 		switch n.(type) {
@@ -123,7 +123,7 @@ func (r *RootIndexer) calculateCyclomaticComplexity(stmts *ir.StmtList) int64 {
 	return complexity
 }
 
-func (r *RootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class, n ir.Node) {
+func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class, n ir.Node) {
 	switch n := n.(type) {
 	case *ir.ClassMethodStmt:
 		methodName := n.MethodName.Value
@@ -145,7 +145,7 @@ func (r *RootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class,
 	}
 }
 
-func (r *RootIndexer) getElementPos(n ir.Node) meta.ElementPosition {
+func (r *rootIndexer) getElementPos(n ir.Node) meta.ElementPosition {
 	pos := ir.GetPosition(n)
 
 	return meta.ElementPosition{

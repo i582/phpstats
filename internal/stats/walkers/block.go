@@ -13,7 +13,7 @@ import (
 type blockChecker struct {
 	linter.BlockCheckerDefaults
 	Ctx  *linter.BlockContext
-	Root *RootChecker
+	Root *rootChecker
 }
 
 func (b *blockChecker) BeforeEnterNode(n ir.Node) {
