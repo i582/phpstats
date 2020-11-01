@@ -85,7 +85,7 @@ The `--project-path` flag sets the directory relative to which paths to files wi
 
 The `--cache-dir` flag sets a custom cache directory.
 
-The `--port` flag sets the port for the server. See the [server](Server) part.
+The `--port` flag sets the port for the server. See the [server](#Server) part.
 
 After collecting information, you will be taken to an interactive shell, type `help` for help.
 
