@@ -78,12 +78,14 @@ go get github.com/i582/phpstats
 ## Usage
 
 ```
-collect [--project-path <value>] [--cache-dir <value>] <dir>
+collect [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>
 ```
 
 The `--project-path` flag sets the directory relative to which paths to files will be resolved when importing. If the flag is not set, the directory is set to the value of the current analyzed directory.
 
 The `--cache-dir` flag sets a custom cache directory.
+
+The `--port` flag sets the port for the server. See the [server](#Server) part.
 
 After collecting information, you will be taken to an interactive shell, type `help` for help.
 

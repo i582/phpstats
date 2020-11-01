@@ -9,14 +9,18 @@ import (
 	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
-func RunServer() {
+func RunServer(port int64) {
+	if port == 0 {
+		port = 8080
+	}
+
 	http.HandleFunc("/info/class", InfoClassHandler)
 	http.HandleFunc("/info/func", InfoFunctionHandler)
 	http.HandleFunc("/info/namespace", InfoNamespaceHandler)
 	http.HandleFunc("/exit", ExitHandler)
 	http.HandleFunc("/analyzeStats", AnalyzeStatsHandler)
 
-	go http.ListenAndServe("localhost:8080", nil)
+	go http.ListenAndServe(fmt.Sprintf("localhost:%d", port), nil)
 }
 
 func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
