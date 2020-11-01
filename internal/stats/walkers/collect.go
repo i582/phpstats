@@ -12,7 +12,7 @@ import (
 	"github.com/i582/phpstats/internal/stats/filemeta"
 )
 
-func CollectMain() error {
+func Collect() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
 		if meta.IsIndexingComplete() {
 			return &blockChecker{
@@ -41,14 +41,6 @@ func CollectMain() error {
 		return indexer
 	})
 
-	meta.OnIndexingComplete(func() {
-		GlobalCtx.BarLinting = pb.StartNew(GlobalCtx.Files.Len())
-	})
-
-	if len(os.Args) < 2 {
-		log.Fatalf("Error: too few arguments")
-	}
-
 	if GlobalCtx.ProjectRoot == "" {
 		GlobalCtx.ProjectRoot = os.Args[len(os.Args)-1]
 	}
@@ -56,6 +48,10 @@ func CollectMain() error {
 	if _, err := os.Stat(GlobalCtx.ProjectRoot); os.IsNotExist(err) {
 		log.Fatalf("Error: invalid project path: %v", err)
 	}
+
+	meta.OnIndexingComplete(func() {
+		GlobalCtx.BarLinting = pb.StartNew(GlobalCtx.Files.Len())
+	})
 
 	_, _ = cmd.Run(&cmd.MainConfig{
 		BeforeReport: func(*linter.Report) bool {

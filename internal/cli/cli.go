@@ -11,6 +11,7 @@ import (
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/commands"
 	"github.com/i582/phpstats/internal/stats/walkers"
+	"github.com/i582/phpstats/internal/utils"
 
 	"github.com/urfave/cli/v2"
 )
@@ -40,6 +41,7 @@ func Run() {
 			&cli.StringFlag{
 				Name:  "cache-dir",
 				Usage: "custom directory for cache storage.",
+				Value: utils.DefaultCacheDir(),
 			},
 			&cli.StringFlag{
 				Name:        "project-path",
@@ -60,8 +62,11 @@ func Run() {
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
 			}
+			if c.NArg() < 1 {
+				log.Fatalf(color.Red.Sprintf("Error: too few arguments"))
+			}
 
-			err := walkers.CollectMain()
+			err := walkers.Collect()
 			if err != nil {
 				return err
 			}
