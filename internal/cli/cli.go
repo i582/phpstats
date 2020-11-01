@@ -1,61 +1,76 @@
 package cli
 
 import (
-	"fmt"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/gookit/color"
 
 	"github.com/i582/phpstats/internal/server"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/commands"
+	"github.com/i582/phpstats/internal/stats/walkers"
+
+	"github.com/urfave/cli/v2"
 )
-
-type PhplinterTool struct {
-	Name    string
-	Collect func() error
-	Process func() error
-}
-
-func errorFunc(format string, args ...interface{}) func() error {
-	return func() error {
-		return fmt.Errorf(format, args...)
-	}
-}
 
 var MainShell = shell.NewShell()
 
-func RunPhplinterTool(tool *PhplinterTool) {
-	subcmd := ""
+func Run() {
+	log.SetFlags(0)
+
 	if len(os.Args) > 1 {
-		subcmd = os.Args[1]
+		subcmd := os.Args[1]
 		// Remove sub command from os.Args.
 		os.Args = append(os.Args[:1], os.Args[2:]...)
-		os.Args[0] = tool.Name + "/" + subcmd
+		os.Args[0] = "phpstats/" + subcmd
 	}
 
-	run := errorFunc("sub-command %q not found", subcmd)
-	switch subcmd {
-	case "collect":
-		if tool.Collect == nil {
-			run = errorFunc("collect command is nil")
-		} else {
-			run = tool.Collect
-		}
-	case "process":
-		if tool.Process == nil {
-			run = errorFunc("process command is nil")
-		} else {
-			run = tool.Process
-		}
+	var port int64
+	app := &cli.App{
+		Name:  "collect",
+		Usage: "data collection",
+		Flags: []cli.Flag{
+			&cli.Int64Flag{
+				Name:  "port",
+				Value: 8080,
+				Usage: "port used by the server.",
+			},
+			&cli.StringFlag{
+				Name:  "cache-dir",
+				Usage: "custom directory for cache storage.",
+			},
+			&cli.StringFlag{
+				Name:        "project-path",
+				Usage:       "path to the project relative to which all imports are allowed.",
+				Destination: &walkers.GlobalCtx.ProjectRoot,
+			},
+		},
+		Action: func(c *cli.Context) error {
+			server.RunServer(port)
+
+			// Normalize flags for NoVerify
+			for i := range os.Args {
+				if strings.HasPrefix(os.Args[i], "--") {
+					os.Args[i] = os.Args[i][1:]
+				}
+			}
+
+			if c.NArg() > 1 {
+				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
+			}
+
+			err := walkers.CollectMain()
+			if err != nil {
+				return err
+			}
+
+			return nil
+		},
 	}
 
-	server.RunServer()
-
-	log.SetFlags(0)
-	if err := run(); err != nil {
-		log.Printf("%MainShell: run %q error: %+v", tool.Name, subcmd, err)
-		return
-	}
+	_ = app.Run(os.Args)
 
 	MainShell.AddExecutor(commands.Info())
 	MainShell.AddExecutor(commands.List())
