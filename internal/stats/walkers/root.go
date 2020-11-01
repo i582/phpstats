@@ -30,7 +30,7 @@ func (r *rootChecker) BeforeEnterFile() {
 	// hack, yet
 	r.CurFile.CountLines = int64(bytes.Count(r.Ctx.FileContents(), []byte("\n")) + 1)
 
-	BarLinting.Increment()
+	GlobalCtx.BarLinting.Increment()
 }
 
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
@@ -42,7 +42,7 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 		GlobalCtx.Namespaces.AddFileToNamespace(nsName, r.CurFile)
 
 	case *ir.ImportExpr:
-		filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), ProjectRoot, n.Expr)
+		filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), GlobalCtx.ProjectRoot, n.Expr)
 		if !ok {
 			return
 		}
@@ -172,7 +172,7 @@ func (r *rootChecker) GetCurrentFunc() (*symbols.Function, bool) {
 		return nil, false
 	}
 
-	fn, ok := GlobalCtx.Funcs.Get(symbols.NewFuncKey(funcName))
+	fn, ok := GlobalCtx.Functions.Get(symbols.NewFuncKey(funcName))
 	if !ok {
 		return nil, false
 	}

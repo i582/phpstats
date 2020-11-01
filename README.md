@@ -98,7 +98,6 @@ Commands:
 
      file  <value>                    info about file
        [-f]                           output full information
-       [-r <value>]                   output recursive (default: 5)
 
      namespace  <value>               info about namespace
 

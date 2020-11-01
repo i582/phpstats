@@ -64,7 +64,7 @@ func Top() *shell.Executor {
 			byUses := c.Flags.Contains("-by-uses")
 			byCC := c.Flags.Contains("-by-cc")
 
-			allFuncs := walkers.GlobalCtx.Funcs.GetAll(true, true, true, -1, 0, false, true)
+			allFuncs := walkers.GlobalCtx.Functions.GetAll(true, true, true, -1, 0, false, true)
 
 			sort.Slice(allFuncs, func(i, j int) bool {
 				switch {

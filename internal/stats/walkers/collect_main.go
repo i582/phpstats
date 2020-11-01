@@ -14,8 +14,6 @@ import (
 	"github.com/i582/phpstats/internal/utils"
 )
 
-var BarLinting *pb.ProgressBar
-
 func CollectMain() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
 		if meta.IsIndexingComplete() {
@@ -46,7 +44,7 @@ func CollectMain() error {
 	})
 
 	meta.OnIndexingComplete(func() {
-		BarLinting = pb.StartNew(GlobalCtx.Files.Len())
+		GlobalCtx.BarLinting = pb.StartNew(GlobalCtx.Files.Len())
 	})
 
 	fs, args := flags.ParseFlags(os.Args, flags.NewFlags(&flags.Flag{
@@ -78,12 +76,12 @@ func CollectMain() error {
 	os.Args = argstmp
 
 	if flag, ok := fs.Get("--project-path"); ok {
-		ProjectRoot = flag.Value
+		GlobalCtx.ProjectRoot = flag.Value
 	} else if len(os.Args) > 0 {
-		ProjectRoot = os.Args[len(os.Args)-1]
+		GlobalCtx.ProjectRoot = os.Args[len(os.Args)-1]
 	}
 
-	if _, err := os.Stat(ProjectRoot); os.IsNotExist(err) {
+	if _, err := os.Stat(GlobalCtx.ProjectRoot); os.IsNotExist(err) {
 		log.Fatalf("Error: invalid project path: %v", err)
 	}
 
@@ -93,6 +91,6 @@ func CollectMain() error {
 		},
 	})
 
-	BarLinting.Finish()
+	GlobalCtx.BarLinting.Finish()
 	return nil
 }

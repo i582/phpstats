@@ -160,13 +160,13 @@ func Graph() *shell.Executor {
 			}
 			defer output.Close()
 
-			funcs, err := walkers.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
+			funcs, err := walkers.GlobalCtx.Functions.GetFullFuncName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			fun, _ := walkers.GlobalCtx.Funcs.Get(funcs[0])
+			fun, _ := walkers.GlobalCtx.Functions.Get(funcs[0])
 
 			g := grapher.NewGrapher()
 			graph := g.FuncDeps(fun)

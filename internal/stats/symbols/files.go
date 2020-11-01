@@ -9,8 +9,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-
-	"github.com/i582/phpstats/internal/utils"
 )
 
 type Files struct {
@@ -135,80 +133,6 @@ var filenameNormalizer = regexp.MustCompile("[^0-9a-zA-Z]")
 func (f *File) UniqueId() string {
 	dir, _ := filepath.Split(f.Path)
 	return filepath.Base(dir) + "__" + filenameNormalizer.ReplaceAllString(f.Name, "_")
-}
-
-func RequireRecursive(file *File, level int, visited map[string]struct{}, maxRecursive int, isRootRequire bool) string {
-	if level > maxRecursive {
-		return ""
-	}
-
-	if _, ok := visited[file.Path]; ok {
-		return ""
-		// return fmt.Sprintf("%s<цикл, файл был подключен выше по иерархии> %s", GenIndent(level), file.ExtraShortString(0))
-	}
-	visited[file.Path] = struct{}{}
-
-	var res string
-
-	var prefix string
-
-	if isRootRequire {
-		prefix = " r↳ "
-	} else {
-		prefix = " f↳ "
-	}
-
-	if len(visited) == 1 {
-		res += file.ExtraShortStringWithPrefix(level, "")
-	} else {
-		res += file.ExtraShortStringWithPrefix(level, prefix)
-	}
-
-	var countNonLoopRequiredRoot int
-	for _, f := range file.RequiredRoot.Files {
-		if _, ok := visited[f.Path]; !ok {
-			countNonLoopRequiredRoot++
-		}
-	}
-
-	if countNonLoopRequiredRoot != 0 && level < maxRecursive {
-		// res += fmt.Sprintf("%s   (R) Подключаемые файлы в корне:\n", GenIndent(level))
-	}
-	for _, f := range file.RequiredRoot.Files {
-		res += RequireRecursive(f, level+1, visited, maxRecursive, true)
-	}
-
-	var countNonLoopRequiredBlock int
-	for _, f := range file.RequiredBlock.Files {
-		if _, ok := visited[f.Path]; !ok {
-			countNonLoopRequiredBlock++
-		}
-	}
-
-	if countNonLoopRequiredBlock != 0 && level < maxRecursive {
-		// res += fmt.Sprintf("%s   (F) Подключаемые файлы в функциях:\n", GenIndent(level))
-	}
-	for _, f := range file.RequiredBlock.Files {
-		res += RequireRecursive(f, level+1, visited, maxRecursive, false)
-	}
-
-	return res
-}
-
-func (f *File) FullStringRecursive(maxRecursive int) string {
-	var res string
-
-	res += RequireRecursive(f, 0, make(map[string]struct{}), maxRecursive, false)
-
-	return res
-}
-
-func (f *File) ExtraShortStringWithPrefix(level int, prefix string) string {
-	var res string
-
-	res += fmt.Sprintf("%s%s%-40s (%s)\n", utils.GenIndent(level), prefix, f.Name, f.Path)
-
-	return res
 }
 
 func (f *File) AddRequiredFile(file *File) {

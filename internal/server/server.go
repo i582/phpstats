@@ -46,7 +46,7 @@ func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
-	funcNameKeys, err := walkers.GlobalCtx.Funcs.GetFullFuncName(name)
+	funcNameKeys, err := walkers.GlobalCtx.Functions.GetFullFuncName(name)
 	if err != nil {
 		data, _ := representator.GetJsonFunctionReprWithFlag(nil)
 		fmt.Fprintln(w, data)
@@ -61,7 +61,7 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 		funcKeyIndex = 0
 	}
 
-	fn, _ := walkers.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
+	fn, _ := walkers.GlobalCtx.Functions.Get(funcNameKeys[funcKeyIndex])
 
 	data, _ := representator.GetJsonFunctionReprWithFlag(fn)
 	fmt.Fprintln(w, data)
@@ -86,13 +86,13 @@ func ExitHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AnalyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
-	if walkers.BarLinting == nil {
+	if walkers.GlobalCtx.BarLinting == nil {
 		fmt.Fprintf(w, "{\"state\": \"indexing\", \"current\": 0.0}")
 		return
 	}
 
-	count := float64(walkers.BarLinting.Total())
-	cur := float64(walkers.BarLinting.Current())
+	count := float64(walkers.GlobalCtx.BarLinting.Total())
+	cur := float64(walkers.GlobalCtx.BarLinting.Current())
 
 	fmt.Fprintf(w, "{\"state\": \"linting\", \"current\": %f}", cur/count)
 }

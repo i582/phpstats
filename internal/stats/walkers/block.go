@@ -98,7 +98,7 @@ func (b *blockChecker) handleNew(n *ir.NewExpr) {
 }
 
 func (b *blockChecker) handleImport(n *ir.ImportExpr) {
-	filename, ok := utils.ResolveRequirePath(b.Ctx.ClassParseState(), ProjectRoot, n.Expr)
+	filename, ok := utils.ResolveRequirePath(b.Ctx.ClassParseState(), GlobalCtx.ProjectRoot, n.Expr)
 	if !ok {
 		return
 	}
@@ -160,7 +160,7 @@ func (b *blockChecker) handleFunctionCall(n *ir.FunctionCallExpr) {
 	}
 	calledFunPos := calledFuncInfo.Pos
 
-	calledFunc, found := GlobalCtx.Funcs.Get(calledFuncKey)
+	calledFunc, found := GlobalCtx.Functions.Get(calledFuncKey)
 	if !found {
 		calledFunc = symbols.NewFunction(calledFuncKey, calledFunPos)
 	}
@@ -176,7 +176,7 @@ func (b *blockChecker) handleFunction(n *ir.FunctionStmt) {
 		return
 	}
 
-	fun, ok := GlobalCtx.Funcs.Get(symbols.NewFuncKey(funcInfo.Name))
+	fun, ok := GlobalCtx.Functions.Get(symbols.NewFuncKey(funcInfo.Name))
 	if !ok {
 		return
 	}
@@ -212,7 +212,7 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 		return
 	}
 
-	calledFunc, found := GlobalCtx.Funcs.Get(calledFuncKey)
+	calledFunc, found := GlobalCtx.Functions.Get(calledFuncKey)
 	if !found {
 		calledFunc = symbols.NewMethod(calledFuncKey, calledFunPos, calledClass)
 	}

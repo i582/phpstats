@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
@@ -51,7 +50,7 @@ func Info() *shell.Executor {
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
 
-			funcNameKeys, err := walkers.GlobalCtx.Funcs.GetFullFuncName(c.Args[0])
+			funcNameKeys, err := walkers.GlobalCtx.Functions.GetFullFuncName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -71,7 +70,7 @@ func Info() *shell.Executor {
 				funcKeyIndex = 0
 			}
 
-			fn, _ := walkers.GlobalCtx.Funcs.Get(funcNameKeys[funcKeyIndex])
+			fn, _ := walkers.GlobalCtx.Functions.Get(funcNameKeys[funcKeyIndex])
 
 			data := representator.GetStringFunctionRepr(fn)
 			fmt.Println(data)
@@ -87,17 +86,10 @@ func Info() *shell.Executor {
 				Name: "-f",
 				Help: "output full information",
 			},
-			&flags.Flag{
-				Name:      "-r",
-				Help:      "output recursive",
-				Default:   "5",
-				WithValue: true,
-			},
 		),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
-			recursiveFlag, recursive := c.Flags.Get("-r")
 
 			patches, err := walkers.GlobalCtx.Files.GetFullFileName(c.Args[0])
 			if err != nil {
@@ -116,16 +108,6 @@ func Info() *shell.Executor {
 			}
 
 			file, _ := walkers.GlobalCtx.Files.Get(patch)
-
-			if recursive {
-				count, err := strconv.ParseInt(recursiveFlag.Value, 0, 64)
-				if err != nil {
-					c.Error(fmt.Errorf("flag value must be a number"))
-				}
-
-				fmt.Println(file.FullStringRecursive(int(count)))
-				return
-			}
 
 			var data string
 			if full {

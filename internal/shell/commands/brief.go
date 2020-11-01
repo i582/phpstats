@@ -17,7 +17,7 @@ func Brief() *shell.Executor {
 			var countMethods int64
 			var countFuncs int64
 
-			for _, fn := range walkers.GlobalCtx.Funcs.Funcs {
+			for _, fn := range walkers.GlobalCtx.Functions.Funcs {
 				if fn.IsMethod() {
 					countMethods++
 					continue

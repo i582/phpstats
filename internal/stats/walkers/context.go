@@ -7,25 +7,28 @@ import (
 
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
+	"github.com/cheggaaa/pb/v3"
 
 	"github.com/i582/phpstats/internal/stats/filemeta"
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
 var GlobalCtx = NewGlobalContext()
-var ProjectRoot string
 
 type globalContext struct {
-	Funcs      *symbols.Functions
+	Functions  *symbols.Functions
 	Classes    *symbols.Classes
 	Files      *symbols.Files
 	Constants  *symbols.Constants
 	Namespaces *symbols.Namespaces
+
+	ProjectRoot string
+	BarLinting  *pb.ProgressBar
 }
 
 func NewGlobalContext() *globalContext {
 	return &globalContext{
-		Funcs:      symbols.NewFunctions(),
+		Functions:  symbols.NewFunctions(),
 		Classes:    symbols.NewClasses(),
 		Files:      symbols.NewFiles(),
 		Constants:  symbols.NewConstants(),
@@ -113,7 +116,7 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta) {
 
 		fun.CyclomaticComplexity = fn.CyclomaticComplexity
 
-		ctx.Funcs.Add(fun)
+		ctx.Functions.Add(fun)
 	}
 
 	if f.Constants != nil {

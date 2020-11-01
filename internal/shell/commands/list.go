@@ -41,7 +41,7 @@ func List() *shell.Executor {
 
 			withEmbeddedFuncs := c.Flags.Contains("-e")
 
-			funcs := walkers.GlobalCtx.Funcs.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
+			funcs := walkers.GlobalCtx.Functions.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
 
 			for _, fn := range funcs {
 				data := representator.GetStringFunctionRepr(fn)
@@ -74,7 +74,7 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			funcs := walkers.GlobalCtx.Funcs.GetAll(true, false, false, count, offset, true, false)
+			funcs := walkers.GlobalCtx.Functions.GetAll(true, false, false, count, offset, true, false)
 
 			for _, fn := range funcs {
 				data := representator.GetStringFunctionRepr(fn)
