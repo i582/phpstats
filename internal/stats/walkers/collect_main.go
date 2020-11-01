@@ -15,7 +15,6 @@ import (
 )
 
 var BarLinting *pb.ProgressBar
-var WithServer bool
 
 func CollectMain() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
@@ -26,10 +25,7 @@ func CollectMain() error {
 			}
 		}
 
-		return &blockIndexer{
-			Ctx:  ctx,
-			Root: ctx.RootState()["vklints-root"].(*rootIndexer),
-		}
+		return &blockIndexer{}
 	})
 
 	linter.RegisterRootCheckerWithCacher(GlobalCtx, func(ctx *linter.RootContext) linter.RootChecker {
@@ -90,12 +86,6 @@ func CollectMain() error {
 	if _, err := os.Stat(ProjectRoot); os.IsNotExist(err) {
 		log.Fatalf("Error: invalid project path: %v", err)
 	}
-
-	if fs.Contains("--server") {
-		WithServer = true
-	}
-
-	// defer profile.Start(profile.ProfilePath("C:\\projects\\phpstats"), profile.MemProfileRate(100)).Stop()
 
 	_, _ = cmd.Run(&cmd.MainConfig{
 		BeforeReport: func(*linter.Report) bool {

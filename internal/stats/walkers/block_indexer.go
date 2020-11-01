@@ -6,7 +6,4 @@ import (
 
 type blockIndexer struct {
 	linter.BlockCheckerDefaults
-
-	Ctx  *linter.BlockContext
-	Root *rootIndexer
 }
