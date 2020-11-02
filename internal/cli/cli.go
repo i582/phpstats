@@ -61,6 +61,7 @@ func Run() {
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
 			}
+
 			if c.NArg() < 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too few arguments"))
 			}
