@@ -37,7 +37,7 @@ func NewGlobalContext() *globalContext {
 }
 
 func (ctx *globalContext) Version() string {
-	return "1.0.0"
+	return "1.0.1"
 }
 
 func (ctx *globalContext) Encode(writer io.Writer, checker linter.RootChecker) error {

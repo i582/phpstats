@@ -3,7 +3,6 @@ package cli
 import (
 	"log"
 	"os"
-	"strings"
 
 	"github.com/gookit/color"
 
@@ -28,6 +27,7 @@ func Run() {
 		os.Args[0] = "phpstats/" + subcmd
 	}
 
+	var cacheDir string
 	var port int64
 	app := &cli.App{
 		Name:  "collect",
@@ -35,13 +35,14 @@ func Run() {
 		Flags: []cli.Flag{
 			&cli.Int64Flag{
 				Name:  "port",
-				Value: 8080,
 				Usage: "port used by the server.",
+				Value: 8080,
 			},
 			&cli.StringFlag{
-				Name:  "cache-dir",
-				Usage: "custom directory for cache storage.",
-				Value: utils.DefaultCacheDir(),
+				Name:        "cache-dir",
+				Usage:       "custom directory for cache storage.",
+				Value:       utils.DefaultCacheDir(),
+				Destination: &cacheDir,
 			},
 			&cli.StringFlag{
 				Name:        "project-path",
@@ -53,11 +54,9 @@ func Run() {
 			server.RunServer(port)
 
 			// Normalize flags for NoVerify
-			for i := range os.Args {
-				if strings.HasPrefix(os.Args[i], "--") {
-					os.Args[i] = os.Args[i][1:]
-				}
-			}
+			exe := os.Args[0]
+			path := os.Args[len(os.Args)-1]
+			os.Args = []string{exe, "-cache-dir", cacheDir, path}
 
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
