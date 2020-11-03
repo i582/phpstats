@@ -1,5 +1,7 @@
 ![](doc/logo.png)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/i582/phpstats)](https://goreportcard.com/report/github.com/i582/phpstats) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/i582/phpstats/master/LICENSE) **<>** with ❤
+
 # phpstats
 
 `phpstats` is a utility for collecting project statistics and building dependency graphs for PHP, that allows you to find places in the code that can be improved.
@@ -8,17 +10,26 @@ It tries to be fast, ~150k LOC/s (lines of code per second) on Core i5 with SSD 
 
 This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://github.com/VKCOM/noverify).
 
+## Table of Contents
+
+* [What is currently available](#what-is-currently-available)
+* [Install](#install)
+* [Usage](#usage)
+* [Server](#server)
+* [Contact](#contact)
+* [Contributing](#contributing)
+* [License](#license)
+
 ![](doc/screen.png)
 
-## What's currently available?
+## What is currently available?
 
 ### Metrics
 
 1. `Afferent couplings`:
-
-   - for classes;
+- for classes;
    - for namespaces;
-
+   
 2. `Efferent couplings`:
    - for classes;
    - for namespaces;
@@ -33,7 +44,7 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 ### Graph output (Graphviz format and svg)
 
-1. File dependencies, both for root and inside functions;
+1. File dependencies, both root and included inside functions;
 
 2. Class dependencies;
 
@@ -44,33 +55,12 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 4. All project namespaces;
 
 
-5. Specific namespace;
+5. Specific namespace and its child namespaces;
 
 
 7. LCOM4.
 
 ### Tops
-
-Tops displays information about the top functions, classes and files. The `top` command is used to display the top.
-
-```
->>> top classes
-# shows the top 10 classes.
-```
-
-To show the list in reverse, add the file `-r`. To control the count and offset in the list, use the `-c` and `-o` flags, respectively.
-
-```
->>> top classes -c 100 -o 10 -r
-# shows the top 100 classes from the end, starting from the 10th.
-```
-
-Supported output to a file in `json` format, for this add the `--output` flag and the path to the file to which you want to write the list.
-
-```
->>> top classes --output top-classes.json
-# outputs the top 10 classes to top-classes.json file.
-```
 
 #### Classes
 
@@ -124,20 +114,64 @@ The `--cache-dir` flag sets a custom cache directory.
 
 The `--port` flag sets the port for the server. See the [server](#Server) part.
 
-After collecting information you will be taken to an interactive shell, for help, enter "help".
+After collecting information you will be taken to an interactive shell, for help, enter `help`.
 
-#### Building graphs
+### Metrics
 
-The graph command is used to build graphs. The required flag is the `-o` flag which sets the output file with the graph.
+To view the metrics, use the `info` command, which shows information about classes, functions and files by their names. The search is not strict, so it is not necessary to enter the full name.
 
-When creating a graph, two files are created, one with the source code of the graph in the graphviz language and a file with the graph in svg format.
+```
+>>> info class ClassName
+# show information about ClassName class.
+```
 
-For command information, write `graph help`.
+For command information, write `info help`.
 
-Example:
+### Graph output (Graphviz format and svg)
+
+To build graphs, use the `graph` command. The `-o` flag is required and sets the file in which the graph will be placed.
 
 ```
 >>> graph class -o graph.svg ClassName
+# outputs the graph for the ClassName class dependencies to the graph.svg file.
+```
+
+When creating a graph, two files are created, one with the source code of the graph in the `graphviz` format and a file with the graph in `svg` format.
+
+For command information, write `graph help`.
+
+### Tops
+
+Tops displays information about the top functions, classes and files. The `top` command is used to display the top.
+
+```
+>>> top classes
+# shows the top 10 classes.
+```
+
+To show the list in reverse, add the file `-r`. To control the count and offset in the list, use the `-c` and `-o` flags, respectively.
+
+```
+>>> top classes -c 100 -o 10 -r
+# shows the top 100 classes from the end, starting from the 10th.
+```
+
+Supported output to a file in `json` format, for this add the `--output` flag and the path to the file to which you want to write the list.
+
+```
+>>> top classes --output top-classes.json
+# outputs the top 10 classes to the top-classes.json file.
+```
+
+For command information, write `top help`.
+
+### Brief project information
+
+Use the `brief` command to show brief information about the project.
+
+```
+>>> brief
+# shows brief information.
 ```
 
 ## Server
@@ -148,6 +182,8 @@ A local server (port 8080 by default) is used to interact with the analyzer from
 
 ### API
 
+> All API responses are in `json` format.
+
 `/info/class?name=value` — getting information about the class by its name (the name does not have to be completely the same, the search is not strict).
 
 `/info/func?name=value` — getting information about a function by its name.
@@ -156,12 +192,16 @@ A local server (port 8080 by default) is used to interact with the analyzer from
 
 `/exit` — shutdown of the server.
 
-`/analyzeStats` — get the current analysis state.
+`/analyzeStats` — getting the current analysis state.
+
+## Contact
+
+ For any questions — tg: `@petr_makhnev`.
+
+## Contributing
+
+Feel free to contribute to this project. I am always glad to new people.
 
 ## License
 
-MIT
-
----
-
-**<>** with ❤
+This project is under the MIT License. See the [LICENSE](https://github.com/i582/phpstats/blob/master/LICENSE) file for the full license text.
