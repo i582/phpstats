@@ -2,26 +2,36 @@
 
 # phpstats
 
-phpstats is a small utility for collecting project statistics and building dependency graphs for PHP, based on [NoVerify](https://github.com/VKCOM/noverify) written in Go.
+`phpstats` is a utility for collecting project statistics and building dependency graphs for PHP, that allows you to find places in the code that can be improved.
 
-It tries to be fast, ~80k LOC/s (lines of code per second) on Core i7.
+It tries to be fast, ~150k LOC/s (lines of code per second) on Core i5 with SSD with ~3500Mb/s for reading.
+
+This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://github.com/VKCOM/noverify).
+
+![](doc/screen.png)
+
+## What's currently available?
 
 ### Metrics
 
-The following metrics are currently available:
+1. `Afferent couplings`:
 
-1. Afferent couplings:
-   1. for classes;
-   2. for namespaces;
-2. Efferent couplings:
-   1. for classes;
-   2. for namespaces;
-3. Instability:
-   1. for the classes;
-   2. for namespaces;
-4. Lack of Cohesion in Methods for classes;
-5. Lack of Cohesion in Methods 4 for classes;
-6. Cyclomatic Complexity.
+   - for classes;
+
+   - for namespaces;
+2. `Efferent couplings`:
+
+   - for classes;
+
+   - for namespaces;
+3. `Instability`:
+
+   - for the classes;
+
+   - for namespaces;
+4. `Lack of Cohesion in Methods`;
+5. `Lack of Cohesion in Methods 4`;
+6. `Cyclomatic Complexity`.
 
 ### Graph output (Graphviz format)
 
@@ -68,6 +78,34 @@ The following metrics are currently available:
    ```
    graph lcom4 -o file.gv SomeClass
    ```
+
+### Tops
+
+#### Classes
+
+- top classes by Lack of cohesion in methods
+
+- top classes by Lack of cohesion in methods 4
+
+- top classes by dependencies
+
+- top classes by afferent coupling
+
+- top classes by efferent coupling
+
+- top classes by instability
+
+- top classes by as dependency
+
+#### Functions
+
+- top functions by dependencies
+
+- top functions by as dependency
+
+- top functions by uses count
+
+- top functions by cyclomatic complexity
 
 ## Install
 
@@ -214,3 +252,7 @@ A local server (port 8080) is used to interact with the analyzer from other prog
 ## License
 
 MIT
+
+
+
+Code with ❤
