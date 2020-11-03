@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 
 	"github.com/i582/phpstats/internal/representator"
@@ -31,6 +33,10 @@ func List() *shell.Executor {
 				Name: "-e",
 				Help: "show embedded functions",
 			},
+			&flags.Flag{
+				Name: "--output",
+				Help: "output json file",
+			},
 		),
 		Func: func(c *shell.Context) {
 			countValue := c.GetFlagValue("-c")
@@ -41,11 +47,30 @@ func List() *shell.Executor {
 
 			withEmbeddedFuncs := c.Flags.Contains("-e")
 
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
 			funcs := walkers.GlobalCtx.Functions.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
 
-			for _, fn := range funcs {
-				data := representator.GetStringFunctionRepr(fn)
-				fmt.Println(data)
+			if f != nil {
+				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, fn := range funcs {
+					data := representator.GetStringFunctionRepr(fn)
+					fmt.Println(data)
+				}
 			}
 		},
 	}
@@ -66,6 +91,11 @@ func List() *shell.Executor {
 				Help:      "offset in list",
 				Default:   "0",
 			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
+			},
 		),
 		Func: func(c *shell.Context) {
 			countValue := c.GetFlagValue("-c")
@@ -74,11 +104,30 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
 			funcs := walkers.GlobalCtx.Functions.GetAll(true, false, false, count, offset, true, false)
 
-			for _, fn := range funcs {
-				data := representator.GetStringFunctionRepr(fn)
-				fmt.Println(data)
+			if f != nil {
+				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, fn := range funcs {
+					data := representator.GetStringFunctionRepr(fn)
+					fmt.Println(data)
+				}
 			}
 		},
 	}
@@ -103,6 +152,11 @@ func List() *shell.Executor {
 				Name: "-f",
 				Help: "show full information",
 			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
+			},
 		),
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
@@ -113,16 +167,35 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
 			files := walkers.GlobalCtx.Files.GetAll(count, offset, true)
 
-			for _, file := range files {
-				var data string
-				if full {
-					data = representator.GetStringFileRepr(file)
-				} else {
-					data = representator.GetShortStringFileRepr(file)
+			if f != nil {
+				data, err := representator.GetPrettifyJsonFilesRepr(files)
+				if err != nil {
+					log.Fatal(err)
 				}
-				fmt.Println(data)
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, file := range files {
+					var data string
+					if full {
+						data = representator.GetStringFileRepr(file)
+					} else {
+						data = representator.GetShortStringFileRepr(file)
+					}
+					fmt.Println(data)
+				}
 			}
 		},
 	}
@@ -143,6 +216,11 @@ func List() *shell.Executor {
 				Help:      "offset in list",
 				Default:   "0",
 			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
+			},
 		),
 		Func: func(c *shell.Context) {
 			countValue := c.GetFlagValue("-c")
@@ -151,11 +229,30 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
 			classes := walkers.GlobalCtx.Classes.GetAllClasses(count, offset, true)
 
-			for _, class := range classes {
-				data := representator.GetStringClassRepr(class)
-				fmt.Println(data)
+			if f != nil {
+				data, err := representator.GetPrettifyJsonClassesRepr(classes)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, class := range classes {
+					data := representator.GetStringClassRepr(class)
+					fmt.Println(data)
+				}
 			}
 		},
 	}
@@ -180,6 +277,11 @@ func List() *shell.Executor {
 				Name: "-f",
 				Help: "show full information",
 			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
+			},
 		),
 		Func: func(c *shell.Context) {
 			countValue := c.GetFlagValue("-c")
@@ -188,11 +290,30 @@ func List() *shell.Executor {
 			offsetValue := c.GetFlagValue("-o")
 			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
 
-			classes := walkers.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 
-			for _, class := range classes {
-				data := representator.GetStringClassRepr(class)
-				fmt.Println(data)
+			ifaces := walkers.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
+
+			if f != nil {
+				data, err := representator.GetPrettifyJsonClassesRepr(ifaces)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, iface := range ifaces {
+					data := representator.GetStringClassRepr(iface)
+					fmt.Println(data)
+				}
 			}
 		},
 	}
@@ -223,6 +344,11 @@ func List() *shell.Executor {
 				Name: "-f",
 				Help: "show full information",
 			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
+			},
 		),
 		Func: func(c *shell.Context) {
 			countValue := c.GetFlagValue("-c")
@@ -234,6 +360,16 @@ func List() *shell.Executor {
 			levelValue := c.GetFlagValue("-l")
 			level, _ := strconv.ParseInt(levelValue, 0, 64)
 
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
 			nss := walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level)
 
 			if count+offset < int64(len(nss)) {
@@ -244,9 +380,18 @@ func List() *shell.Executor {
 				nss = nss[offset:]
 			}
 
-			for _, ns := range nss {
-				data := representator.GetStringNamespaceRepr(ns)
-				fmt.Println(data)
+			if f != nil {
+				data, err := representator.GetPrettifyJsonNamespacesRepr(nss)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, ns := range nss {
+					data := representator.GetStringNamespaceRepr(ns)
+					fmt.Println(data)
+				}
 			}
 		},
 	}

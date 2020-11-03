@@ -115,6 +115,21 @@ func GetJsonClassRepr(c *symbols.Class) (string, error) {
 	return string(res), nil
 }
 
+func GetPrettifyJsonClassesRepr(c []*symbols.Class) (string, error) {
+	data := make([]*ClassData, 0, len(c))
+
+	for _, class := range c {
+		data = append(data, classToData(class))
+	}
+
+	res, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
+}
+
 func GetJsonClassReprWithFlag(c *symbols.Class) (string, error) {
 	type Response struct {
 		Data  *ClassData `json:"data"`

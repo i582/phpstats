@@ -83,7 +83,22 @@ func GetJsonFileRepr(f *symbols.File) (string, error) {
 	return string(res), nil
 }
 
-func GetJsonFileReprWithFile(f *symbols.File) (string, error) {
+func GetPrettifyJsonFilesRepr(f []*symbols.File) (string, error) {
+	data := make([]*FileData, 0, len(f))
+
+	for _, file := range f {
+		data = append(data, fileToData(file))
+	}
+
+	res, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
+}
+
+func GetJsonFileReprWithFlag(f *symbols.File) (string, error) {
 	type Response struct {
 		Data  *FileData `json:"data"`
 		Found bool      `json:"found"`
