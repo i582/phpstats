@@ -49,25 +49,45 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 7. LCOM4.
 
-
 ### Tops
+
+Tops displays information about the top functions, classes and files. The `top` command is used to display the top.
+
+```
+>>> top classes
+# shows the top 10 classes.
+```
+
+To show the list in reverse, add the file `-r`. To control the count and offset in the list, use the `-c` and `-o` flags, respectively.
+
+```
+>>> top classes -c 100 -o 10 -r
+# shows the top 100 classes from the end, starting from the 10th.
+```
+
+Supported output to a file in `json` format, for this add the `--output` flag and the path to the file to which you want to write the list.
+
+```
+>>> top classes --output top-classes.json
+# outputs the top 10 classes to top-classes.json file.
+```
 
 #### Classes
 
-- Top classes by Lack of cohesion in methods;
-- Top classes by Lack of cohesion in methods 4;
-- Top classes by Afferent coupling;
-- Top classes by Efferent coupling;
-- Top classes by Instability;
-- Top classes by the number of classes on which it depends;
-- Top classes by the number of classes dependent on it.
+- by Lack of cohesion in methods;
+- by Lack of cohesion in methods 4;
+- by Afferent coupling;
+- by Efferent coupling;
+- by Instability;
+- by the number of classes on which it depends;
+- by the number of classes dependent on it.
 
 #### Functions
 
-- Top functions by  the number of classes on which it depends;
-- Top functions by the number of classes dependent on it;
-- Top functions by uses count;
-- Top functions by cyclomatic complexity.
+- by  the number of classes on which it depends;
+- by the number of classes dependent on it;
+- by uses count;
+- by cyclomatic complexity.
 
 ### Brief project information
 

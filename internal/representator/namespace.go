@@ -83,6 +83,21 @@ func GetJsonNamespaceRepr(f *symbols.Namespace) (string, error) {
 	return string(res), nil
 }
 
+func GetPrettifyJsonNamespacesRepr(n []*symbols.Namespace) (string, error) {
+	data := make([]*NamespaceData, 0, len(n))
+
+	for _, namespace := range n {
+		data = append(data, namespaceToData(namespace))
+	}
+
+	res, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
+}
+
 func GetJsonNamespaceReprWithFlag(f *symbols.Namespace) (string, error) {
 	type Response struct {
 		Data  *NamespaceData `json:"data"`

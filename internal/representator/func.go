@@ -93,6 +93,21 @@ func GetJsonFunctionRepr(f *symbols.Function) (string, error) {
 	return string(res), nil
 }
 
+func GetPrettifyJsonFunctionsRepr(f []*symbols.Function) (string, error) {
+	data := make([]*FunctionData, 0, len(f))
+
+	for _, function := range f {
+		data = append(data, funcToData(function))
+	}
+
+	res, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
+}
+
 func GetJsonFunctionReprWithFlag(f *symbols.Function) (string, error) {
 	type Response struct {
 		Data  *FunctionData `json:"data"`

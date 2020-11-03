@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"sort"
 	"strconv"
 
@@ -14,8 +16,9 @@ import (
 
 func Top() *shell.Executor {
 	topFuncsExecutor := &shell.Executor{
-		Name: "funcs",
-		Help: "show top of functions",
+		Name:    "funcs",
+		Aliases: []string{"methods"},
+		Help:    "show top of functions or methods",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name: "-by-deps",
@@ -48,6 +51,11 @@ func Top() *shell.Executor {
 				WithValue: true,
 				Help:      "offset in list",
 				Default:   "0",
+			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
@@ -130,16 +138,36 @@ func Top() *shell.Executor {
 
 			allFuncs = allFuncs[:count]
 
-			for _, fn := range allFuncs {
-				data := representator.GetStringFunctionRepr(fn)
-				fmt.Println(data)
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			if f != nil {
+				data, err := representator.GetPrettifyJsonFunctionsRepr(allFuncs)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, fn := range allFuncs {
+					data := representator.GetStringFunctionRepr(fn)
+					fmt.Println(data)
+				}
 			}
 		},
 	}
 
 	topClassesExecutor := &shell.Executor{
-		Name: "classes",
-		Help: "show top of classes",
+		Name:    "classes",
+		Aliases: []string{"interfaces"},
+		Help:    "show top of classes or interfaces",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name: "-by-aff",
@@ -184,6 +212,11 @@ func Top() *shell.Executor {
 				WithValue: true,
 				Help:      "offset in list",
 				Default:   "0",
+			},
+			&flags.Flag{
+				Name:      "--output",
+				Help:      "output json file",
+				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
@@ -287,9 +320,28 @@ func Top() *shell.Executor {
 
 			allClasses = allClasses[:count]
 
-			for _, class := range allClasses {
-				data := representator.GetStringClassRepr(class)
-				fmt.Println(data)
+			var f *os.File
+			output := c.GetFlagValue("--output")
+			if output != "" {
+				var err error
+				f, err = c.ValidateFile("--output")
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			if f != nil {
+				data, err := representator.GetPrettifyJsonClassesRepr(allClasses)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(f, data)
+				f.Close()
+			} else {
+				for _, class := range allClasses {
+					data := representator.GetStringClassRepr(class)
+					fmt.Println(data)
+				}
 			}
 		},
 	}
