@@ -98,8 +98,10 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 ## Install
 
+If you don't have the Go toolkit installed, then go to the official [site](https://golang.org/) and install it to continue.
+
 ```
-go get github.com/i582/phpstats
+go get -u -v github.com/i582/phpstats
 ```
 
 ## Usage
@@ -224,7 +226,7 @@ Commands:
 
 > Server and API are under development.
 
-A local server (port 8080) is used to interact with the analyzer from other programs. The server, by default, is started every time an analysis is started.
+A local server (port 8080 by default) is used to interact with the analyzer from other programs. The server, by default, is started every time an analysis is started.
 
 ### API
 
