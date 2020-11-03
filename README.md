@@ -128,4 +128,4 @@ MIT
 
 ---
 
-Code with ❤
+**< >** with ❤
