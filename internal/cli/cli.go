@@ -81,6 +81,7 @@ func Run() {
 	MainShell.AddExecutor(commands.List())
 	MainShell.AddExecutor(commands.Graph())
 	MainShell.AddExecutor(commands.Brief())
+	MainShell.AddExecutor(commands.About())
 	MainShell.AddExecutor(commands.Top())
 
 	MainShell.Run()
