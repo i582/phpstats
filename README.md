@@ -106,6 +106,20 @@ The `--port` flag sets the port for the server. See the [server](#Server) part.
 
 After collecting information you will be taken to an interactive shell, for help, enter "help".
 
+#### Building graphs
+
+The graph command is used to build graphs. The required flag is the `-o` flag which sets the output file with the graph.
+
+When creating a graph, two files are created, one with the source code of the graph in the graphviz language and a file with the graph in svg format.
+
+For command information, write `graph help`.
+
+Example:
+
+```
+>>> graph class -o graph.svg ClassName
+```
+
 ## Server
 
 > Server and API are under development.
