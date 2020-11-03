@@ -12,7 +12,7 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 ## Table of Contents
 
-* [What is currently available](#what-is-currently-available)
+* [What is currently available?](#what-is-currently-available)
 * [Install](#install)
 * [Usage](#usage)
 * [Server](#server)
@@ -27,7 +27,7 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 ### Metrics
 
 1. `Afferent couplings`:
-- for classes;
+   - for classes;
    - for namespaces;
    
 2. `Efferent couplings`:
