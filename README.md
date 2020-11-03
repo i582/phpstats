@@ -17,18 +17,16 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 1. `Afferent couplings`:
 
    - for classes;
-
    - for namespaces;
+
 2. `Efferent couplings`:
-
    - for classes;
-
    - for namespaces;
+   
 3. `Instability`:
-
    - for the classes;
-
    - for namespaces;
+   
 4. `Lack of Cohesion in Methods`;
 5. `Lack of Cohesion in Methods 4`;
 6. `Cyclomatic Complexity`.
@@ -84,27 +82,18 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 #### Classes
 
 - top classes by Lack of cohesion in methods
-
 - top classes by Lack of cohesion in methods 4
-
 - top classes by dependencies
-
 - top classes by afferent coupling
-
 - top classes by efferent coupling
-
 - top classes by instability
-
 - top classes by as dependency
 
 #### Functions
 
 - top functions by dependencies
-
 - top functions by as dependency
-
 - top functions by uses count
-
 - top functions by cyclomatic complexity
 
 ## Install
@@ -253,6 +242,6 @@ A local server (port 8080) is used to interact with the analyzer from other prog
 
 MIT
 
-
+---
 
 Code with ❤
