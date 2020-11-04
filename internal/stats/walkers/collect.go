@@ -12,6 +12,7 @@ import (
 	"github.com/i582/phpstats/internal/stats/filemeta"
 )
 
+// Collect is the main function that triggers data collection.
 func Collect() error {
 	linter.RegisterBlockChecker(func(ctx *linter.BlockContext) linter.BlockChecker {
 		if meta.IsIndexingComplete() {
