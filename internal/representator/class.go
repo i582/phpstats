@@ -92,14 +92,14 @@ func GetStringClassRepr(c *symbols.Class) string {
 	var res string
 
 	res += fmt.Sprintf("%s %s\n", data.Type, data.Name)
-	res += fmt.Sprintf("  File:        %s\n", data.File)
-	res += fmt.Sprintf("  Afferent:    %.2f\n", data.Afferent)
-	res += fmt.Sprintf("  Efferent:    %.2f\n", data.Efferent)
-	res += fmt.Sprintf("  Instability: %.2f\n", data.Instability)
-	res += fmt.Sprintf("  LCOM:        %.2f\n", data.Lcom)
-	res += fmt.Sprintf("  LCOM4:       %d\n", data.Lcom4)
-	res += fmt.Sprintf("  Deps:        %d\n", data.CountDeps)
-	res += fmt.Sprintf("  DepsBy:      %d\n", data.CountDepsBy)
+	res += fmt.Sprintf("  File:                          %s\n", data.File)
+	res += fmt.Sprintf("  Afferent coupling:             %.2f\n", data.Afferent)
+	res += fmt.Sprintf("  Efferent coupling:             %.2f\n", data.Efferent)
+	res += fmt.Sprintf("  Instability:                   %.2f\n", data.Instability)
+	res += fmt.Sprintf("  Lack of Cohesion in Methods:   %.2f\n", data.Lcom)
+	res += fmt.Sprintf("  Lack of Cohesion in Methods 4: %d\n", data.Lcom4)
+	res += fmt.Sprintf("  Count class dependencies:      %d\n", data.CountDeps)
+	res += fmt.Sprintf("  Count dependent classes:       %d\n", data.CountDepsBy)
 
 	return res
 }
