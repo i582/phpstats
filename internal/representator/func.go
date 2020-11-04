@@ -22,6 +22,7 @@ type FunctionData struct {
 	CountDepsBy int64 `json:"countDepsBy"`
 
 	CyclomaticComplexity int64 `json:"cc"`
+	CountMagicNumbers    int64 `json:"cmn"`
 }
 
 func funcToData(f *symbols.Function) *FunctionData {
@@ -46,6 +47,7 @@ func funcToData(f *symbols.Function) *FunctionData {
 		CountDeps:            f.CountDeps(),
 		CountDepsBy:          f.CountDepsBy(),
 		CyclomaticComplexity: f.CyclomaticComplexity,
+		CountMagicNumbers:    f.CountMagicNumbers,
 	}
 }
 
@@ -78,6 +80,7 @@ func GetStringFunctionRepr(f *symbols.Function) string {
 	res += fmt.Sprintf("  Called functions:      %d\n", data.CountCalled)
 	res += fmt.Sprintf("  Called by functions:   %d\n", data.CountCalledBy)
 	res += fmt.Sprintf("  Cyclomatic complexity: %d (>15 hard to understand, >30 extremply complex)\n", data.CyclomaticComplexity)
+	res += fmt.Sprintf("  Count magic numbers:   %d\n", data.CountMagicNumbers)
 
 	return res
 }
