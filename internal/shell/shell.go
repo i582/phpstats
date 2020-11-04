@@ -29,6 +29,15 @@ func (s *Shell) AddExecutor(exec *Executor) {
 	s.Execs[exec.Name] = exec
 }
 
+func (s *Shell) GetExecutor(name string) (*Executor, bool) {
+	if s.Execs == nil {
+		return nil, false
+	}
+
+	exc, ok := s.Execs[name]
+	return exc, ok
+}
+
 func NewShell() *Shell {
 	shell := &Shell{
 		Active: true,
