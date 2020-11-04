@@ -1,8 +1,6 @@
 package symbols
 
 import (
-	"bytes"
-	"encoding/gob"
 	"sync"
 	"sync/atomic"
 )
@@ -49,7 +47,7 @@ func (f *Field) String() string {
 }
 
 type Fields struct {
-	sync.Mutex
+	m sync.Mutex
 
 	Fields map[FieldKey]*Field
 }
@@ -65,45 +63,23 @@ func (c *Fields) Len() int {
 }
 
 func (c *Fields) Add(field *Field) {
-	c.Lock()
+	c.m.Lock()
 	c.Fields[NewFieldKey(field.Name, field.Class)] = field
-	c.Unlock()
+	c.m.Unlock()
 }
 
 func (c *Fields) Get(key FieldKey) (*Field, bool) {
-	c.Lock()
+	c.m.Lock()
 	field, ok := c.Fields[key]
-	c.Unlock()
+	c.m.Unlock()
 	return field, ok
 }
 
 func (c *Fields) AddMethodAccess(key FieldKey, method *Function) {
-	c.Lock()
+	c.m.Lock()
 	field, ok := c.Fields[key]
-	c.Unlock()
+	c.m.Unlock()
 	if ok {
 		field.Used[method] = struct{}{}
 	}
-}
-
-// GobDecode is custom gob unmarshaller
-func (c *Fields) GobDecode(buf []byte) error {
-	r := bytes.NewBuffer(buf)
-	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&c.Fields)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GobEncode is a custom gob marshaller
-func (c *Fields) GobEncode() ([]byte, error) {
-	w := new(bytes.Buffer)
-	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(c.Fields)
-	if err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
 }

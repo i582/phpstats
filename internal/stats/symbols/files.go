@@ -12,7 +12,7 @@ import (
 )
 
 type Files struct {
-	sync.Mutex
+	m sync.Mutex
 
 	Files map[string]*File
 }
@@ -90,15 +90,15 @@ func (f *Files) GetAll(count int64, offset int64, sorted bool) []*File {
 }
 
 func (f *Files) Add(file *File) {
-	f.Lock()
+	f.m.Lock()
 	f.Files[file.Path] = file
-	f.Unlock()
+	f.m.Unlock()
 }
 
 func (f *Files) Get(path string) (*File, bool) {
-	f.Lock()
+	f.m.Lock()
 	file, ok := f.Files[path]
-	f.Unlock()
+	f.m.Unlock()
 	return file, ok
 }
 
@@ -183,26 +183,4 @@ func (f *File) GobDecode(buf []byte) error {
 		return err
 	}
 	return nil
-}
-
-// GobDecode is custom gob unmarshaller
-func (f *Files) GobDecode(buf []byte) error {
-	r := bytes.NewBuffer(buf)
-	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&f.Files)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GobEncode is a custom gob marshaller
-func (f *Files) GobEncode() ([]byte, error) {
-	w := new(bytes.Buffer)
-	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(f.Files)
-	if err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
 }
