@@ -169,6 +169,7 @@ type Function struct {
 	depsBy         *Classes
 
 	CyclomaticComplexity int64
+	CountMagicNumbers    int64
 
 	// Method part
 	Class *Class
@@ -306,6 +307,10 @@ func (f *Function) GobDecode(buf []byte) error {
 	if err != nil {
 		return err
 	}
+	err = decoder.Decode(&f.CountMagicNumbers)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -322,6 +327,10 @@ func (f *Function) GobEncode() ([]byte, error) {
 		return nil, err
 	}
 	err = encoder.Encode(f.CyclomaticComplexity)
+	if err != nil {
+		return nil, err
+	}
+	err = encoder.Encode(f.CountMagicNumbers)
 	if err != nil {
 		return nil, err
 	}

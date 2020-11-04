@@ -101,9 +101,13 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 		cc := r.calculateCyclomaticComplexity(&ir.StmtList{
 			Stmts: n.Stmts,
 		})
+		cmn := r.calculateCountMagicNumbers(&ir.StmtList{
+			Stmts: n.Stmts,
+		})
 
 		fn := symbols.NewFunction(symbols.NewFuncKey(funcName), pos)
 		fn.CyclomaticComplexity = cc
+		fn.CountMagicNumbers = cmn
 		r.Meta.Funcs.Add(fn)
 	}
 }
@@ -123,6 +127,33 @@ func (r *rootIndexer) calculateCyclomaticComplexity(stmts *ir.StmtList) int64 {
 	return complexity
 }
 
+func (r *rootIndexer) calculateCountMagicNumbers(stmts *ir.StmtList) int64 {
+	var count int64
+
+	irutil.Inspect(stmts, func(n ir.Node) bool {
+		switch n := n.(type) {
+		case *ir.Lnumber:
+			if n.Value == "0" || n.Value == "1" {
+				return true
+			}
+			count++
+
+		case *ir.Dnumber:
+			if n.Value == "0.0" || n.Value == "1.0" {
+				return true
+			}
+			count++
+
+		case *ir.ModExpr:
+			return false
+		}
+
+		return true
+	})
+
+	return count
+}
+
 func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class, n ir.Node) {
 	switch n := n.(type) {
 	case *ir.ClassMethodStmt:
@@ -130,12 +161,15 @@ func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class,
 		pos := r.getElementPos(n)
 
 		var cc int64
+		var cmn int64
 		if n, ok := n.Stmt.(*ir.StmtList); ok {
 			cc = r.calculateCyclomaticComplexity(n)
+			cmn = r.calculateCountMagicNumbers(n)
 		}
 
 		fn := symbols.NewFunction(symbols.NewMethodKey(methodName, class.Name), pos)
 		fn.CyclomaticComplexity = cc
+		fn.CountMagicNumbers = cmn
 		r.Meta.Funcs.Add(fn)
 
 	case *ir.ClassConstListStmt:
