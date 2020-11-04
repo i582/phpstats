@@ -172,6 +172,15 @@ Use the `brief` command to show brief information about the project.
 # shows brief information.
 ```
 
+### Brief metrics information
+
+Use the `metrics` command to see a summary of the metrics being collected.
+
+```
+>>> metrics
+# shows brief information about of the colected metrics.
+```
+
 ## Server
 
 > Server and API are under development.
