@@ -115,6 +115,7 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta) {
 		}
 
 		fun.CyclomaticComplexity = fn.CyclomaticComplexity
+		fun.CountMagicNumbers = fn.CountMagicNumbers
 
 		ctx.Functions.Add(fun)
 	}
