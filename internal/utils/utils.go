@@ -3,6 +3,7 @@ package utils
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/VKCOM/noverify/src/constfold"
@@ -89,6 +90,8 @@ func NormalizeSlashes(str string) string {
 	return strings.ReplaceAll(str, `\`, `\\`)
 }
 
+var NameToIdentifierRegexp = regexp.MustCompile("[^a-zA-Z0-9]")
+
 func NameToIdentifier(str string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(str, `\`, `_`), "::", "__")
+	return NameToIdentifierRegexp.ReplaceAllString(str, "_")
 }
