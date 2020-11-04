@@ -199,7 +199,9 @@ func Graph() *shell.Executor {
 			}
 
 			class, _ := walkers.GlobalCtx.Classes.Get(classes[0])
-			graph := class.Lcom4Graph()
+
+			g := grapher.NewGrapher()
+			graph := g.Lcom4(class)
 
 			handleGraphOutput(c, graph)
 
