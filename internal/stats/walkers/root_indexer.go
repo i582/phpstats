@@ -136,20 +136,21 @@ func (r *rootIndexer) calculateCountMagicNumbers(stmts *ir.StmtList) int64 {
 			if n.Value == "0" || n.Value == "1" {
 				return true
 			}
-
 			count++
 
 		case *ir.Dnumber:
 			if n.Value == "0.0" || n.Value == "1.0" {
 				return true
 			}
-
 			count++
+
 		case *ir.ModExpr:
 			return false
 		}
+
 		return true
 	})
+
 	return count
 }
 

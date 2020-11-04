@@ -29,18 +29,16 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 1. `Afferent couplings`:
    - for classes;
    - for namespaces;
-   
 2. `Efferent couplings`:
    - for classes;
    - for namespaces;
-   
 3. `Instability`:
    - for the classes;
    - for namespaces;
-   
 4. `Lack of Cohesion in Methods`;
 5. `Lack of Cohesion in Methods 4`;
-6. `Cyclomatic Complexity`.
+6. `Cyclomatic Complexity`;
+7. `Count of magic numbers in functions and methods`.
 
 ### Graph output (Graphviz format and svg)
 
