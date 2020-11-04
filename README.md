@@ -97,7 +97,7 @@ After installation, run the following command in terminal.
 go get -u -v github.com/i582/phpstats
 ```
 
-After that you can use it simply by writing `phpstats` in the terminal.
+After that you can use it by writing `~/go/bin/phpstats` in the terminal.
 
 If you want to work with dependency graphs, then you need to install the [Graphviz](https://graphviz.org/download/) utility to visualize graphs.
 
