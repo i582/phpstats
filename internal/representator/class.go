@@ -47,9 +47,9 @@ func classToData(c *symbols.Class) *ClassData {
 		}
 	}
 
-	aff, eff, instab := metrics.AfferentEfferentStabilityOfClass(c)
-	lcom, _ := metrics.LackOfCohesionInMethodsOfCLass(c)
-	lcom4 := metrics.Lcom4(c)
+	aff, eff, instab := metrics.AfferentEfferentInstabilityOfClass(c)
+	lcom, _ := metrics.LackOfCohesionInMethods(c)
+	lcom4 := metrics.LackOfCohesionInMethods4(c)
 
 	return &ClassData{
 		Name:        c.Name,

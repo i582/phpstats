@@ -13,7 +13,8 @@ import (
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-var GlobalCtx = NewGlobalContext()
+// GlobalCtx stores all functions, classes, files, constants and namespaces.
+var GlobalCtx = newGlobalContext()
 
 type globalContext struct {
 	Functions  *symbols.Functions
@@ -26,7 +27,7 @@ type globalContext struct {
 	BarLinting  *pb.ProgressBar
 }
 
-func NewGlobalContext() *globalContext {
+func newGlobalContext() *globalContext {
 	return &globalContext{
 		Functions:  symbols.NewFunctions(),
 		Classes:    symbols.NewClasses(),
@@ -36,10 +37,12 @@ func NewGlobalContext() *globalContext {
 	}
 }
 
+// Version returns the current version of the cache.
 func (ctx *globalContext) Version() string {
 	return "1.0.1"
 }
 
+// Encode caches the data of one rootWalker of one file.
 func (ctx *globalContext) Encode(writer io.Writer, checker linter.RootChecker) error {
 	if meta.IsLoadingStubs() {
 		return nil
@@ -56,6 +59,7 @@ func (ctx *globalContext) Encode(writer io.Writer, checker linter.RootChecker) e
 	return nil
 }
 
+// Decode recovers data from cache.
 func (ctx *globalContext) Decode(r io.Reader, filename string) error {
 	if meta.IsLoadingStubs() {
 		return nil
@@ -74,6 +78,7 @@ func (ctx *globalContext) Decode(r io.Reader, filename string) error {
 	return nil
 }
 
+// UpdateMeta recovers data by collecting it from each file.
 func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta) {
 	for _, file := range f.Files.Files {
 		f := symbols.NewFile(file.Path)

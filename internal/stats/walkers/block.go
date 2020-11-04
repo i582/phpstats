@@ -16,6 +16,7 @@ type blockChecker struct {
 	Root *rootChecker
 }
 
+// AfterEnterNode describes the processing logic after entering the node.
 func (b *blockChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.FunctionStmt:
@@ -38,11 +39,11 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 }
 
 func (b *blockChecker) handleSimpleVar(n *ir.SimpleVar) {
-	curClass, ok := b.Root.GetCurrentClass()
+	curClass, ok := b.Root.getCurrentClass()
 	if !ok {
 		return
 	}
-	curMethod, ok := b.Root.GetCurrentFunc()
+	curMethod, ok := b.Root.getCurrentFunc()
 	if !ok {
 		return
 	}
@@ -57,7 +58,7 @@ func (b *blockChecker) handleClassConstFetch(n *ir.ClassConstFetchExpr) {
 		return
 	}
 
-	curClass, ok := b.Root.GetCurrentClass()
+	curClass, ok := b.Root.getCurrentClass()
 	if !ok {
 		return
 	}
@@ -77,7 +78,7 @@ func (b *blockChecker) handleClassConstFetch(n *ir.ClassConstFetchExpr) {
 }
 
 func (b *blockChecker) handleNew(n *ir.NewExpr) {
-	curClass, ok := b.Root.GetCurrentClass()
+	curClass, ok := b.Root.getCurrentClass()
 	if !ok {
 		return
 	}
@@ -221,7 +222,7 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 }
 
 func (b *blockChecker) handleCalled(calledFunc *symbols.Function) {
-	curFunc, ok := b.Root.GetCurrentFunc()
+	curFunc, ok := b.Root.getCurrentFunc()
 	if !ok {
 		return
 	}

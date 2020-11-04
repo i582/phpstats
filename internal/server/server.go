@@ -9,21 +9,22 @@ import (
 	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
+// RunServer starts the server on the given port.
 func RunServer(port int64) {
 	if port == 0 {
 		port = 8080
 	}
 
-	http.HandleFunc("/info/class", InfoClassHandler)
-	http.HandleFunc("/info/func", InfoFunctionHandler)
-	http.HandleFunc("/info/namespace", InfoNamespaceHandler)
-	http.HandleFunc("/exit", ExitHandler)
-	http.HandleFunc("/analyzeStats", AnalyzeStatsHandler)
+	http.HandleFunc("/info/class", infoClassHandler)
+	http.HandleFunc("/info/func", infoFunctionHandler)
+	http.HandleFunc("/info/namespace", infoNamespaceHandler)
+	http.HandleFunc("/exit", exitHandler)
+	http.HandleFunc("/analyzeStats", analyzeStatsHandler)
 
 	go http.ListenAndServe(fmt.Sprintf("localhost:%d", port), nil)
 }
 
-func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
+func infoClassHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
 	classNames, err := walkers.GlobalCtx.Classes.GetFullClassName(name)
@@ -47,7 +48,7 @@ func InfoClassHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, data)
 }
 
-func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
+func infoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
 	funcNameKeys, err := walkers.GlobalCtx.Functions.GetFullFuncName(name)
@@ -71,7 +72,7 @@ func InfoFunctionHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, data)
 }
 
-func InfoNamespaceHandler(w http.ResponseWriter, r *http.Request) {
+func infoNamespaceHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 
 	ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(name)
@@ -85,11 +86,11 @@ func InfoNamespaceHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, data)
 }
 
-func ExitHandler(w http.ResponseWriter, r *http.Request) {
+func exitHandler(w http.ResponseWriter, r *http.Request) {
 	os.Exit(0)
 }
 
-func AnalyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
+func analyzeStatsHandler(w http.ResponseWriter, r *http.Request) {
 	if walkers.GlobalCtx.BarLinting == nil {
 		fmt.Fprintf(w, "{\"state\": \"indexing\", \"current\": 0.0}")
 		return

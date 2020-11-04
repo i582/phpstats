@@ -19,6 +19,7 @@ type rootChecker struct {
 	CurFile *symbols.File
 }
 
+// BeforeEnterFile describes the processing logic before entering the file.
 func (r *rootChecker) BeforeEnterFile() {
 	filename := r.Ctx.Filename()
 
@@ -33,129 +34,152 @@ func (r *rootChecker) BeforeEnterFile() {
 	GlobalCtx.BarLinting.Increment()
 }
 
+// AfterEnterNode describes the processing logic after entering the node.
 func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.NamespaceStmt:
-		nsName := n.NamespaceName.Value
-
-		GlobalCtx.Namespaces.CreateNamespace(nsName)
-		GlobalCtx.Namespaces.AddFileToNamespace(nsName, r.CurFile)
-
+		r.handleNamespace(n)
 	case *ir.ImportExpr:
-		filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), GlobalCtx.ProjectRoot, n.Expr)
-		if !ok {
-			return
-		}
-
-		requiredFile, ok := GlobalCtx.Files.Get(filename)
-		if !ok {
-			return
-		}
-
-		r.CurFile.AddRequiredRootFile(requiredFile)
-		requiredFile.AddRequiredByFile(r.CurFile)
-
+		r.handleImport(n)
 	case *ir.ClassStmt:
-		className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
-			Value: n.ClassName.Value,
-		})
-		if !ok {
-			return
-		}
-
-		class, ok := GlobalCtx.Classes.Get(className)
-		if !ok {
-			return
-		}
-
-		r.CurFile.AddClass(class)
-
-		if n.Implements != nil {
-			for _, implement := range n.Implements.InterfaceNames {
-				implement := implement.(*ir.Name)
-				ifaceName := implement.Value
-
-				iface, ok := GlobalCtx.Classes.Get(ifaceName)
-				if !ok {
-					return
-				}
-
-				class.AddDeps(iface)
-				iface.AddDepsBy(class)
-			}
-		}
-
-		if n.Extends != nil {
-			className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
-				Value: n.Extends.ClassName.Value,
-			})
-			if !ok {
-				return
-			}
-
-			extend, ok := GlobalCtx.Classes.Get(className)
-			if !ok {
-				return
-			}
-
-			class.AddExtends(extend)
-			class.AddDeps(extend)
-			extend.AddDepsBy(class)
-		}
-
-		GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, class)
-
+		r.handleClass(n)
 	case *ir.InterfaceStmt:
-		ifaceName, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
-			Value: n.InterfaceName.Value,
-		})
-		if !ok {
-			return
-		}
-
-		iface, ok := GlobalCtx.Classes.Get(ifaceName)
-		if !ok {
-			return
-		}
-
-		r.CurFile.AddClass(iface)
-		GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, iface)
-
+		r.handleInterface(n)
 	case *ir.ClassConstListStmt:
-		curClass, ok := r.GetCurrentClass()
-		if !ok {
-			return
-		}
-
-		for _, c := range n.Consts {
-			constant, ok := GlobalCtx.Constants.Get(*symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass.Name))
-			if !ok {
-				continue
-			}
-
-			curClass.Constants.Add(constant)
-		}
-
+		r.handleClassConstList(n)
 	case *ir.PropertyListStmt:
-		curClass, ok := r.GetCurrentClass()
-		if !ok {
-			return
-		}
-
-		for _, prop := range n.Properties {
-			prop := prop.(*ir.PropertyStmt)
-
-			curClass.Fields.Add(symbols.NewField(prop.Variable.Name, curClass.Name))
-		}
+		r.handlePropertyList(n)
 	}
 }
 
-func (r *rootChecker) GetCurrentFunc() (*symbols.Function, bool) {
+func (r *rootChecker) handlePropertyList(n *ir.PropertyListStmt) bool {
+	curClass, ok := r.getCurrentClass()
+	if !ok {
+		return true
+	}
+
+	for _, prop := range n.Properties {
+		prop := prop.(*ir.PropertyStmt)
+
+		curClass.Fields.Add(symbols.NewField(prop.Variable.Name, curClass.Name))
+	}
+	return false
+}
+
+func (r *rootChecker) handleClassConstList(n *ir.ClassConstListStmt) {
+	curClass, ok := r.getCurrentClass()
+	if !ok {
+		return
+	}
+
+	for _, c := range n.Consts {
+		constant, ok := GlobalCtx.Constants.Get(*symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass.Name))
+		if !ok {
+			continue
+		}
+
+		curClass.Constants.Add(constant)
+	}
+	return
+}
+
+func (r *rootChecker) handleInterface(n *ir.InterfaceStmt) {
+	ifaceName, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
+		Value: n.InterfaceName.Value,
+	})
+	if !ok {
+		return
+	}
+
+	iface, ok := GlobalCtx.Classes.Get(ifaceName)
+	if !ok {
+		return
+	}
+
+	r.CurFile.AddClass(iface)
+	GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, iface)
+}
+
+func (r *rootChecker) handleClass(n *ir.ClassStmt) {
+	className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
+		Value: n.ClassName.Value,
+	})
+	if !ok {
+		return
+	}
+
+	class, ok := GlobalCtx.Classes.Get(className)
+	if !ok {
+		return
+	}
+
+	r.CurFile.AddClass(class)
+
+	if n.Implements != nil {
+		for _, implement := range n.Implements.InterfaceNames {
+			implement := implement.(*ir.Name)
+			ifaceName := implement.Value
+
+			iface, ok := GlobalCtx.Classes.Get(ifaceName)
+			if !ok {
+				return
+			}
+
+			class.AddDeps(iface)
+			iface.AddDepsBy(class)
+		}
+	}
+
+	if n.Extends != nil {
+		className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
+			Value: n.Extends.ClassName.Value,
+		})
+		if !ok {
+			return
+		}
+
+		extend, ok := GlobalCtx.Classes.Get(className)
+		if !ok {
+			return
+		}
+
+		class.AddExtends(extend)
+		class.AddDeps(extend)
+		extend.AddDepsBy(class)
+	}
+
+	GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, class)
+	return
+}
+
+func (r *rootChecker) handleImport(n *ir.ImportExpr) {
+	filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), GlobalCtx.ProjectRoot, n.Expr)
+	if !ok {
+		return
+	}
+
+	requiredFile, ok := GlobalCtx.Files.Get(filename)
+	if !ok {
+		return
+	}
+
+	r.CurFile.AddRequiredRootFile(requiredFile)
+	requiredFile.AddRequiredByFile(r.CurFile)
+}
+
+func (r *rootChecker) handleNamespace(n *ir.NamespaceStmt) {
+	nsName := n.NamespaceName.Value
+
+	GlobalCtx.Namespaces.CreateNamespace(nsName)
+	GlobalCtx.Namespaces.AddFileToNamespace(nsName, r.CurFile)
+}
+
+func (r *rootChecker) getCurrentFunc() (*symbols.Function, bool) {
 	if r.Ctx.ClassParseState().CurrentFunction == "" {
 		return nil, false
 	}
 
-	class, ok := r.GetCurrentClass()
+	class, ok := r.getCurrentClass()
 	if ok {
 		method, ok := class.Methods.Get(symbols.NewMethodKey(r.Ctx.ClassParseState().CurrentFunction, class.Name))
 		if !ok {
@@ -180,7 +204,7 @@ func (r *rootChecker) GetCurrentFunc() (*symbols.Function, bool) {
 	return fn, true
 }
 
-func (r *rootChecker) GetCurrentClass() (*symbols.Class, bool) {
+func (r *rootChecker) getCurrentClass() (*symbols.Class, bool) {
 	if r.Ctx.ClassParseState().CurrentClass == "" {
 		return nil, false
 	}
