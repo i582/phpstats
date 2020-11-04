@@ -1,8 +1,6 @@
 package symbols
 
 import (
-	"bytes"
-	"encoding/gob"
 	"sync"
 )
 
@@ -23,7 +21,7 @@ func (c *Constant) String() string {
 }
 
 type Constants struct {
-	sync.Mutex
+	m sync.Mutex
 
 	Constants map[Constant]*Constant
 }
@@ -39,36 +37,14 @@ func (c *Constants) Len() int {
 }
 
 func (c *Constants) Add(constant *Constant) {
-	c.Lock()
+	c.m.Lock()
 	c.Constants[*constant] = constant
-	c.Unlock()
+	c.m.Unlock()
 }
 
 func (c *Constants) Get(constantKey Constant) (*Constant, bool) {
-	c.Lock()
+	c.m.Lock()
 	constant, ok := c.Constants[constantKey]
-	c.Unlock()
+	c.m.Unlock()
 	return constant, ok
-}
-
-// GobDecode is custom gob unmarshaller
-func (c *Constants) GobDecode(buf []byte) error {
-	r := bytes.NewBuffer(buf)
-	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&c.Constants)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GobEncode is a custom gob marshaller
-func (c *Constants) GobEncode() ([]byte, error) {
-	w := new(bytes.Buffer)
-	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(c.Constants)
-	if err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
 }

@@ -12,7 +12,7 @@ import (
 )
 
 type Classes struct {
-	sync.Mutex
+	m sync.Mutex
 
 	Classes map[string]*Class
 }
@@ -104,15 +104,15 @@ func (c *Classes) GetFullClassName(name string) ([]string, error) {
 }
 
 func (c *Classes) Add(class *Class) {
-	c.Lock()
+	c.m.Lock()
 	c.Classes[class.Name] = class
-	c.Unlock()
+	c.m.Unlock()
 }
 
 func (c *Classes) Get(name string) (*Class, bool) {
-	c.Lock()
+	c.m.Lock()
 	class, ok := c.Classes[name]
-	c.Unlock()
+	c.m.Unlock()
 	return class, ok
 }
 
@@ -306,26 +306,4 @@ func (c *Class) GobDecode(buf []byte) error {
 		return err
 	}
 	return nil
-}
-
-// GobDecode is custom gob unmarshaller
-func (c *Classes) GobDecode(buf []byte) error {
-	r := bytes.NewBuffer(buf)
-	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&c.Classes)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GobEncode is a custom gob marshaller
-func (c *Classes) GobEncode() ([]byte, error) {
-	w := new(bytes.Buffer)
-	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(c.Classes)
-	if err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
 }

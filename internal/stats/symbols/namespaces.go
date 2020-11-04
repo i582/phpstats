@@ -6,7 +6,7 @@ import (
 )
 
 type Namespaces struct {
-	sync.Mutex
+	m sync.Mutex
 
 	Namespaces map[string]*Namespace
 }
@@ -106,15 +106,15 @@ func (n *Namespaces) Add(ns *Namespace) {
 		return
 	}
 
-	n.Lock()
+	n.m.Lock()
 	n.Namespaces[ns.Name] = ns
-	n.Unlock()
+	n.m.Unlock()
 }
 
 func (n *Namespaces) Get(name string) (*Namespace, bool) {
-	n.Lock()
+	n.m.Lock()
 	ns, ok := n.Namespaces[name]
-	n.Unlock()
+	n.m.Unlock()
 	return ns, ok
 }
 

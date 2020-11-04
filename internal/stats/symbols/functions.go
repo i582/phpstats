@@ -30,40 +30,40 @@ func NewMethodKey(name, className string) FuncKey {
 	}
 }
 
-func (fk FuncKey) IsMethod() bool {
-	return fk.ClassName != ""
+func (f FuncKey) IsMethod() bool {
+	return f.ClassName != ""
 }
 
-func (fk FuncKey) String() string {
+func (f FuncKey) String() string {
 	var res string
 
-	if fk.ClassName != "" {
-		res += fk.ClassName + "::" + fk.Name
+	if f.ClassName != "" {
+		res += f.ClassName + "::" + f.Name
 	} else {
-		res += fk.Name
+		res += f.Name
 	}
 
 	return res
 }
 
-func (fk FuncKey) Equal(fk2 FuncKey) bool {
-	return fk.Name == fk2.Name && fk.ClassName == fk2.ClassName
+func (f FuncKey) Equal(fk2 FuncKey) bool {
+	return f.Name == fk2.Name && f.ClassName == fk2.ClassName
 }
 
 type Functions struct {
-	sync.Mutex
+	m sync.Mutex
 
 	Funcs map[FuncKey]*Function
 }
 
-func (fi *Functions) Len() int {
-	return len(fi.Funcs)
+func (f *Functions) Len() int {
+	return len(f.Funcs)
 }
 
-func (fi *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
+func (f *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 	var res []FuncKey
 
-	for _, fn := range fi.Funcs {
+	for _, fn := range f.Funcs {
 		if fn.Name.String() == name {
 			return []FuncKey{fn.Name}, nil
 		}
@@ -86,15 +86,15 @@ func NewFunctions() *Functions {
 	}
 }
 
-func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool, withEmbeddedFuncs bool) []*Function {
-	var res = make([]*Function, 0, len(fi.Funcs))
+func (f *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool, withEmbeddedFuncs bool) []*Function {
+	var res = make([]*Function, 0, len(f.Funcs))
 	var index int64
 
 	if offset < 0 {
 		offset = 0
 	}
 
-	for key, fn := range fi.Funcs {
+	for key, fn := range f.Funcs {
 		if !sorted {
 			if index > count+offset && count != -1 {
 				break
@@ -138,17 +138,17 @@ func (fi *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offse
 	return res
 }
 
-func (fi *Functions) Add(fn *Function) {
-	fi.Lock()
-	fi.Funcs[fn.Name] = fn
-	fi.Unlock()
+func (f *Functions) Add(fn *Function) {
+	f.m.Lock()
+	f.Funcs[fn.Name] = fn
+	f.m.Unlock()
 }
 
-func (fi *Functions) Get(fn FuncKey) (*Function, bool) {
-	fi.Lock()
-	f, ok := fi.Funcs[fn]
-	fi.Unlock()
-	return f, ok
+func (f *Functions) Get(fn FuncKey) (*Function, bool) {
+	f.m.Lock()
+	fun, ok := f.Funcs[fn]
+	f.m.Unlock()
+	return fun, ok
 }
 
 var FunctionCount int64
@@ -331,28 +331,6 @@ func (f *Function) GobEncode() ([]byte, error) {
 		return nil, err
 	}
 	err = encoder.Encode(f.CountMagicNumbers)
-	if err != nil {
-		return nil, err
-	}
-	return w.Bytes(), nil
-}
-
-// GobDecode is custom gob unmarshaller
-func (fi *Functions) GobDecode(buf []byte) error {
-	r := bytes.NewBuffer(buf)
-	decoder := gob.NewDecoder(r)
-	err := decoder.Decode(&fi.Funcs)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// GobEncode is a custom gob marshaller
-func (fi *Functions) GobEncode() ([]byte, error) {
-	w := new(bytes.Buffer)
-	encoder := gob.NewEncoder(w)
-	err := encoder.Encode(fi.Funcs)
 	if err != nil {
 		return nil, err
 	}
