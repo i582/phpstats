@@ -7,7 +7,9 @@ import (
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
-func AfferentEfferentStabilityOfClass(c *symbols.Class) (aff, eff, stab float64) {
+// AfferentEfferentInstabilityOfClass calculates afferent, efferent and instability
+// metrics for the passed class.
+func AfferentEfferentInstabilityOfClass(c *symbols.Class) (aff, eff, stab float64) {
 	efferent := float64(c.Deps.Len())
 	afferent := float64(c.DepsBy.Len())
 
@@ -21,7 +23,8 @@ func AfferentEfferentStabilityOfClass(c *symbols.Class) (aff, eff, stab float64)
 	return afferent, efferent, instability
 }
 
-func LackOfCohesionInMethodsOfCLass(c *symbols.Class) (float64, bool) {
+// LackOfCohesionInMethods calculates the Lack Of Cohesion In Methods metric for the passed class.
+func LackOfCohesionInMethods(c *symbols.Class) (float64, bool) {
 	if c.LcomResolved {
 		return c.Lcom, true
 	}
@@ -46,7 +49,8 @@ func LackOfCohesionInMethodsOfCLass(c *symbols.Class) (float64, bool) {
 	return -1, false
 }
 
-func Lcom4(c *symbols.Class) int64 {
+// LackOfCohesionInMethods4 calculates the Lack Of Cohesion In Methods 4 metric for the passed class.
+func LackOfCohesionInMethods4(c *symbols.Class) int64 {
 	if c.Lcom4Resolved {
 		return c.Lcom4
 	}

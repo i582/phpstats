@@ -251,8 +251,8 @@ func Top() *shell.Executor {
 			allClasses := walkers.GlobalCtx.Classes.GetAll(false, -1, 0, false)
 
 			sort.Slice(allClasses, func(i, j int) bool {
-				affI, effI, instabI := metrics.AfferentEfferentStabilityOfClass(allClasses[i])
-				affJ, effJ, instabJ := metrics.AfferentEfferentStabilityOfClass(allClasses[j])
+				affI, effI, instabI := metrics.AfferentEfferentInstabilityOfClass(allClasses[i])
+				affJ, effJ, instabJ := metrics.AfferentEfferentInstabilityOfClass(allClasses[j])
 
 				switch {
 				case byAff:
@@ -271,15 +271,15 @@ func Top() *shell.Executor {
 					}
 					return instabI > instabJ
 				case byLcom:
-					lcomI, _ := metrics.LackOfCohesionInMethodsOfCLass(allClasses[i])
-					lcomJ, _ := metrics.LackOfCohesionInMethodsOfCLass(allClasses[j])
+					lcomI, _ := metrics.LackOfCohesionInMethods(allClasses[i])
+					lcomJ, _ := metrics.LackOfCohesionInMethods(allClasses[j])
 					if reverse {
 						lcomI, lcomJ = lcomJ, lcomI
 					}
 					return lcomI > lcomJ
 				case byLcom4:
-					lcom4I := metrics.Lcom4(allClasses[i])
-					lcom4J := metrics.Lcom4(allClasses[j])
+					lcom4I := metrics.LackOfCohesionInMethods4(allClasses[i])
+					lcom4J := metrics.LackOfCohesionInMethods4(allClasses[j])
 					if reverse {
 						lcom4I, lcom4J = lcom4J, lcom4I
 					}

@@ -4,6 +4,7 @@ import (
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
+// FileMeta describes the data to be cached.
 type FileMeta struct {
 	Classes   *symbols.Classes
 	Funcs     *symbols.Functions
@@ -11,6 +12,7 @@ type FileMeta struct {
 	Constants *symbols.Constants
 }
 
+// NewFileMeta returns a new FileMeta instance with pre-allocated fields.
 func NewFileMeta() FileMeta {
 	return FileMeta{
 		Classes:   symbols.NewClasses(),

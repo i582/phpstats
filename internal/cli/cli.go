@@ -16,8 +16,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var MainShell = shell.NewShell()
-
+// Run launches the entire application.
 func Run() {
 	log.SetFlags(0)
 
@@ -27,6 +26,8 @@ func Run() {
 		os.Args = append(os.Args[:1], os.Args[2:]...)
 		os.Args[0] = "phpstats/" + subcmd
 	}
+
+	MainShell := shell.NewShell()
 
 	MainShell.AddExecutor(commands.Info())
 	MainShell.AddExecutor(commands.List())
