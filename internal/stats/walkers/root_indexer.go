@@ -144,7 +144,13 @@ func (r *rootIndexer) calculateCountMagicNumbers(stmts *ir.StmtList) int64 {
 			}
 			count++
 
+		case *ir.ArrayExpr:
+			return false
+		case *ir.ArrayItemExpr:
+			return false
 		case *ir.ModExpr:
+			return false
+		case *ir.ArrayDimFetchExpr:
 			return false
 		}
 

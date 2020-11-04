@@ -37,6 +37,10 @@ func Top() *shell.Executor {
 				Help: "top functions by cyclomatic complexity",
 			},
 			&flags.Flag{
+				Name: "-by-cmn",
+				Help: "top functions by count of magic numbers",
+			},
+			&flags.Flag{
 				Name: "-r",
 				Help: "sort reverse",
 			},
@@ -71,6 +75,7 @@ func Top() *shell.Executor {
 			byAsDeps := c.Flags.Contains("-by-as-deps")
 			byUses := c.Flags.Contains("-by-uses")
 			byCC := c.Flags.Contains("-by-cc")
+			byCMN := c.Flags.Contains("-by-cmn")
 
 			allFuncs := walkers.GlobalCtx.Functions.GetAll(true, true, true, -1, 0, false, true)
 
@@ -104,6 +109,13 @@ func Top() *shell.Executor {
 						ccI, ccJ = ccJ, ccI
 					}
 					return ccI > ccJ
+				case byCMN:
+					cmnI := allFuncs[i].CountMagicNumbers
+					cmnJ := allFuncs[j].CountMagicNumbers
+					if reverse {
+						cmnI, cmnJ = cmnJ, cmnI
+					}
+					return cmnI > cmnJ
 				}
 
 				nameI := allFuncs[i].Name.Name

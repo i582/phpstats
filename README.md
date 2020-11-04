@@ -75,7 +75,8 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 - by  the number of classes on which it depends;
 - by the number of classes dependent on it;
 - by uses count;
-- by cyclomatic complexity.
+- by cyclomatic complexity;
+- by count of magic numbers.
 
 ### Brief project information
 
