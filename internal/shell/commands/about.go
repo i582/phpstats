@@ -28,7 +28,6 @@ Author: Petr Makhnev (tg: @petr_makhnev)
 
 MIT (c) 2020
 `)
-			fmt.Println()
 		},
 	}
 

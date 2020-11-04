@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -27,6 +28,13 @@ func Run() {
 		os.Args[0] = "phpstats/" + subcmd
 	}
 
+	MainShell.AddExecutor(commands.Info())
+	MainShell.AddExecutor(commands.List())
+	MainShell.AddExecutor(commands.Graph())
+	MainShell.AddExecutor(commands.Brief())
+	MainShell.AddExecutor(commands.About())
+	MainShell.AddExecutor(commands.Top())
+
 	var cacheDir string
 	var port int64
 	app := &cli.App{
@@ -51,6 +59,12 @@ func Run() {
 			},
 		},
 		Action: func(c *cli.Context) error {
+			if len(os.Args) == 1 {
+				commands.About().Execute(&shell.Context{})
+				fmt.Printf("\nUsage\n\t$ phpstats collect [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>\n")
+				return fmt.Errorf("empty")
+			}
+
 			server.RunServer(port)
 
 			// Normalize flags for NoVerify
@@ -75,14 +89,10 @@ func Run() {
 		},
 	}
 
-	_ = app.Run(os.Args)
-
-	MainShell.AddExecutor(commands.Info())
-	MainShell.AddExecutor(commands.List())
-	MainShell.AddExecutor(commands.Graph())
-	MainShell.AddExecutor(commands.Brief())
-	MainShell.AddExecutor(commands.About())
-	MainShell.AddExecutor(commands.Top())
+	err := app.Run(os.Args)
+	if err != nil {
+		return
+	}
 
 	MainShell.Run()
 }
