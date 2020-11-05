@@ -58,6 +58,8 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 7. LCOM4.
 
+See [examples of graphs.](doc/graphs.md)
+
 ### Tops
 
 #### Classes
