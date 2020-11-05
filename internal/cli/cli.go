@@ -73,21 +73,25 @@ func Run() {
 				Name:        "config-path",
 				Usage:       "path to the config.",
 				Destination: &configPath,
+				Value:       "./phpstats.yml",
 			},
 		},
 		Action: func(c *cli.Context) error {
 			if len(os.Args) == 1 {
 				commands.About().Execute(&shell.Context{})
-				fmt.Printf("\nUsage\n\t$ phpstats collect [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>\n\n")
+				fmt.Printf("\nUsage\n\t$ phpstats collect [--config-path <dir>] [--disable-cache] [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>\n\n")
 				return fmt.Errorf("empty")
 			}
 
-			cfg, err := config.OpenConfig(configPath)
-			if err == nil {
-				if cfg.CacheDir == "" {
-					cfg.CacheDir = utils.DefaultCacheDir()
-				}
-			} else {
+			cfg, errOpen, errDecode := config.OpenConfig(configPath)
+
+			switch {
+			case errDecode != nil:
+				color.Red.Printf("Config error: %v", errDecode)
+				return errDecode
+			case errOpen == nil && cfg.CacheDir == "":
+				cfg.CacheDir = utils.DefaultCacheDir()
+			default:
 				cfg = &config.Config{
 					Port:         port,
 					CacheDir:     cacheDir,
@@ -120,7 +124,7 @@ func Run() {
 				log.Fatalf(color.Red.Sprintf("Error: too few arguments"))
 			}
 
-			err = walkers.Collect()
+			err := walkers.Collect()
 			if err != nil {
 				return err
 			}

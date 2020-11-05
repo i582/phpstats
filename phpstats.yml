@@ -1,29 +1,25 @@
 # The port on which the server will be launched
 # to interact with the analyzer from other programs.
-port: 8080
+# By default, it is 8080
+# port: 8080
 
 # The path where the cache will be stored.
 # Caching can significantly speed up data collection.
-cacheDir: "~/phpstats-cache1"
+# By default, it is set to the value of the temporary folder + /phpstats.
+# cacheDir: ""
 
 # Disables caching.
-disableCache: false
+# By default, it is false
+# disableCache: false
 
 # Path to the project relative to which all imports are allowed.
-# By default, it is equal to the last analyzed directory.
+# By default, it is equal to the analyzed directory.
 # projectPath: ""
 
-# Paths that will be excluded from statistics collection.
-# exclude: []
-
-groups:
-    - name: "12"
-      namespace: "34"
-
-    - name: "56"
-      namespace: "78"
-
-extensions:
-    - "php"
-    - "inc"
-    - "phtml"
+# File extensions to be included in the analysis.
+# By default, it is php, inc, php5, phtml.
+# extensions:
+#  - "php"
+#  - "inc"
+#  - "php5"
+#  - "phtml"

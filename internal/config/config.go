@@ -22,19 +22,19 @@ type Group struct {
 	Namespace string
 }
 
-func OpenConfig(path string) (*Config, error) {
+func OpenConfig(path string) (*Config, error, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, err, nil
 	}
 	var config *Config
 
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return config, nil
+	return config, nil, nil
 }
 
 func (c *Config) ToCliArgs() []string {
@@ -45,8 +45,8 @@ func (c *Config) ToCliArgs() []string {
 	}
 
 	if len(c.Exclude) != 0 {
-		excludeRegexp := strings.Join(c.Exclude, "|")
-		args = append(args, "-exclude", excludeRegexp)
+		excludeRegexp := strings.Join(c.Exclude, ",")
+		args = append(args, "-index-only-files", excludeRegexp)
 	}
 
 	if len(c.Extensions) != 0 {
