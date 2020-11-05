@@ -44,9 +44,10 @@ func Run() {
 		Usage: "data collection",
 		Flags: []cli.Flag{
 			&cli.Int64Flag{
-				Name:  "port",
-				Usage: "port used by the server.",
-				Value: 8080,
+				Name:        "port",
+				Usage:       "port used by the server.",
+				Value:       8080,
+				Destination: &port,
 			},
 			&cli.StringFlag{
 				Name:        "cache-dir",
