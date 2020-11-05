@@ -30,18 +30,16 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 1. `Afferent couplings`:
    - for **classes**;
    - for **namespaces**;
-   
 2. `Efferent couplings`:
    - for **classes**;
    - for **namespaces**;
-   
 3. `Instability`:
    - for the **classes**;
    - for **namespaces**;
-   
 4. `Lack of Cohesion in Methods`;
 5. `Lack of Cohesion in Methods 4`;
-6. `Cyclomatic Complexity`.
+6. `Cyclomatic Complexity`;
+7. `Count of magic numbers in functions and methods`.
 
 ### Graph output (Graphviz format and svg)
 
@@ -61,6 +59,8 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 7. LCOM4.
 
+See [examples of graphs.](doc/graphs.md)
+
 ### Tops
 
 #### Classes
@@ -78,7 +78,8 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 - by  the number of classes on which it depends;
 - by the number of classes dependent on it;
 - by uses count;
-- by cyclomatic complexity.
+- by cyclomatic complexity;
+- by count of magic numbers.
 
 ### Brief project information
 
@@ -99,7 +100,7 @@ After installation, run the following command in terminal.
 go get -u -v github.com/i582/phpstats
 ```
 
-After that you can use it simply by writing `phpstats` in the terminal.
+After that you can use by writing `~/go/bin/phpstats` in the terminal.
 
 If you want to work with **dependency graphs**, then you need to install the [Graphviz](https://graphviz.org/download/) utility to visualize graphs.
 
@@ -177,6 +178,15 @@ Use the `brief` command to **show brief information about the project**.
 ```
 >>> brief
 # shows brief information.
+```
+
+### Brief metrics information
+
+Use the `metrics` command to see a summary of the metrics being collected.
+
+```
+>>> metrics		
+# shows brief information about of the colected metrics.		
 ```
 
 ## Config
