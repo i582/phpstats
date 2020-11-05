@@ -28,14 +28,14 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 ### Metrics
 
 1. `Afferent couplings`:
-   - for **classes**;
-   - for **namespaces**;
+   - for classes;
+   - for namespaces;
 2. `Efferent couplings`:
-   - for **classes**;
-   - for **namespaces**;
+   - for classes;
+   - for namespaces;
 3. `Instability`:
-   - for the **classes**;
-   - for **namespaces**;
+   - for the classes;
+   - for namespaces;
 4. `Lack of Cohesion in Methods`;
 5. `Lack of Cohesion in Methods 4`;
 6. `Cyclomatic Complexity`;
@@ -47,17 +47,13 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 2. Class dependencies;
 
-
 3. Function/method dependencies;
-
 
 4. All project namespaces;
 
-
 5. Specific namespace and its child namespaces;
 
-
-7. LCOM4.
+6. LCOM4.
 
 See [examples of graphs.](doc/graphs.md)
 
@@ -112,7 +108,7 @@ $ phpstats collect [--config-path <dir>] [--cache-dir <dir>] [--disable-cache] [
 
 The `--config-path` flag sets the **path to the configuration file**. See [config](doc/config.md).
 
-The `--cache-dir` flag sets a custom cache directory.
+The `--cache-dir` flag sets a **custom cache directory**.
 
 The `--disable-cache` flag **disables caching**.
 
