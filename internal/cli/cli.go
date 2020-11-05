@@ -114,8 +114,6 @@ func Run() {
 			os.Args = append(os.Args, cfgCli...)
 			os.Args = append(os.Args, path)
 
-			fmt.Print(os.Args)
-
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
 			}
