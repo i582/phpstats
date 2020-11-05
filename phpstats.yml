@@ -1,0 +1,29 @@
+# The port on which the server will be launched
+# to interact with the analyzer from other programs.
+port: 8080
+
+# The path where the cache will be stored.
+# Caching can significantly speed up data collection.
+cacheDir: "~/phpstats-cache1"
+
+# Disables caching.
+disableCache: false
+
+# Path to the project relative to which all imports are allowed.
+# By default, it is equal to the last analyzed directory.
+# projectPath: ""
+
+# Paths that will be excluded from statistics collection.
+# exclude: []
+
+groups:
+    - name: "12"
+      namespace: "34"
+
+    - name: "56"
+      namespace: "78"
+
+extensions:
+    - "php"
+    - "inc"
+    - "phtml"

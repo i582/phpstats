@@ -7,6 +7,7 @@ import (
 
 	"github.com/gookit/color"
 
+	"github.com/i582/phpstats/internal/config"
 	"github.com/i582/phpstats/internal/server"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/commands"
@@ -36,7 +37,10 @@ func Run() {
 	MainShell.AddExecutor(commands.Top())
 
 	var cacheDir string
+	var configPath string
+	var disableCache bool
 	var port int64
+
 	app := &cli.App{
 		Name:  "collect",
 		Usage: "data collection",
@@ -57,12 +61,39 @@ func Run() {
 				Usage:       "path to the project relative to which all imports are allowed.",
 				Destination: &walkers.GlobalCtx.ProjectRoot,
 			},
+			&cli.BoolFlag{
+				Name:        "disable-cache",
+				Usage:       "",
+				Destination: &disableCache,
+			},
+			&cli.StringFlag{
+				Name:        "config-path",
+				Usage:       "path to the config.",
+				Destination: &configPath,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			if len(os.Args) == 1 {
 				commands.About().Execute(&shell.Context{})
-				fmt.Printf("\nUsage\n\t$ phpstats collect [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>\n")
+				fmt.Printf("\nUsage\n\t$ phpstats collect [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>\n\n")
 				return fmt.Errorf("empty")
+			}
+
+			cfg, err := config.OpenConfig(configPath)
+			if err == nil {
+				if cfg.CacheDir == "" {
+					cfg.CacheDir = utils.DefaultCacheDir()
+				}
+			} else {
+				cfg = &config.Config{
+					Port:         port,
+					CacheDir:     cacheDir,
+					DisableCache: disableCache,
+					ProjectPath:  walkers.GlobalCtx.ProjectRoot,
+					Exclude:      nil,
+					Groups:       nil,
+					Extensions:   nil,
+				}
 			}
 
 			server.RunServer(port)
@@ -70,7 +101,13 @@ func Run() {
 			// Normalize flags for NoVerify
 			exe := os.Args[0]
 			path := os.Args[len(os.Args)-1]
-			os.Args = []string{exe, "-cache-dir", cacheDir, path}
+
+			cfgCli := cfg.ToCliArgs()
+			os.Args = []string{exe}
+			os.Args = append(os.Args, cfgCli...)
+			os.Args = append(os.Args, path)
+
+			fmt.Print(os.Args)
 
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
@@ -80,7 +117,7 @@ func Run() {
 				log.Fatalf(color.Red.Sprintf("Error: too few arguments"))
 			}
 
-			err := walkers.Collect()
+			err = walkers.Collect()
 			if err != nil {
 				return err
 			}
