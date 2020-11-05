@@ -34,3 +34,6 @@ By default, the config looks like this.
 
 All you need to do is uncomment the required field and write the required value into it.
 
+By default, the config is looked for in the current directory from where the analyzer is launched.
+
+If you want to use the config from another location use the `--config-path` flag when starting the analyzer. See [Usage][../ README.md#usage].
