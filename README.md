@@ -21,7 +21,7 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 * [Contributing](#contributing)
 * [License](#license)
 
-![](doc/screen.png)
+![](doc/screen.svg)
 
 ## What is currently available?
 
