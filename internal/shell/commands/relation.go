@@ -44,7 +44,7 @@ func Relation() *shell.Executor {
 
 			_, callstacks := calledInCallstack(parentFun, childFun, nil, map[*symbols.Function]struct{}{})
 
-			fmt.Print("Attainability: ")
+			fmt.Print("Reachability: ")
 
 			if len(callstacks) == 0 {
 				fmt.Println("false")
