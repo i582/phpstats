@@ -13,6 +13,10 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 ## Table of Contents
 
 * [What is currently available?](#what-is-currently-available)
+  * [Metrics](#metrics)
+  * [Graph output](#graph-output-graphviz-format-and-svg)
+  * [Relation](#relation)
+  * [Tops](#tops)
 * [Install](#install)
 * [Usage](#usage)
 * [Config](#config)
