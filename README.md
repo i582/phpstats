@@ -57,6 +57,10 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 See [examples of graphs.](doc/graphs.md)
 
+### Relation
+
+1. Checking the reachability of a function from another function.
+
 ### Tops
 
 #### Classes
@@ -141,6 +145,15 @@ To **build graphs**, use the `graph` command. The `-o` flag is required and sets
 When creating a graph, two files are created, one with the source code of the graph in the `graphviz` format and a file with the graph in `svg` format.
 
 For command information, write `graph help`.
+
+### Relation
+
+To check the reachability of a function from another function, use the `relation` command.
+
+```
+>>> relation funcs --parent foo --child boo
+# shows the reachability of a function 'boo' from function 'foo'.
+```
 
 ### Tops
 
