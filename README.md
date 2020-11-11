@@ -59,7 +59,7 @@ See [examples of graphs.](doc/graphs.md)
 
 ### Relation
 
-1. Checking the reachability of a function from another function.
+1. Checking the reachability of a function from another function and outputs the call stacks.
 
 ### Tops
 
@@ -152,7 +152,7 @@ To check the reachability of a function from another function, use the `relation
 
 ```
 >>> relation funcs --parent foo --child boo
-# shows the reachability of a function 'boo' from function 'foo'.
+# shows the reachability callstacks of a function 'boo' from function 'foo'.
 ```
 
 ### Tops
