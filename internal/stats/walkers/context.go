@@ -131,3 +131,13 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta) {
 		}
 	}
 }
+
+func (ctx *globalContext) GetFunction(name string) (*symbols.Function, error) {
+	keys, err := ctx.Functions.GetFullFuncName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	fun, _ := ctx.Functions.Get(keys[0])
+	return fun, nil
+}

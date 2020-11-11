@@ -1,7 +1,7 @@
 # The port on which the server will be launched
 # to interact with the analyzer from other programs.
 # By default, it is 8080
-# port: 8080
+port: 8080
 
 # The path where the cache will be stored.
 # Caching can significantly speed up data collection.

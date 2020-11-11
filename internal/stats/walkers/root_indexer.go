@@ -52,7 +52,15 @@ func (r *rootIndexer) inVendor() bool {
 }
 
 func (r *rootIndexer) handleFunction(n *ir.FunctionStmt) {
+	namespace := r.Ctx.ClassParseState().Namespace
 	funcName := n.FunctionName.Value
+
+	if namespace != "" {
+		funcName = namespace + `\` + funcName
+	} else {
+		funcName = `\` + funcName
+	}
+
 	pos := r.getElementPos(n)
 
 	cc := r.calculateCyclomaticComplexity(&ir.StmtList{
