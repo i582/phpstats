@@ -37,6 +37,7 @@ func Run() {
 	MainShell.AddExecutor(commands.About())
 	MainShell.AddExecutor(commands.Top())
 	MainShell.AddExecutor(commands.Metrics())
+	MainShell.AddExecutor(commands.Relation())
 
 	var cacheDir string
 	var configPath string
@@ -89,8 +90,9 @@ func Run() {
 			case errDecode != nil:
 				color.Red.Printf("Config error: %v", errDecode)
 				return errDecode
-			case errOpen == nil && cfg.CacheDir == "":
+			case errOpen == nil && cfg != nil && cfg.CacheDir == "":
 				cfg.CacheDir = utils.DefaultCacheDir()
+			case errOpen == nil && cfg.CacheDir != "":
 			default:
 				cfg = &config.Config{
 					Port:         port,

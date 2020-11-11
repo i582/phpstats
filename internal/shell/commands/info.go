@@ -49,28 +49,11 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-
-			funcNameKeys, err := walkers.GlobalCtx.Functions.GetFullFuncName(c.Args[0])
+			fn, err := walkers.GlobalCtx.GetFunction(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
-
-			var funcKeyIndex int
-
-			if len(funcNameKeys) > 1 {
-				funcManes := make([]string, 0, len(funcNameKeys))
-				for _, key := range funcNameKeys {
-					funcManes = append(funcManes, key.String())
-				}
-
-				// funcKeyIndex = c.MultiChoice(funcManes, "Какую функцию вы имели ввиду?")
-				funcKeyIndex = 0
-			} else {
-				funcKeyIndex = 0
-			}
-
-			fn, _ := walkers.GlobalCtx.Functions.Get(funcNameKeys[funcKeyIndex])
 
 			data := representator.GetStringFunctionRepr(fn)
 			fmt.Println(data)
