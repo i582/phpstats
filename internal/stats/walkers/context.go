@@ -4,6 +4,8 @@ import (
 	"encoding/gob"
 	"io"
 	"log"
+	"path/filepath"
+	"regexp"
 
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
@@ -23,8 +25,9 @@ type globalContext struct {
 	Constants  *symbols.Constants
 	Namespaces *symbols.Namespaces
 
-	ProjectRoot string
-	BarLinting  *pb.ProgressBar
+	ProjectRoot   string
+	ExcludeRegexp *regexp.Regexp
+	BarLinting    *pb.ProgressBar
 }
 
 func newGlobalContext() *globalContext {
@@ -73,13 +76,17 @@ func (ctx *globalContext) Decode(r io.Reader, filename string) error {
 		return err
 	}
 
-	ctx.UpdateMeta(&m)
+	ctx.UpdateMeta(&m, filename)
 
 	return nil
 }
 
 // UpdateMeta recovers data by collecting it from each file.
-func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta) {
+func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta, filename string) {
+	if ctx.ExcludeRegexp != nil && ctx.ExcludeRegexp.MatchString(filepath.ToSlash(filename)) {
+		return
+	}
+
 	for _, file := range f.Files.Files {
 		f := symbols.NewFile(file.Path)
 

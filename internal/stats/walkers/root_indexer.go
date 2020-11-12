@@ -31,7 +31,7 @@ func (r *rootIndexer) BeforeEnterFile() {
 
 // AfterLeaveFile describes the processing logic after leaving the file.
 func (r *rootIndexer) AfterLeaveFile() {
-	GlobalCtx.UpdateMeta(&r.Meta)
+	GlobalCtx.UpdateMeta(&r.Meta, "")
 }
 
 // AfterEnterNode describes the processing logic after entering the node.

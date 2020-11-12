@@ -26,6 +26,7 @@ func (r *rootChecker) BeforeEnterFile() {
 	var ok bool
 	r.CurFile, ok = GlobalCtx.Files.Get(filename)
 	if !ok {
+		r.CurFile = symbols.NewFile("")
 		return
 	}
 	// hack, yet
