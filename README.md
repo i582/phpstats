@@ -111,7 +111,7 @@ If you want to work with **dependency graphs**, then you need to install the [Gr
 ## Usage
 
 ```
-$ phpstats collect [--config-path <dir>] [--cache-dir <dir>] [--disable-cache] [--port <value>] [--project-path <dir>] <analyze-dir>
+$ phpstats collect [--config-path <dir>] [--cache-dir <dir>] [--disable-cache] [--port <value>] [--project-path <dir>] [<analyze-dir>]
 ```
 
 The `--config-path` flag sets the **path to the configuration file**. See [config](doc/config.md).
@@ -123,6 +123,8 @@ The `--disable-cache` flag **disables caching**.
 The `--project-path` flag sets the directory relative to which **paths to files will be resolved when importing**. If the flag is not set, the directory is set to the value of the current analyzed directory.
 
 The `--port` flag sets the **port for the server**. See the [server](#Server) part.
+
+The analyzed directory can be omitted if the include field is **specified in the config** (*by default it is* `"./"`).  See [config](doc/config.md).
 
 After collecting information you will be taken to an **interactive shell**, for help, enter `help`.
 

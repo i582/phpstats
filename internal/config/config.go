@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Include      []string `yaml:"include"`
 	Port         int64    `yaml:"port"`
 	CacheDir     string   `yaml:"cacheDir"`
 	DisableCache bool     `yaml:"disableCache"`
@@ -54,7 +55,13 @@ func (c *Config) ToCliArgs() []string {
 		args = append(args, "-php-extensions", extensionsList)
 	}
 
-	return append(args, []string{
+	args = append(args, []string{
 		"-cache-dir", c.CacheDir,
 	}...)
+
+	if len(c.Include) != 0 {
+		args = append(args, c.Include...)
+	}
+
+	return args
 }
