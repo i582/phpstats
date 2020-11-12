@@ -4,7 +4,7 @@
 
 # phpstats
 
-`phpstats` is a utility for **collecting project statistics** and **building dependency graphs** for PHP, that allows you to find places in the code that can be **improved**.
+`phpstats` is a tool for **collecting project statistics** and **building dependency graphs** for PHP, that allows you to find places in the code that can be **improved**.
 
 It tries to **be fast**, ~150k LOC/s (*lines of code per second*) on Core i5 with SSD with ~3500Mb/s for reading.
 
