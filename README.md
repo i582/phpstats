@@ -1,4 +1,4 @@
-![](doc/logo_1.png)
+![](doc/logo_2.png)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/i582/phpstats)](https://goreportcard.com/report/github.com/i582/phpstats) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/i582/phpstats/master/LICENSE) ![](https://img.shields.io/badge/-%3C%3E%20with%20%E2%9D%A4-red)
 
