@@ -42,7 +42,7 @@ func Relation() *shell.Executor {
 				return
 			}
 
-			_, callstacks := calledInCallstack(parentFun, childFun, nil, map[*symbols.Function]struct{}{})
+			_, callstacks := CalledInCallstack(parentFun, childFun, nil, map[*symbols.Function]struct{}{})
 
 			fmt.Print("Reachability: ")
 
@@ -81,7 +81,7 @@ func Relation() *shell.Executor {
 	return relationExecutor
 }
 
-func calledInCallstack(parent, child *symbols.Function, callstack []*symbols.Function, visited map[*symbols.Function]struct{}) (bool, [][]*symbols.Function) {
+func CalledInCallstack(parent, child *symbols.Function, callstack []*symbols.Function, visited map[*symbols.Function]struct{}) (bool, [][]*symbols.Function) {
 	if parent.Called.Len() == 0 {
 		return false, nil
 	}
@@ -116,7 +116,7 @@ func calledInCallstack(parent, child *symbols.Function, callstack []*symbols.Fun
 			continue
 		}
 
-		call, callstack := calledInCallstack(called, child, newCallstack, newVisited)
+		call, callstack := CalledInCallstack(called, child, newCallstack, newVisited)
 		if call {
 			callstacks = append(callstacks, callstack...)
 		}

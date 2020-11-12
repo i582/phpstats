@@ -109,19 +109,20 @@ func Run() {
 
 			// Normalize flags for NoVerify
 			exe := os.Args[0]
-			path := os.Args[len(os.Args)-1]
+
+			countArgs := c.NArg()
+			var analyzeDirs []string
+			if countArgs > 0 {
+				analyzeDirs = c.Args().Slice()
+			}
 
 			cfgCli := cfg.ToCliArgs()
 			os.Args = []string{exe}
 			os.Args = append(os.Args, cfgCli...)
-			os.Args = append(os.Args, path)
+			os.Args = append(os.Args, analyzeDirs...)
 
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
-			}
-
-			if c.NArg() < 1 {
-				log.Fatalf(color.Red.Sprintf("Error: too few arguments"))
 			}
 
 			err := walkers.Collect()
