@@ -124,7 +124,7 @@ The `--project-path` flag sets the directory relative to which **paths to files 
 
 The `--port` flag sets the **port for the server**. See the [server](#Server) part.
 
-The analyzed directory can be omitted if the include field is **specified in the config** (*by default it is* `"./"`).
+The analyzed directory can be omitted if the include field is **specified in the config** (*by default it is* `"./"`).  See [config](doc/config.md).
 
 After collecting information you will be taken to an **interactive shell**, for help, enter `help`.
 
