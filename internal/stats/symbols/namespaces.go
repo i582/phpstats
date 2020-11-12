@@ -31,6 +31,10 @@ func (n *Namespaces) CreateNamespace(nsName string) *Namespace {
 }
 
 func (n *Namespaces) AddFileToNamespace(nsName string, file *File) {
+	if file == nil {
+		return
+	}
+
 	ns, ok := n.GetNamespace(nsName)
 	if !ok {
 		return

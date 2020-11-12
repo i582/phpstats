@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/gookit/color"
 
@@ -123,6 +125,15 @@ func Run() {
 
 			if c.NArg() > 1 {
 				log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
+			}
+
+			if cfg.Exclude != nil {
+				excludeRegexp, err := regexp.Compile(strings.Join(cfg.Exclude, "|"))
+				if err != nil {
+					log.Fatalf(color.Red.Sprintf("Error converting exclude to regexp: %v", err))
+					return err
+				}
+				walkers.GlobalCtx.ExcludeRegexp = excludeRegexp
 			}
 
 			err := walkers.Collect()

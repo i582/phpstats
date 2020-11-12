@@ -9,11 +9,11 @@ import (
 
 type Config struct {
 	Include      []string `yaml:"include"`
+	Exclude      []string `yaml:"exclude"`
 	Port         int64    `yaml:"port"`
 	CacheDir     string   `yaml:"cacheDir"`
 	DisableCache bool     `yaml:"disableCache"`
 	ProjectPath  string   `yaml:"projectPath"`
-	Exclude      []string `yaml:"exclude"`
 	Groups       []Group  `yaml:"groups"`
 	Extensions   []string `yaml:"extensions"`
 }

@@ -6,9 +6,20 @@ By default, the config looks like this.
 
 ```yaml
 # Directories and files for analysis relative to the configuration files directory.
-# By default, it is "."
+# By default, it is "./"
 include:
-  - "."
+  - "./"
+
+# Directories and files excluded from analysis.
+# Please note that for correct work, you need to add a slash at the end
+# so that only the necessary folders are excluded, and not all that have the same value in the path.
+#
+# For example:
+#    "src/utils" can exclude both the desired "src/utils" folder and the "src/utilsForMe" folder for example.
+#
+# By default, it is empty
+# exclude:
+#   - ""
 
 # The port on which the server will be launched
 # to interact with the analyzer from other programs.
