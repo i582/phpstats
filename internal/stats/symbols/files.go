@@ -27,6 +27,14 @@ func (f *Files) Len() int {
 	return len(f.Files)
 }
 
+func (f *Files) CountLines() int64 {
+	var count int64
+	for _, file := range f.Files {
+		count += file.CountLines
+	}
+	return count
+}
+
 func (f *Files) GetFullFileName(name string) ([]string, error) {
 	var res []string
 

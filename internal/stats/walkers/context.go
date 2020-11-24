@@ -28,6 +28,9 @@ type globalContext struct {
 	ProjectRoot   string
 	ExcludeRegexp *regexp.Regexp
 	BarLinting    *pb.ProgressBar
+
+	CountCommentLine        int64
+	CountAnonymousFunctions int64
 }
 
 func newGlobalContext() *globalContext {
@@ -86,6 +89,9 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta, filename string) {
 	if ctx.ExcludeRegexp != nil && ctx.ExcludeRegexp.MatchString(filepath.ToSlash(filename)) {
 		return
 	}
+
+	ctx.CountCommentLine += f.CountCommentLine
+	ctx.CountAnonymousFunctions += f.CountAnonymousFunctions
 
 	for _, file := range f.Files.Files {
 		f := symbols.NewFile(file.Path)

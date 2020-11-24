@@ -10,6 +10,9 @@ type FileMeta struct {
 	Funcs     *symbols.Functions
 	Files     *symbols.Files
 	Constants *symbols.Constants
+
+	CountCommentLine        int64
+	CountAnonymousFunctions int64
 }
 
 // NewFileMeta returns a new FileMeta instance with pre-allocated fields.

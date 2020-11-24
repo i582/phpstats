@@ -60,6 +60,142 @@ func (f *Functions) Len() int {
 	return len(f.Funcs)
 }
 
+func (f *Functions) CyclomaticComplexity() int64 {
+	var res int64
+	for _, fn := range f.Funcs {
+		res += fn.CyclomaticComplexity
+	}
+	return res
+}
+
+func (f *Functions) CountMagicNumbers() int64 {
+	var count int64
+	for _, fn := range f.Funcs {
+		count += fn.CountMagicNumbers
+	}
+	return count
+}
+
+func (f *Functions) MaxMinAvgMethodCyclomaticComplexity() (max, min, avg float64) {
+	return f.maxMinAvgCyclomaticComplexity(true, false)
+}
+
+func (f *Functions) MaxMinAvgFunctionsCyclomaticComplexity() (max, min, avg float64) {
+	return f.maxMinAvgCyclomaticComplexity(false, true)
+}
+
+func (f *Functions) maxMinAvgCyclomaticComplexity(onlyMethods, onlyFunctions bool) (max, min, avg float64) {
+	const maxValue = 100000.0
+	var count float64
+
+	max = 0
+	min = maxValue
+
+	for _, fn := range f.Funcs {
+		if onlyMethods && !fn.IsMethod() {
+			continue
+		}
+
+		if onlyFunctions && (fn.IsMethod() || fn.IsEmbeddedFunc()) {
+			continue
+		}
+
+		count += float64(fn.CyclomaticComplexity)
+
+		if float64(fn.CyclomaticComplexity) < min {
+			min = float64(fn.CyclomaticComplexity)
+		}
+
+		if float64(fn.CyclomaticComplexity) > max {
+			max = float64(fn.CyclomaticComplexity)
+		}
+	}
+
+	if min == maxValue {
+		min = 0
+	}
+
+	if onlyMethods && f.CountMethods() != 0 {
+		avg = count / float64(f.CountMethods())
+	} else if onlyFunctions && f.CountFunctions() != 0 {
+		avg = count / float64(f.CountMethods())
+	} else if f.Len() != 0 {
+		avg = count / float64(f.Len())
+	}
+
+	return max, min, avg
+}
+
+func (f *Functions) MaxMinAvgMethodCountMagicNumbers() (max, min, avg int64) {
+	return f.maxMinAvgCountMagicNumbers(true, false)
+}
+
+func (f *Functions) MaxMinAvgFunctionsCountMagicNumbers() (max, min, avg int64) {
+	return f.maxMinAvgCountMagicNumbers(false, true)
+}
+
+func (f *Functions) maxMinAvgCountMagicNumbers(onlyMethods, onlyFunctions bool) (max, min, avg int64) {
+	const maxValue = 100000
+	var count int64
+
+	max = 0
+	min = maxValue
+
+	for _, fn := range f.Funcs {
+		if onlyMethods && !fn.IsMethod() {
+			continue
+		}
+
+		if onlyFunctions && (fn.IsMethod() || fn.IsEmbeddedFunc()) {
+			continue
+		}
+
+		count += fn.CountMagicNumbers
+
+		if fn.CountMagicNumbers < min {
+			min = fn.CountMagicNumbers
+		}
+
+		if fn.CountMagicNumbers > max {
+			max = fn.CountMagicNumbers
+		}
+	}
+
+	if min == maxValue {
+		min = 0
+	}
+
+	if onlyMethods && f.CountMethods() != 0 {
+		avg = count / f.CountMethods()
+	} else if onlyFunctions && f.CountFunctions() != 0 {
+		avg = count / f.CountFunctions()
+	} else if f.Len() != 0 {
+		avg = count / int64(f.Len())
+	}
+
+	return max, min, avg
+}
+
+func (f *Functions) CountFunctions() int64 {
+	var count int64
+	for _, fn := range f.Funcs {
+		if !fn.IsMethod() && !fn.IsEmbeddedFunc() {
+			count++
+		}
+	}
+	return count
+}
+
+func (f *Functions) CountMethods() int64 {
+	var count int64
+	for _, fn := range f.Funcs {
+		if fn.IsMethod() {
+			count++
+		}
+	}
+	return count
+}
+
 func (f *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 	var res []FuncKey
 

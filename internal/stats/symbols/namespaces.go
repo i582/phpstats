@@ -21,6 +21,18 @@ func (n *Namespaces) Len() int {
 	return len(n.Namespaces)
 }
 
+func (n *Namespaces) Count() int64 {
+	var count int64
+	for _, namespace := range n.Namespaces {
+		count += namespace.CountChildNamespaces()
+	}
+	if len(n.Namespaces) == 0 {
+		return 0
+	}
+
+	return count
+}
+
 func (n *Namespaces) CreateNamespace(nsName string) *Namespace {
 	splitted := splitNsName(nsName)
 	ns, isNew := n.createNamespace(splitted, "")
@@ -174,6 +186,18 @@ func NewNamespace(name string, fullName string) *Namespace {
 		Classes:  NewClasses(),
 		Childs:   NewNamespaces(),
 	}
+}
+
+func (n *Namespace) CountChildNamespaces() int64 {
+	var count int64
+	for _, namespace := range n.Childs.Namespaces {
+		count += namespace.CountChildNamespaces()
+	}
+	if n.Childs.Len() == 0 {
+		return 1
+	}
+
+	return count
 }
 
 func joinNsName(parts []string) string {
