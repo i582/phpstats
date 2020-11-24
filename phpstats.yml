@@ -1,7 +1,7 @@
 # Directories and files for analysis relative to the configuration files directory.
 # By default, it is "."
 include:
- - "./"
+  - "./"
 
 # Directories and files excluded from analysis.
 # Please note that for correct work, you need to add a slash at the end
