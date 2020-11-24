@@ -22,7 +22,10 @@ func Collect() error {
 			}
 		}
 
-		return &blockIndexer{}
+		return &blockIndexer{
+			Ctx:  ctx,
+			Root: ctx.RootState()["vklints-root"].(*rootIndexer),
+		}
 	})
 
 	linter.RegisterRootCheckerWithCacher(GlobalCtx, func(ctx *linter.RootContext) linter.RootChecker {

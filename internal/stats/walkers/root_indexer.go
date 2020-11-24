@@ -8,6 +8,7 @@ import (
 	"github.com/VKCOM/noverify/src/ir/irutil"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
+	"github.com/VKCOM/noverify/src/php/parser/freefloating"
 	"github.com/VKCOM/noverify/src/solver"
 
 	"github.com/i582/phpstats/internal/stats/filemeta"
@@ -36,6 +37,14 @@ func (r *rootIndexer) AfterLeaveFile() {
 
 // AfterEnterNode describes the processing logic after entering the node.
 func (r *rootIndexer) AfterEnterNode(n ir.Node) {
+	if ffs := n.GetFreeFloating(); ffs != nil {
+		for _, cs := range *ffs {
+			for _, c := range cs {
+				r.handleComment(c)
+			}
+		}
+	}
+
 	switch n := n.(type) {
 	case *ir.ClassStmt:
 		r.handleClass(n)
@@ -44,6 +53,15 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 	case *ir.FunctionStmt:
 		r.handleFunction(n)
 	}
+}
+
+func (r *rootIndexer) handleComment(c freefloating.String) {
+	if c.StringType != freefloating.CommentType {
+		return
+	}
+
+	lines := strings.Count(c.Value, "\n")
+	r.Meta.CountCommentLine += int64(lines + 1)
 }
 
 func (r *rootIndexer) inVendor() bool {

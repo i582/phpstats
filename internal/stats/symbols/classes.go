@@ -81,6 +81,98 @@ func (c *Classes) Len() int {
 	return len(c.Classes)
 }
 
+func (c *Classes) CountClasses() int64 {
+	var count int64
+	for _, class := range c.Classes {
+		if !class.IsInterface && !class.IsAbstract {
+			count++
+		}
+	}
+	return count
+}
+
+func (c *Classes) CountAbstractClasses() int64 {
+	var count int64
+	for _, class := range c.Classes {
+		if class.IsAbstract {
+			count++
+		}
+	}
+	return count
+}
+
+func (c *Classes) CountIfaces() int64 {
+	var count int64
+	for _, class := range c.Classes {
+		if class.IsInterface {
+			count++
+		}
+	}
+	return count
+}
+
+func (c *Classes) MaxMinAvgCyclomaticComplexity() (max, min, avg float64) {
+	const maxValue = 10000000
+	var count float64
+
+	max = 0
+	min = maxValue
+
+	for _, class := range c.Classes {
+		countMN := class.Methods.CyclomaticComplexity()
+		count += float64(countMN)
+
+		if count < min {
+			min = count
+		}
+
+		if count > max {
+			max = count
+		}
+	}
+
+	if min == maxValue {
+		min = 0
+	}
+
+	if c.Len() != 0 {
+		avg = count / float64(c.Len())
+	}
+
+	return max, min, avg
+}
+
+func (c *Classes) MaxMinAvgCountMagicNumbers() (max, min, avg int64) {
+	const maxValue = 10000000
+	var count int64
+
+	max = 0
+	min = maxValue
+
+	for _, class := range c.Classes {
+		countMN := class.Methods.CountMagicNumbers()
+		count += countMN
+
+		if count < min {
+			min = count
+		}
+
+		if count > max {
+			max = count
+		}
+	}
+
+	if min == maxValue {
+		min = 0
+	}
+
+	if c.Len() != 0 {
+		avg = count / int64(c.Len())
+	}
+
+	return max, min, avg
+}
+
 func (c *Classes) GetFullClassName(name string) ([]string, error) {
 	var res []string
 
