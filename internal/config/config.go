@@ -8,19 +8,22 @@ import (
 )
 
 type Config struct {
-	Include      []string `yaml:"include"`
-	Exclude      []string `yaml:"exclude"`
-	Port         int64    `yaml:"port"`
-	CacheDir     string   `yaml:"cacheDir"`
-	DisableCache bool     `yaml:"disableCache"`
-	ProjectPath  string   `yaml:"projectPath"`
-	Groups       []Group  `yaml:"groups"`
-	Extensions   []string `yaml:"extensions"`
+	Include      []string  `yaml:"include"`
+	Exclude      []string  `yaml:"exclude"`
+	Port         int64     `yaml:"port"`
+	CacheDir     string    `yaml:"cacheDir"`
+	DisableCache bool      `yaml:"disableCache"`
+	ProjectPath  string    `yaml:"projectPath"`
+	UsePackages  bool      `yaml:"use-packages"`
+	Packages     *Packages `yaml:"packages"`
+	Extensions   []string  `yaml:"extensions"`
 }
 
-type Group struct {
-	Name      string
-	Namespace string
+type Packages []*Package
+
+type Package struct {
+	Name       string   `yaml:"name"`
+	Namespaces []string `yaml:"namespaces"`
 }
 
 func OpenConfig(path string) (*Config, error, error) {
@@ -36,6 +39,14 @@ func OpenConfig(path string) (*Config, error, error) {
 	}
 
 	return config, nil, nil
+}
+
+func (c *Config) AddPackagesToContext(packages *Packages) {
+	if !c.UsePackages {
+		return
+	}
+
+	*packages = *c.Packages
 }
 
 func (c *Config) ToCliArgs() []string {
@@ -64,4 +75,15 @@ func (c *Config) ToCliArgs() []string {
 	}
 
 	return args
+}
+
+func (p Packages) GetPackage(className string) (*Package, bool) {
+	for _, pack := range p {
+		for _, namespace := range pack.Namespaces {
+			if strings.HasPrefix(className, namespace) {
+				return pack, true
+			}
+		}
+	}
+	return nil, false
 }

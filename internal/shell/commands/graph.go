@@ -1,14 +1,22 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
-	"strconv"
+	"io/ioutil"
+	"log"
+	"path/filepath"
 
+	"github.com/i582/phpstats/internal/graph"
 	"github.com/i582/phpstats/internal/grapher"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats/walkers"
+	"github.com/i582/phpstats/internal/utils"
 )
+
+// main grapher
+var g = grapher.NewGrapher()
 
 func Graph() *shell.Executor {
 	graphFileExecutor := &shell.Executor{
@@ -19,7 +27,6 @@ func Graph() *shell.Executor {
 			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
-				Required:  true,
 				Help:      "output file",
 			},
 			&flags.Flag{
@@ -29,43 +36,38 @@ func Graph() *shell.Executor {
 				Default:   "5",
 			},
 			&flags.Flag{
-				Name: "-root",
+				Name: "--root",
 				Help: "only root require",
 			},
 			&flags.Flag{
-				Name: "-block",
+				Name: "--block",
 				Help: "only block require",
 			},
 			&flags.Flag{
-				Name: "-show",
-				Help: "show graph file in console",
+				Name: "--web",
+				Help: "show graph in browser",
 			},
 		),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			recursiveLevelValue := c.GetFlagValue("-r")
-			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
+			recursiveLevel := c.GetIntFlagValue("-r")
 
-			root := c.Flags.Contains("-root")
-			block := c.Flags.Contains("-block")
-			show := c.Flags.Contains("-show")
+			root := c.Flags.Contains("--root")
+			block := c.Flags.Contains("--block")
+			inBrowser := c.Flags.Contains("--web")
 
-			paths, err := walkers.GlobalCtx.Files.GetFullFileName(c.Args[0])
+			if !validateOutputPath(c, inBrowser) {
+				return
+			}
+
+			file, err := walkers.GlobalCtx.Files.GetFileByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			file, _ := walkers.GlobalCtx.Files.Get(paths[0])
-
-			g := grapher.NewGrapher()
-			graph := g.FileDeps(file, recursiveLevel, root, block)
-
-			handleGraphOutput(c, graph)
-
-			if show {
-				fmt.Println(graph)
-			}
+			graphData := g.FileDeps(file, recursiveLevel, root, block)
+			handleGraphOutputWithWeb(c, inBrowser, graphData)
 		},
 	}
 
@@ -77,7 +79,6 @@ func Graph() *shell.Executor {
 			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
-				Required:  true,
 				Help:      "output file",
 			},
 			&flags.Flag{
@@ -87,34 +88,54 @@ func Graph() *shell.Executor {
 				Default:   "5",
 			},
 			&flags.Flag{
-				Name: "-show",
-				Help: "show graph file in console",
+				Name: "--inheritance",
+				Help: "show the inheritance graph",
+			},
+			// TODO:
+			// &flags.Flag{
+			// 	Name: "--superglobals",
+			// 	Help: "show the superglobals deps",
+			// },
+			// &flags.Flag{
+			// 	Name: "-g",
+			// 	Help: "show classes in groups",
+			// },
+			&flags.Flag{
+				Name: "--web",
+				Help: "show graph in browser",
 			},
 		),
 		CountArgs: 1,
 		Aliases:   []string{"interface"},
 		Func: func(c *shell.Context) {
-			recursiveLevelValue := c.GetFlagValue("-r")
-			recursiveLevel, _ := strconv.ParseInt(recursiveLevelValue, 0, 64)
+			recursiveLevel := c.GetIntFlagValue("-r")
+			onlyInheritance := c.Flags.Contains("--inheritance")
+			onlySuperGlobals := c.Flags.Contains("--superglobals")
+			withGroups := c.Flags.Contains("-g")
+			inBrowser := c.Flags.Contains("--web")
 
-			show := c.Flags.Contains("-show")
+			if !validateOutputPath(c, inBrowser) {
+				return
+			}
 
-			classes, err := walkers.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			class, _ := walkers.GlobalCtx.Classes.Get(classes[0])
+			var graphData string
 
-			g := grapher.NewGrapher()
-			graph := g.ClassDeps(class, recursiveLevel)
-
-			handleGraphOutput(c, graph)
-
-			if show {
-				fmt.Println(graph)
+			switch {
+			case onlyInheritance:
+				graphData = g.ClassImplementsExtendsDeps(class, recursiveLevel)
+			case onlySuperGlobals:
+				graphData = g.ClassSuperGlobalsDeps(class)
+			default:
+				graphData = g.ClassDeps(class, recursiveLevel, withGroups)
 			}
+
+			handleGraphOutputWithWeb(c, inBrowser, graphData)
 		},
 	}
 
@@ -128,40 +149,35 @@ func Graph() *shell.Executor {
 			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
-				Required:  true,
 				Help:      "output file",
 			},
 			&flags.Flag{
-				Name: "-show",
-				Help: "show graph file in console",
+				Name:      "-r",
+				WithValue: true,
+				Help:      "recursive level",
+				Default:   "5",
+			},
+			&flags.Flag{
+				Name: "--web",
+				Help: "show graph in browser",
 			},
 		),
 		Func: func(c *shell.Context) {
-			show := c.Flags.Contains("-show")
+			recursiveLevel := c.GetIntFlagValue("-r")
+			inBrowser := c.Flags.Contains("--web")
 
-			output, err := c.ValidateFile("-o")
+			if !validateOutputPath(c, inBrowser) {
+				return
+			}
+
+			fun, err := walkers.GlobalCtx.Functions.GetClassByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
-			defer output.Close()
 
-			funcs, err := walkers.GlobalCtx.Functions.GetFullFuncName(c.Args[0])
-			if err != nil {
-				c.Error(err)
-				return
-			}
-
-			fun, _ := walkers.GlobalCtx.Functions.Get(funcs[0])
-
-			g := grapher.NewGrapher()
-			graph := g.FuncDeps(fun)
-
-			handleGraphOutput(c, graph)
-
-			if show {
-				fmt.Println(graph)
-			}
+			graphData := g.NewFuncDeps(fun, recursiveLevel)
+			handleGraphOutputWithWeb(c, inBrowser, graphData)
 		},
 	}
 
@@ -174,120 +190,28 @@ func Graph() *shell.Executor {
 			&flags.Flag{
 				Name:      "-o",
 				WithValue: true,
-				Required:  true,
 				Help:      "output file",
 			},
 			&flags.Flag{
-				Name: "-show",
-				Help: "show graph file in console",
+				Name: "--web",
+				Help: "show graph in browser",
 			},
 		),
 		Func: func(c *shell.Context) {
-			show := c.Flags.Contains("-show")
+			inBrowser := c.Flags.Contains("--web")
 
-			output, err := c.ValidateFile("-o")
+			if !validateOutputPath(c, inBrowser) {
+				return
+			}
+
+			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
-			defer output.Close()
 
-			classes, err := walkers.GlobalCtx.Classes.GetFullClassName(c.Args[0])
-			if err != nil {
-				c.Error(err)
-				return
-			}
-
-			class, _ := walkers.GlobalCtx.Classes.Get(classes[0])
-
-			g := grapher.NewGrapher()
-			graph := g.Lcom4(class)
-
-			handleGraphOutput(c, graph)
-
-			if show {
-				fmt.Println(graph)
-			}
-		},
-	}
-
-	graphNamespacesExecutor := &shell.Executor{
-		Name: "namespaces",
-		Help: "output graph with all namespaces",
-		Flags: flags.NewFlags(
-			&flags.Flag{
-				Name:      "-o",
-				WithValue: true,
-				Required:  true,
-				Help:      "output file",
-			},
-			&flags.Flag{
-				Name: "-show",
-				Help: "show graph file in console",
-			},
-		),
-		Func: func(c *shell.Context) {
-			show := c.Flags.Contains("-show")
-
-			output, err := c.ValidateFile("-o")
-			if err != nil {
-				c.Error(err)
-				return
-			}
-			defer output.Close()
-
-			g := grapher.NewGrapher()
-			graph := g.Namespaces(walkers.GlobalCtx.Namespaces)
-
-			handleGraphOutput(c, graph)
-
-			if show {
-				fmt.Println(graph)
-			}
-		},
-	}
-
-	graphNamespaceExecutor := &shell.Executor{
-		Name:      "namespace",
-		Help:      "output graph with namespace",
-		WithValue: true,
-		CountArgs: 1,
-		Flags: flags.NewFlags(
-			&flags.Flag{
-				Name:      "-o",
-				WithValue: true,
-				Required:  true,
-				Help:      "output file",
-			},
-			&flags.Flag{
-				Name: "-show",
-				Help: "show graph file in console",
-			},
-		),
-		Func: func(c *shell.Context) {
-			show := c.Flags.Contains("-show")
-
-			output, err := c.ValidateFile("-o")
-			if err != nil {
-				c.Error(err)
-				return
-			}
-			defer output.Close()
-
-			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
-			if !ok {
-				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
-				return
-			}
-
-			g := grapher.NewGrapher()
-			graph := g.Namespace(ns)
-
-			handleGraphOutput(c, graph)
-
-			if show {
-				fmt.Println(graph)
-			}
+			graphData := g.Lcom4(class)
+			handleGraphOutputWithWeb(c, inBrowser, graphData)
 		},
 	}
 
@@ -303,10 +227,68 @@ func Graph() *shell.Executor {
 	graphExecutor.AddExecutor(graphClassExecutor)
 	graphExecutor.AddExecutor(graphFuncExecutor)
 	graphExecutor.AddExecutor(graphLcom4Executor)
-	graphExecutor.AddExecutor(graphNamespacesExecutor)
-	graphExecutor.AddExecutor(graphNamespaceExecutor)
 
 	return graphExecutor
+}
+
+func validateOutputPath(c *shell.Context, inBrowser bool) bool {
+	if !inBrowser {
+		output, err := c.ValidateFile("-o")
+		if err != nil {
+			c.Error(err)
+			return false
+		}
+		output.Close()
+	}
+	return true
+}
+
+func handleGraphOutputWithWeb(c *shell.Context, inBrowser bool, graphData string) {
+	if inBrowser {
+		output, ok := c.Flags.Get("-o")
+		if !ok {
+			output = &flags.Flag{
+				Name: "-o",
+			}
+			c.Flags.Flags["-o"] = output
+		}
+		output.Value = filepath.Join(utils.DefaultGraphsDir(), "graph.svg")
+	}
+
+	handleGraphOutput(c, graphData)
+	transformSvgGraph(c)
+
+	if inBrowser {
+		err := utils.OpenFile("file:///" + c.GetFlagValue("-o"))
+		if err != nil {
+			log.Print("error open graph file:", err)
+		}
+	}
+}
+
+func transformSvgGraph(c *shell.Context) {
+	name := c.GetFlagValue("-o")
+	data, err := ioutil.ReadFile(name)
+	if err == nil {
+		needStr := `xmlns:xlink="http://www.w3.org/1999/xlink">`
+		startGraphData := bytes.Index(data, []byte(needStr))
+		startGraphData += len(needStr)
+		startSvg := bytes.Index(data, []byte("<svg ")) + 5
+		startViewBox := bytes.Index(data, []byte(" viewBox"))
+		startEndSvg := bytes.Index(data, []byte("</svg>"))
+		var newData []byte
+		newData = append(newData, data[0:startSvg]...)
+		newData = append(newData, []byte("width=\"100%\" height=\"100%\"")...)
+		newData = append(newData, data[startViewBox:startGraphData]...)
+		newData = append(newData, []byte(graph.WebAdditionHeader)...)
+		newData = append(newData, data[startGraphData:startEndSvg]...)
+		newData = append(newData, []byte(graph.WebAdditionFooter)...)
+		newData = append(newData, data[startEndSvg:]...)
+		err := ioutil.WriteFile(name, newData, 0677)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func handleGraphOutput(c *shell.Context, graph string) {

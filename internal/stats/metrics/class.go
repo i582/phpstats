@@ -31,7 +31,7 @@ func LackOfCohesionInMethods(c *symbols.Class) (float64, bool) {
 
 	var usedSum int
 	for _, field := range c.Fields.Fields {
-		usedSum += len(field.Used)
+		usedSum += field.Used.Len()
 	}
 
 	allFieldMethod := c.Fields.Len() * c.Methods.Len()
@@ -73,9 +73,9 @@ func LackOfCohesionInMethods4(c *symbols.Class) int64 {
 	}
 
 	for _, field := range c.Fields.Fields {
-		functions := make([]*symbols.Function, 0, len(field.Used))
+		functions := make([]*symbols.Function, 0, field.Used.Len())
 
-		for used := range field.Used {
+		for _, used := range field.Used.Funcs {
 			functions = append(functions, used)
 		}
 

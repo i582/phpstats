@@ -46,6 +46,8 @@ func (r *rootIndexer) AfterEnterNode(n ir.Node) {
 	}
 
 	switch n := n.(type) {
+	case *ir.TraitStmt:
+		r.handleTrait(n)
 	case *ir.ClassStmt:
 		r.handleClass(n)
 	case *ir.InterfaceStmt:
@@ -94,6 +96,32 @@ func (r *rootIndexer) handleFunction(n *ir.FunctionStmt) {
 	r.Meta.Funcs.Add(fn)
 }
 
+func (r *rootIndexer) handleTrait(n *ir.TraitStmt) {
+	curFileName := r.Ctx.Filename()
+
+	className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
+		Value: n.TraitName.Value,
+	})
+	if !ok {
+		return
+	}
+
+	curFile, ok := r.Meta.Files.Get(curFileName)
+	if !ok {
+		log.Fatalf("file not found")
+	}
+
+	class := symbols.NewClass(className, curFile)
+	class.IsVendor = r.inVendor()
+	class.IsTrait = true
+
+	r.Meta.Classes.Add(class)
+
+	for _, n := range n.Stmts {
+		r.handleClassInterfaceMethodsConstants(class, n)
+	}
+}
+
 func (r *rootIndexer) handleInterface(n *ir.InterfaceStmt) {
 	curFileName := r.Ctx.Filename()
 
@@ -110,7 +138,7 @@ func (r *rootIndexer) handleInterface(n *ir.InterfaceStmt) {
 	}
 
 	iface := symbols.NewInterface(ifaceName, curFile)
-	iface.Vendor = r.inVendor()
+	iface.IsVendor = r.inVendor()
 	r.Meta.Classes.Add(iface)
 
 	for _, n := range n.Stmts {
@@ -142,7 +170,7 @@ func (r *rootIndexer) handleClass(n *ir.ClassStmt) {
 
 	class := symbols.NewClass(className, curFile)
 	class.IsAbstract = isAbstract
-	class.Vendor = r.inVendor()
+	class.IsVendor = r.inVendor()
 
 	r.Meta.Classes.Add(class)
 
@@ -171,7 +199,7 @@ func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class,
 
 	case *ir.ClassConstListStmt:
 		for _, c := range n.Consts {
-			r.Meta.Constants.Add(symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, class.Name))
+			r.Meta.Constants.Add(symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, class))
 		}
 	}
 }

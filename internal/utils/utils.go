@@ -2,8 +2,10 @@ package utils
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/VKCOM/noverify/src/constfold"
@@ -61,7 +63,11 @@ func ResolveRequirePath(st *meta.ClassParseState, projectPath string, e ir.Node)
 	if os.PathSeparator == '/' {
 		pathBegin = `/`
 	}
-	// "/www/" is our include_path.
+
+	if !strings.HasSuffix(projectPath, `/`) {
+		projectPath = projectPath + `/`
+	}
+
 	fullName := pathBegin + projectPath + path
 	clean := filepath.Clean(fullName)
 
@@ -76,12 +82,40 @@ func GenIndent(level int) string {
 	return res
 }
 
+func IsEmbeddedConstant(name string) bool {
+	name = strings.ToLower(name)
+	return name == "null" || name == "true" || name == "false"
+}
+
+func IsSuperGlobal(name string) bool {
+	name = strings.ToLower(name)
+	return name == "GLOBALS" ||
+		name == "_SERVER" ||
+		name == "_GET" ||
+		name == "_POST" ||
+		name == "_REQUEST" ||
+		name == "_COOKIE" ||
+		name == "_FILES" ||
+		name == "_SESSION" ||
+		name == "_ENV"
+}
+
 func DefaultCacheDir() string {
 	defaultCacheDir, err := os.UserCacheDir()
 	if err != nil {
 		defaultCacheDir = ""
 	} else {
 		defaultCacheDir = filepath.Join(defaultCacheDir, "phpstats")
+	}
+	return defaultCacheDir
+}
+
+func DefaultGraphsDir() string {
+	defaultCacheDir, err := os.UserCacheDir()
+	if err != nil {
+		defaultCacheDir = ""
+	} else {
+		defaultCacheDir = filepath.Join(defaultCacheDir, "graphs")
 	}
 	return defaultCacheDir
 }
@@ -94,4 +128,21 @@ var NameToIdentifierRegexp = regexp.MustCompile("[^a-zA-Z0-9]")
 
 func NameToIdentifier(str string) string {
 	return NameToIdentifierRegexp.ReplaceAllString(str, "_")
+}
+
+func OpenFile(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }
