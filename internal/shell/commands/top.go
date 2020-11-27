@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"os"
 	"sort"
 	"strconv"
 
@@ -18,7 +17,7 @@ func Top() *shell.Executor {
 	topFuncsExecutor := &shell.Executor{
 		Name:    "funcs",
 		Aliases: []string{"methods"},
-		Help:    "show top of functions or methods",
+		Help:    "shows top of functions or methods",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name: "-by-deps",
@@ -57,8 +56,8 @@ func Top() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
@@ -150,23 +149,15 @@ func Top() *shell.Executor {
 
 			allFuncs = allFuncs[:count]
 
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonFunctionsRepr(allFuncs)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, fn := range allFuncs {
 					data := representator.GetStringFunctionRepr(fn)
@@ -179,7 +170,7 @@ func Top() *shell.Executor {
 	topClassesExecutor := &shell.Executor{
 		Name:    "classes",
 		Aliases: []string{"interfaces"},
-		Help:    "show top of classes or interfaces",
+		Help:    "shows top of classes or interfaces",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name: "-by-aff",
@@ -226,8 +217,8 @@ func Top() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
@@ -332,23 +323,15 @@ func Top() *shell.Executor {
 
 			allClasses = allClasses[:count]
 
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(allClasses)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, class := range allClasses {
 					data := representator.GetStringClassRepr(class)
@@ -360,7 +343,7 @@ func Top() *shell.Executor {
 
 	topExecutor := &shell.Executor{
 		Name:  "top",
-		Help:  "shows top of",
+		Help:  "shows top",
 		Flags: flags.NewFlags(),
 		Func: func(c *shell.Context) {
 			c.ShowHelpPage()

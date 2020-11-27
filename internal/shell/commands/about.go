@@ -13,7 +13,7 @@ func About() *shell.Executor {
 		Help:  "shows information about phpstats",
 		Flags: flags.NewFlags(),
 		Func: func(c *shell.Context) {
-			fmt.Print(`About PHPStats v0.0.1
+			fmt.Print(`About PHPStats v0.0.3
 
 PHPStats is a utility for collecting project statistics and building 
 dependency graphs for PHP, that allows you to find places in the code 

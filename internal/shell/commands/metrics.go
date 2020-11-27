@@ -10,7 +10,7 @@ import (
 func Metrics() *shell.Executor {
 	metricsExecutor := &shell.Executor{
 		Name:  "metrics",
-		Help:  "shows information about metrics",
+		Help:  "shows referential information about the metrics being collected",
 		Flags: flags.NewFlags(),
 		Func: func(c *shell.Context) {
 			fmt.Print(`A brief description of the metrics.

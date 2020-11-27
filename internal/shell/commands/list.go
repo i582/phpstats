@@ -3,8 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
@@ -15,7 +13,7 @@ import (
 func List() *shell.Executor {
 	listFuncExecutor := &shell.Executor{
 		Name: "funcs",
-		Help: "show list of functions",
+		Help: "shows list of functions",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -34,38 +32,27 @@ func List() *shell.Executor {
 				Help: "show embedded functions",
 			},
 			&flags.Flag{
-				Name: "--output",
-				Help: "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
+				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			countValue := c.GetFlagValue("-c")
-			count, _ := strconv.ParseInt(countValue, 0, 64)
-
-			offsetValue := c.GetFlagValue("-o")
-			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
 
 			withEmbeddedFuncs := c.Flags.Contains("-e")
-
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
 			funcs := walkers.GlobalCtx.Functions.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, fn := range funcs {
 					data := representator.GetStringFunctionRepr(fn)
@@ -77,7 +64,7 @@ func List() *shell.Executor {
 
 	listMethodExecutor := &shell.Executor{
 		Name: "methods",
-		Help: "show list of methods",
+		Help: "shows list of methods",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -92,37 +79,26 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			countValue := c.GetFlagValue("-c")
-			count, _ := strconv.ParseInt(countValue, 0, 64)
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
 
-			offsetValue := c.GetFlagValue("-o")
-			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
-
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
 			funcs := walkers.GlobalCtx.Functions.GetAll(true, false, false, count, offset, true, false)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, fn := range funcs {
 					data := representator.GetStringFunctionRepr(fn)
@@ -134,7 +110,7 @@ func List() *shell.Executor {
 
 	listFilesExecutor := &shell.Executor{
 		Name: "files",
-		Help: "show list of files",
+		Help: "shows list of files",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -153,39 +129,27 @@ func List() *shell.Executor {
 				Help: "show full information",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
 			full := c.Flags.Contains("-f")
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
 
-			countValue := c.GetFlagValue("-c")
-			count, _ := strconv.ParseInt(countValue, 0, 64)
-
-			offsetValue := c.GetFlagValue("-o")
-			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
-
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
 			files := walkers.GlobalCtx.Files.GetAll(count, offset, true)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonFilesRepr(files)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, file := range files {
 					var data string
@@ -202,7 +166,7 @@ func List() *shell.Executor {
 
 	listClassesExecutor := &shell.Executor{
 		Name: "classes",
-		Help: "show list of classes",
+		Help: "shows list of classes",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -217,37 +181,26 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			countValue := c.GetFlagValue("-c")
-			count, _ := strconv.ParseInt(countValue, 0, 64)
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
 
-			offsetValue := c.GetFlagValue("-o")
-			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
-
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
 			classes := walkers.GlobalCtx.Classes.GetAllClasses(count, offset, true)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(classes)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, class := range classes {
 					data := representator.GetStringClassRepr(class)
@@ -259,7 +212,7 @@ func List() *shell.Executor {
 
 	listInterfaceExecutor := &shell.Executor{
 		Name: "interfaces",
-		Help: "show list of interfaces",
+		Help: "shows list of interfaces",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -278,37 +231,26 @@ func List() *shell.Executor {
 				Help: "show full information",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			countValue := c.GetFlagValue("-c")
-			count, _ := strconv.ParseInt(countValue, 0, 64)
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
 
-			offsetValue := c.GetFlagValue("-o")
-			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
-
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
+			toJson, jsonFile := handleOutputInJson(c)
 
 			ifaces := walkers.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
 
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(ifaces)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, iface := range ifaces {
 					data := representator.GetStringClassRepr(iface)
@@ -320,7 +262,7 @@ func List() *shell.Executor {
 
 	listNamespacesByLevelExecutor := &shell.Executor{
 		Name: "namespaces",
-		Help: "show list of namespaces on specific level",
+		Help: "shows list of namespaces on specific level",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -345,48 +287,27 @@ func List() *shell.Executor {
 				Help: "show full information",
 			},
 			&flags.Flag{
-				Name:      "--output",
-				Help:      "output json file",
+				Name:      "--json",
+				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			countValue := c.GetFlagValue("-c")
-			count, _ := strconv.ParseInt(countValue, 0, 64)
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
+			level := c.GetIntFlagValue("-l")
 
-			offsetValue := c.GetFlagValue("-o")
-			offset, _ := strconv.ParseInt(offsetValue, 0, 64)
+			toJson, jsonFile := handleOutputInJson(c)
 
-			levelValue := c.GetFlagValue("-l")
-			level, _ := strconv.ParseInt(levelValue, 0, 64)
+			nss := walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level, count, offset)
 
-			var f *os.File
-			output := c.GetFlagValue("--output")
-			if output != "" {
-				var err error
-				f, err = c.ValidateFile("--output")
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-
-			nss := walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level)
-
-			if count+offset < int64(len(nss)) {
-				nss = nss[:count+offset]
-			}
-
-			if offset < int64(len(nss)) {
-				nss = nss[offset:]
-			}
-
-			if f != nil {
+			if toJson {
 				data, err := representator.GetPrettifyJsonNamespacesRepr(nss)
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Fprintln(f, data)
-				f.Close()
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
 			} else {
 				for _, ns := range nss {
 					data := representator.GetStringNamespaceRepr(ns)
@@ -398,7 +319,7 @@ func List() *shell.Executor {
 
 	listExecutor := &shell.Executor{
 		Name: "list",
-		Help: "list of",
+		Help: "shows list",
 		Func: func(c *shell.Context) {
 			c.ShowHelpPage()
 		},

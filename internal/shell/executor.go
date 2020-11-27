@@ -2,6 +2,7 @@ package shell
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/i582/phpstats/internal/shell/flags"
@@ -42,12 +43,45 @@ func (e *Executor) HelpPage(level int) string {
 	res += fmt.Sprintf("%s  %s %s %-*s%s\n", utils.GenIndent(level), e.Name, aliases, 35-len(utils.GenIndent(level))-len(e.Name)-len(aliases)-1, withValueSpan, e.Help)
 
 	if e.Flags != nil {
-		for _, flag := range e.Flags.Flags {
+		execFlags := make([]*flags.Flag, 0, len(e.SubExecs))
+		for _, f := range e.Flags.Flags {
+			execFlags = append(execFlags, f)
+		}
+		sort.Slice(execFlags, func(i, j int) bool {
+			if execFlags[i].WithValue && !execFlags[j].WithValue {
+				return true
+			}
+			if !execFlags[i].WithValue && execFlags[j].WithValue {
+				return false
+			}
+
+			if strings.Contains(execFlags[i].Name, "--") && !strings.Contains(execFlags[j].Name, "--") {
+				return false
+			}
+			if !strings.Contains(execFlags[i].Name, "--") && strings.Contains(execFlags[j].Name, "--") {
+				return true
+			}
+			if strings.Contains(execFlags[i].Name, "--") && strings.Contains(execFlags[j].Name, "--") {
+				return execFlags[i].Name < execFlags[j].Name
+			}
+
+			return execFlags[i].Name < execFlags[j].Name
+		})
+
+		for _, flag := range execFlags {
 			res += fmt.Sprintf("%s    %s\n", utils.GenIndent(level), flag)
 		}
 	}
 
+	execs := make([]*Executor, 0, len(e.SubExecs))
 	for _, e := range e.SubExecs {
+		execs = append(execs, e)
+	}
+	sort.Slice(execs, func(i, j int) bool {
+		return execs[i].Name < execs[j].Name
+	})
+
+	for _, e := range execs {
 		res += fmt.Sprintln(e.HelpPage(level + 1))
 	}
 
@@ -101,7 +135,6 @@ func (e *Executor) Execute(ctx *Context) {
 		return
 	}
 
-	fmt.Println()
 	e.Func(ctx)
 }
 

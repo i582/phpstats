@@ -12,44 +12,36 @@ import (
 func Info() *shell.Executor {
 	classInfoExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "info about class or interface",
+		Help:      "show info about a specific class or interface",
 		WithValue: true,
 		Aliases:   []string{"interface"},
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			classNames, err := walkers.GlobalCtx.Classes.GetFullClassName(c.Args[0])
+			fmt.Printf("Show info about %s class\n\n", c.Args[0])
+
+			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			var className string
-
-			if len(classNames) > 1 {
-				// choice := c.MultiChoice(classNames, "Какой класс вы имели ввиду?")
-				// className = classNames[choice]
-				className = classNames[0]
-			} else {
-				className = classNames[0]
-			}
-
-			class, _ := walkers.GlobalCtx.Classes.Get(className)
 			data := representator.GetStringClassRepr(class)
-
 			fmt.Println(data)
 		},
 	}
 
 	funcInfoExecutor := &shell.Executor{
 		Name:      "func",
-		Help:      "info about function or method",
+		Help:      "shows info about a specific function or method",
 		WithValue: true,
 		Aliases:   []string{"method"},
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fn, err := walkers.GlobalCtx.GetFunction(c.Args[0])
+			fmt.Printf("Show info about %s function\n\n", c.Args[0])
+
+			fn, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -62,56 +54,34 @@ func Info() *shell.Executor {
 
 	fileInfoExecutor := &shell.Executor{
 		Name:      "file",
-		Help:      "info about file",
+		Help:      "shows info about a specific file",
 		WithValue: true,
-		Flags: flags.NewFlags(
-			&flags.Flag{
-				Name: "-f",
-				Help: "output full information",
-			},
-		),
+		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			full := c.Flags.Contains("-f")
+			fmt.Printf("Show info about %s file\n\n", c.Args[0])
 
-			patches, err := walkers.GlobalCtx.Files.GetFullFileName(c.Args[0])
+			file, err := walkers.GlobalCtx.Files.GetFileByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			var patch string
-
-			if len(patches) > 1 {
-				// choice := c.MultiChoice(patches, "Какой файл вы имели ввиду?")
-				// patch = patches[choice]
-				patch = patches[0]
-			} else {
-				patch = patches[0]
-			}
-
-			file, _ := walkers.GlobalCtx.Files.Get(patch)
-
-			var data string
-			if full {
-				data = representator.GetStringFileRepr(file)
-			} else {
-				data = representator.GetShortStringFileRepr(file)
-			}
+			data := representator.GetStringFileRepr(file)
 			fmt.Println(data)
 		},
 	}
 
 	namespaceInfoExecutor := &shell.Executor{
 		Name:      "namespace",
-		Help:      "info about namespace",
+		Help:      "shows info about a specific namespace",
 		WithValue: true,
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			namespace := c.Args[0]
+			fmt.Printf("Show info about %s namespace\n\n", c.Args[0])
 
-			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(namespace)
+			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
 			if !ok {
 				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
 				return
@@ -124,7 +94,7 @@ func Info() *shell.Executor {
 
 	infoExecutor := &shell.Executor{
 		Name: "info",
-		Help: "info about",
+		Help: "shows info",
 		Func: func(c *shell.Context) {
 			c.ShowHelpPage()
 		},

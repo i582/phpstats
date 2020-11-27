@@ -19,7 +19,7 @@ func percent(x, y int64) float64 {
 func Brief() *shell.Executor {
 	briefExecutor := &shell.Executor{
 		Name:  "brief",
-		Help:  "shows general information",
+		Help:  "shows brief information about the project",
 		Flags: flags.NewFlags(),
 		Func: func(c *shell.Context) {
 			countLines := walkers.GlobalCtx.Files.CountLines()

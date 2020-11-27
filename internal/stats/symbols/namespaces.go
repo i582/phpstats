@@ -134,12 +134,22 @@ func (n *Namespaces) Get(name string) (*Namespace, bool) {
 	return ns, ok
 }
 
-func (n *Namespaces) GetNamespacesWithSpecificLevel(level int64) []*Namespace {
+func (n *Namespaces) GetNamespacesWithSpecificLevel(level int64, count, offset int64) []*Namespace {
 	if level < 0 {
 		return nil
 	}
 
-	return n.getNamespacesWithSpecificLevel(0, level)
+	nss := n.getNamespacesWithSpecificLevel(0, level)
+
+	if count+offset < int64(len(nss)) {
+		nss = nss[:count+offset]
+	}
+
+	if offset < int64(len(nss)) {
+		nss = nss[offset:]
+	}
+
+	return nss
 }
 
 func (n *Namespaces) getNamespacesWithSpecificLevel(curLevel int64, level int64) []*Namespace {

@@ -13,7 +13,7 @@ func Relation() *shell.Executor {
 	relationFuncsExecutor := &shell.Executor{
 		Name:    "funcs",
 		Aliases: []string{"methods"},
-		Help:    "show relation between functions or methods",
+		Help:    "shows the relationship between two specific functions or methods",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "--parent",
@@ -30,13 +30,13 @@ func Relation() *shell.Executor {
 			parentName := c.GetFlagValue("--parent")
 			childName := c.GetFlagValue("--child")
 
-			parentFun, err := walkers.GlobalCtx.GetFunction(parentName)
+			parentFun, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(parentName)
 			if err != nil {
 				c.Error(err)
 				return
 			}
 
-			childFun, err := walkers.GlobalCtx.GetFunction(childName)
+			childFun, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(childName)
 			if err != nil {
 				c.Error(err)
 				return
@@ -69,7 +69,7 @@ func Relation() *shell.Executor {
 
 	relationExecutor := &shell.Executor{
 		Name:  "relation",
-		Help:  "shows relation of",
+		Help:  "shows relation",
 		Flags: flags.NewFlags(),
 		Func: func(c *shell.Context) {
 			c.ShowHelpPage()

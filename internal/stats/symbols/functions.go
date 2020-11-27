@@ -196,7 +196,7 @@ func (f *Functions) CountMethods() int64 {
 	return count
 }
 
-func (f *Functions) GetClassByPartOfName(name string) (*Function, error) {
+func (f *Functions) GetFunctionByPartOfName(name string) (*Function, error) {
 	funcs, err := f.GetFullFuncName(name)
 	if err != nil {
 		return nil, err

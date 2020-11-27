@@ -70,8 +70,9 @@ func NewShell() *Shell {
 	})
 
 	shell.AddExecutor(&Executor{
-		Name: "exit",
-		Help: "exit the program",
+		Name:    "exit",
+		Aliases: []string{"quit"},
+		Help:    "exit the program",
 		Func: func(c *Context) {
 			shell.Active = false
 		},

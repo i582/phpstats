@@ -21,7 +21,7 @@ var g = grapher.NewGrapher()
 func Graph() *shell.Executor {
 	graphFileExecutor := &shell.Executor{
 		Name:      "file",
-		Help:      "output dependency graph for file",
+		Help:      "building dependency graph for file",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -73,7 +73,7 @@ func Graph() *shell.Executor {
 
 	graphClassExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "output dependency graph for class or interface",
+		Help:      "building dependency graph for class or interface",
 		WithValue: true,
 		Flags: flags.NewFlags(
 			&flags.Flag{
@@ -141,7 +141,7 @@ func Graph() *shell.Executor {
 
 	graphFuncExecutor := &shell.Executor{
 		Name:      "func",
-		Help:      "output dependency graph for function or method",
+		Help:      "building dependency graph for function or method",
 		WithValue: true,
 		CountArgs: 1,
 		Aliases:   []string{"method"},
@@ -170,7 +170,7 @@ func Graph() *shell.Executor {
 				return
 			}
 
-			fun, err := walkers.GlobalCtx.Functions.GetClassByPartOfName(c.Args[0])
+			fun, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -183,7 +183,7 @@ func Graph() *shell.Executor {
 
 	graphLcom4Executor := &shell.Executor{
 		Name:      "lcom4",
-		Help:      "output lcom4 connected class components",
+		Help:      "building a graph lcom4 of connected class components",
 		WithValue: true,
 		CountArgs: 1,
 		Flags: flags.NewFlags(
@@ -217,7 +217,7 @@ func Graph() *shell.Executor {
 
 	graphExecutor := &shell.Executor{
 		Name: "graph",
-		Help: "dependencies graph view in svg",
+		Help: "building graphs",
 		Func: func(c *shell.Context) {
 			c.ShowHelpPage()
 		},
