@@ -1,6 +1,7 @@
 package shell
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -182,12 +183,11 @@ func (e Executor) getSuggests(commands []string) []prompt.Suggest {
 	} else {
 		return e.getSuggests(commands[1:])
 	}
-
-	return nil
 }
 
 func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
-	return s.Execs.GetSuggests(d.CurrentLine())
+	// return s.Execs.GetSuggests(d.CurrentLine())
+	return nil
 }
 
 func (s *Shell) executor(in string) {
@@ -218,11 +218,7 @@ func (s *Shell) executor(in string) {
 	})
 }
 
-func (s *Shell) Run() {
-	// reader := bufio.NewReader(os.Stdin)
-
-	fmt.Println("Entering interactive mode (type \"help\" for commands)")
-
+func (s *Shell) ImprovedShell() {
 	p := prompt.New(
 		s.executor,
 		s.completer,
@@ -231,45 +227,54 @@ func (s *Shell) Run() {
 		prompt.OptionSuggestionTextColor(prompt.DarkGray),
 		prompt.OptionSelectedSuggestionBGColor(prompt.DarkGray),
 		prompt.OptionSelectedSuggestionTextColor(prompt.White),
-
+		prompt.OptionPrefixTextColor(prompt.Yellow),
 		prompt.OptionDescriptionBGColor(prompt.DarkGray),
 		prompt.OptionDescriptionTextColor(prompt.White),
 		prompt.OptionSelectedDescriptionBGColor(prompt.DarkGray),
 		prompt.OptionSelectedDescriptionTextColor(prompt.White),
 	)
 	p.Run()
-	//
-	// for s.Active {
-	// 	color.Yellow.Print(`>>> `)
-	// 	ln, _, err := reader.ReadLine()
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	line := string(ln)
-	// 	line = strings.TrimSpace(line)
-	// 	if line == "" {
-	// 		continue
-	// 	}
-	//
-	// 	tokens := strings.FieldsFunc(line, func(r rune) bool {
-	// 		return r == '=' || r == ' '
-	// 	})
-	// 	if len(tokens) == 0 {
-	// 		continue
-	// 	}
-	//
-	// 	command := tokens[0]
-	//
-	// 	e, has := s.Execs[command]
-	// 	if !has {
-	// 		s.Error(fmt.Sprintf("command %s not found", command))
-	// 		continue
-	// 	}
-	//
-	// 	e.Execute(&Context{
-	// 		Args:  tokens[1:],
-	// 		Flags: e.Flags,
-	// 		Exec:  e,
-	// 	})
-	// }
+}
+
+func (s *Shell) OldShell() {
+	reader := bufio.NewReader(os.Stdin)
+
+	for s.Active {
+		color.Yellow.Print(`>>> `)
+		ln, _, err := reader.ReadLine()
+		if err != nil {
+			panic(err)
+		}
+		line := string(ln)
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		tokens := strings.FieldsFunc(line, func(r rune) bool {
+			return r == '=' || r == ' '
+		})
+		if len(tokens) == 0 {
+			continue
+		}
+
+		command := tokens[0]
+
+		e, has := s.Execs[command]
+		if !has {
+			s.Error(fmt.Sprintf("command %s not found", command))
+			continue
+		}
+
+		e.Execute(&Context{
+			Args:  tokens[1:],
+			Flags: e.Flags,
+			Exec:  e,
+		})
+	}
+}
+
+func (s *Shell) Run() {
+	fmt.Println("Entering interactive mode (type \"help\" for commands)")
+	s.ImprovedShell()
 }
