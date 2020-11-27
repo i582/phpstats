@@ -13,6 +13,7 @@ To create a graph in the internal interactive shell, use the `graph` command, wh
 * [Function or method dependencies](#function-or-method-dependencies)
 * [Links within a class (or graph for the LCOM 4 metric)](#links-within-a-class-or-graph-for-the-lcom-4-metric)
 * [Links between files](#links-between-files)
+* [Namespace graph](#namespace-graph)
 
 ### Class (or interface) dependencies
 
@@ -125,3 +126,22 @@ The command can also accept flags:
 5. `--web` — flag, when set, the graph will be displayed in the browser with the ability to move and scale the graph.
 
 If none of the flags (`--root`, `--block`) is specified, then by default all links will be displayed.
+
+## Namespace graph
+
+Example ([svg](./namespace_graph.svg)):
+
+![](./namespace_graph_preview.png)
+
+Contains the relationships between namespaces and their child namespaces.
+
+To get a graph, use the `graph namespace` command.
+
+The command takes one argument, the **name of the namespace**.
+
+The command can also accept flags:
+
+1. `-o` — name of the file to which the graph will be saved;
+2. `-r` — the level of nesting that is required (value 0 displays only the closest children, 1 — also displays all the closest children for the closest children, and so on);
+3. `--web` — flag, when set, the graph will be displayed in the browser with the ability to move and scale the graph.
+

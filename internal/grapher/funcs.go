@@ -7,7 +7,7 @@ import (
 	"github.com/i582/phpstats/internal/utils"
 )
 
-func (g *Grapher) NewFuncDeps(f *symbols.Function, maxRecursion int64) string {
+func (g *Grapher) FuncDeps(f *symbols.Function, maxRecursion int64) string {
 	graphName := "GraphFor_" + utils.NameToIdentifier(f.Name.String())
 	functionGraph := &graph.Graph{
 		Name:       graphName,

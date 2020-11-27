@@ -28,6 +28,13 @@ func TemplateExtendEdgeStyle() graph.EdgeStyles {
 	}
 }
 
+func TemplateNamespaceConnectionEdgeStyle() graph.EdgeStyles {
+	return graph.EdgeStyles{
+		ArrowTail: "empty",
+		Color:     DefaultEdgeColor,
+	}
+}
+
 func TemplateClassConnectionEdgeStyle() graph.EdgeStyles {
 	return graph.EdgeStyles{
 		ArrowTail: "empty",
