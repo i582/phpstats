@@ -11,6 +11,7 @@ import (
 	"github.com/VKCOM/noverify/src/meta"
 	"github.com/cheggaaa/pb/v3"
 
+	"github.com/i582/phpstats/internal/config"
 	"github.com/i582/phpstats/internal/stats/filemeta"
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
@@ -24,6 +25,8 @@ type globalContext struct {
 	Files      *symbols.Files
 	Constants  *symbols.Constants
 	Namespaces *symbols.Namespaces
+
+	Packages *config.Packages
 
 	ProjectRoot   string
 	ExcludeRegexp *regexp.Regexp
@@ -40,6 +43,7 @@ func newGlobalContext() *globalContext {
 		Files:      symbols.NewFiles(),
 		Constants:  symbols.NewConstants(),
 		Namespaces: symbols.NewNamespaces(),
+		Packages:   &config.Packages{},
 	}
 }
 
@@ -111,11 +115,13 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta, filename string) {
 			cl = symbols.NewInterface(class.Name, file)
 		} else if class.IsAbstract {
 			cl = symbols.NewAbstractClass(class.Name, file)
+		} else if class.IsTrait {
+			cl = symbols.NewTrait(class.Name, file)
 		} else {
 			cl = symbols.NewClass(class.Name, file)
 		}
 
-		cl.Vendor = class.Vendor
+		cl.IsVendor = class.IsVendor
 
 		ctx.Classes.Add(cl)
 	}
@@ -141,6 +147,27 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta, filename string) {
 	if f.Constants != nil {
 		for _, constant := range f.Constants.Constants {
 			ctx.Constants.Add(constant)
+
+			var cl *symbols.Class
+
+			file, ok := ctx.Files.Get(constant.Class.File.Path)
+			if !ok {
+				log.Print("file not found")
+			}
+
+			if constant.Class.IsInterface {
+				cl = symbols.NewInterface(constant.Class.Name, file)
+			} else if constant.Class.IsAbstract {
+				cl = symbols.NewAbstractClass(constant.Class.Name, file)
+			} else if constant.Class.IsTrait {
+				cl = symbols.NewTrait(constant.Class.Name, file)
+			} else {
+				cl = symbols.NewClass(constant.Class.Name, file)
+			}
+
+			cl.IsVendor = constant.Class.IsVendor
+
+			constant.Class = cl
 		}
 	}
 }

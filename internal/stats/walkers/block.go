@@ -1,6 +1,8 @@
 package walkers
 
 import (
+	"path/filepath"
+
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
 	"github.com/VKCOM/noverify/src/meta"
@@ -16,9 +18,18 @@ type blockChecker struct {
 	Root *rootChecker
 }
 
+func (b *blockChecker) EnterNode(n ir.Node) bool {
+	b.AfterEnterNode(n)
+	return true
+}
+
+func (b *blockChecker) LeaveNode(ir.Node) {}
+
 // AfterEnterNode describes the processing logic after entering the node.
 func (b *blockChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
+	case *ir.Argument:
+		n.Expr.Walk(b)
 	case *ir.FunctionStmt:
 		b.handleFunction(n)
 	case *ir.FunctionCallExpr:
@@ -33,12 +44,89 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 		b.handleNew(n)
 	case *ir.ClassConstFetchExpr:
 		b.handleClassConstFetch(n)
+	case *ir.ConstFetchExpr:
+		b.handleConstFetch(n)
+	case *ir.StaticPropertyFetchExpr:
+		b.handleStaticPropertyFetch(n)
 	case *ir.SimpleVar:
 		b.handleSimpleVar(n)
+	case *ir.PropertyFetchExpr:
+		b.handlePropertyFetch(n)
+	case *ir.Assign:
+		b.handleAssign(n)
 	}
 }
 
-func (b *blockChecker) handleSimpleVar(n *ir.SimpleVar) {
+func (b *blockChecker) handleAssign(a *ir.Assign) {
+	switch n := a.Variable.(type) {
+	case *ir.PropertyFetchExpr:
+		b.handlePropertyFetch(n)
+	case *ir.StaticPropertyFetchExpr:
+		b.handleStaticPropertyFetch(n)
+	}
+}
+
+func (b *blockChecker) handleStaticPropertyFetch(n *ir.StaticPropertyFetchExpr) {
+	curMethod, ok := b.Root.getCurrentFunc()
+	if !ok {
+		return
+	}
+
+	propNameNode, ok := n.Property.(*ir.SimpleVar)
+	if !ok {
+		return
+	}
+	propName := propNameNode.Name
+
+	className, ok := solver.GetClassName(b.Root.Ctx.ClassParseState(), n.Class)
+	if !ok {
+		return
+	}
+
+	p, ok := solver.FindProperty(className, "$"+propName)
+	if !ok {
+		return
+	}
+
+	class, ok := GlobalCtx.Classes.Get(p.ImplName())
+	if !ok {
+		return
+	}
+
+	class.Fields.AddMethodAccess(symbols.NewFieldKey(propName, class.Name), class, curMethod)
+}
+
+func (b *blockChecker) handlePropertyFetch(n *ir.PropertyFetchExpr) {
+	curMethod, ok := b.Root.getCurrentFunc()
+	if !ok {
+		return
+	}
+
+	propNameNode, ok := n.Property.(*ir.Identifier)
+	if !ok {
+		return
+	}
+	propName := propNameNode.Value
+
+	tp := solver.ExprType(b.Ctx.Scope(), b.Root.Ctx.ClassParseState(), n.Variable)
+	tp.Iterate(func(typ string) {
+		p, ok := solver.FindProperty(typ, propName)
+		if !ok {
+			return
+		}
+
+		class, ok := GlobalCtx.Classes.Get(p.ImplName())
+		if !ok {
+			return
+		}
+
+		class.Fields.AddMethodAccess(symbols.NewFieldKey(propName, class.Name), class, curMethod)
+	})
+}
+
+func (b *blockChecker) handleSimpleVar(*ir.SimpleVar) {}
+
+func (b *blockChecker) handleConstFetch(n *ir.ConstFetchExpr) {
 	curClass, ok := b.Root.getCurrentClass()
 	if !ok {
 		return
@@ -47,13 +135,21 @@ func (b *blockChecker) handleSimpleVar(n *ir.SimpleVar) {
 	if !ok {
 		return
 	}
+	constantName := n.Constant.Value
+	var constantKey symbols.Constant
+	if utils.IsEmbeddedConstant(constantName) {
+		constantKey = symbols.NewConstantKey(constantName, nil)
+	} else if utils.IsSuperGlobal(constantName) {
+		constantKey = symbols.NewConstantKey(constantName, nil)
+	} else {
+		constantKey = symbols.NewConstantKey(constantName, curClass)
+	}
 
-	name := n.Name
-	curClass.Fields.AddMethodAccess(symbols.NewFieldKey(name, curClass.Name), curMethod)
+	curClass.UsedConstants.AddMethodAccess(constantKey, curMethod)
 }
 
 func (b *blockChecker) handleClassConstFetch(n *ir.ClassConstFetchExpr) {
-	classNameNode, ok := n.Class.(*ir.Name)
+	constClassName, ok := solver.GetClassName(b.Root.Ctx.ClassParseState(), n.Class)
 	if !ok {
 		return
 	}
@@ -63,14 +159,16 @@ func (b *blockChecker) handleClassConstFetch(n *ir.ClassConstFetchExpr) {
 		return
 	}
 
-	constClassName, ok := solver.GetClassName(b.Root.Ctx.ClassParseState(), classNameNode)
+	class, ok := GlobalCtx.Classes.Get(constClassName)
 	if !ok {
 		return
 	}
 
-	class, ok := GlobalCtx.Classes.Get(constClassName)
-	if !ok {
-		return
+	constantName := n.ConstantName.Value
+
+	curMethod, ok := b.Root.getCurrentFunc()
+	if ok {
+		class.Constants.AddMethodAccess(symbols.NewConstantKey(constantName, class), curMethod)
 	}
 
 	curClass.AddDeps(class)
@@ -83,11 +181,10 @@ func (b *blockChecker) handleNew(n *ir.NewExpr) {
 		return
 	}
 
-	classNameNode, ok := n.Class.(*ir.Name)
+	className, ok := solver.GetClassName(b.Ctx.ClassParseState(), n.Class)
 	if !ok {
 		return
 	}
-	className := classNameNode.Value
 
 	class, ok := GlobalCtx.Classes.Get(className)
 	if !ok {
@@ -99,7 +196,8 @@ func (b *blockChecker) handleNew(n *ir.NewExpr) {
 }
 
 func (b *blockChecker) handleImport(n *ir.ImportExpr) {
-	filename, ok := utils.ResolveRequirePath(b.Ctx.ClassParseState(), GlobalCtx.ProjectRoot, n.Expr)
+	curFileDir := filepath.Dir(b.Root.CurFile.Path)
+	filename, ok := utils.ResolveRequirePath(b.Ctx.ClassParseState(), curFileDir, n.Expr)
 	if !ok {
 		return
 	}
@@ -142,6 +240,10 @@ func (b *blockChecker) handleMethodCall(n *ir.MethodCallExpr) {
 	classType := solver.ExprType(b.Ctx.Scope(), b.Ctx.ClassParseState(), n.Variable)
 
 	b.handleMethod(methodName, classType)
+
+	for _, nn := range n.Args {
+		nn.Walk(b)
+	}
 }
 
 func (b *blockChecker) handleFunctionCall(n *ir.FunctionCallExpr) {
@@ -167,6 +269,10 @@ func (b *blockChecker) handleFunctionCall(n *ir.FunctionCallExpr) {
 	}
 
 	b.handleCalled(calledFunc)
+
+	for _, nn := range n.Args {
+		nn.Walk(b)
+	}
 }
 
 func (b *blockChecker) handleFunction(n *ir.FunctionStmt) {

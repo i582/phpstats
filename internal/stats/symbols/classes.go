@@ -38,6 +38,10 @@ func (c *Classes) GetAll(onlyInterface bool, count int64, offset int64, sorted b
 	}
 
 	for _, class := range c.Classes {
+		if class.IsVendor {
+			continue
+		}
+
 		if !sorted {
 			if index+offset > count && count != -1 {
 				break
@@ -173,8 +177,25 @@ func (c *Classes) MaxMinAvgCountMagicNumbers() (max, min, avg int64) {
 	return max, min, avg
 }
 
+func (c *Classes) GetClassByPartOfName(name string) (*Class, error) {
+	classes, err := c.GetFullClassName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	class, found := c.Get(classes[0])
+	if !found {
+		return nil, fmt.Errorf("class %s not found", name)
+	}
+	return class, nil
+}
+
 func (c *Classes) GetFullClassName(name string) ([]string, error) {
 	var res []string
+
+	if !strings.HasPrefix(name, `\`) {
+		name = `\` + name
+	}
 
 	for _, class := range c.Classes {
 		if class.Name == name {
@@ -194,6 +215,10 @@ func (c *Classes) GetFullClassName(name string) ([]string, error) {
 }
 
 func (c *Classes) Add(class *Class) {
+	if class == nil {
+		return
+	}
+
 	c.m.Lock()
 	c.Classes[class.Name] = class
 	c.m.Unlock()
@@ -213,12 +238,18 @@ type Class struct {
 	Implements *Classes
 	Extends    *Classes
 
+	ImplementsBy *Classes
+	ExtendsBy    *Classes
+
 	IsAbstract  bool
 	IsInterface bool
+	IsTrait     bool
 
 	Fields    *Fields
 	Methods   *Functions
 	Constants *Constants
+
+	UsedConstants *Constants
 
 	// Зависим от
 	Deps *Classes
@@ -226,7 +257,7 @@ type Class struct {
 	// Зависят от нас
 	DepsBy *Classes
 
-	Vendor bool
+	IsVendor bool
 
 	// metrics
 	LcomResolved bool
@@ -238,15 +269,18 @@ type Class struct {
 
 func NewClass(name string, file *File) *Class {
 	return &Class{
-		Name:       name,
-		File:       file,
-		Methods:    NewFunctions(),
-		Fields:     NewFields(),
-		Constants:  NewConstants(),
-		Implements: NewClasses(),
-		Extends:    NewClasses(),
-		Deps:       NewClasses(),
-		DepsBy:     NewClasses(),
+		Name:          name,
+		File:          file,
+		Methods:       NewFunctions(),
+		Fields:        NewFields(),
+		Constants:     NewConstants(),
+		UsedConstants: NewConstants(),
+		Implements:    NewClasses(),
+		Extends:       NewClasses(),
+		ImplementsBy:  NewClasses(),
+		ExtendsBy:     NewClasses(),
+		Deps:          NewClasses(),
+		DepsBy:        NewClasses(),
 	}
 }
 
@@ -264,16 +298,25 @@ func NewAbstractClass(name string, file *File) *Class {
 	return class
 }
 
+func NewTrait(name string, file *File) *Class {
+	class := NewClass(name, file)
+	class.IsTrait = true
+
+	return class
+}
+
 func (c *Class) AddMethod(fn *Function) {
 	c.Methods.Add(fn)
 }
 
 func (c *Class) AddImplements(class *Class) {
 	c.Implements.Add(class)
+	class.ImplementsBy.Add(c)
 }
 
 func (c *Class) AddExtends(class *Class) {
 	c.Extends.Add(class)
+	class.ExtendsBy.Add(c)
 }
 
 func (c *Class) AddDeps(class *Class) {
@@ -290,6 +333,29 @@ func (c *Class) AddDepsBy(class *Class) {
 	}
 
 	c.DepsBy.Add(class)
+}
+
+func (c *Class) Type() string {
+	if c.IsInterface {
+		return "interface"
+	}
+	if c.IsAbstract {
+		return "abstract class"
+	}
+	if c.IsTrait {
+		return "trait"
+	}
+
+	return "class"
+}
+
+func (c *Class) Namespace() string {
+	parts := strings.Split(c.Name, `\`)
+	if len(parts) == 1 {
+		return c.Name
+	}
+
+	return strings.Join(parts[0:len(parts)-1], `\`)
 }
 
 // GobEncode is a custom gob marshaller
@@ -312,7 +378,7 @@ func (c *Class) GobEncode() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = encoder.Encode(c.Vendor)
+	err = encoder.Encode(c.IsVendor)
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +405,7 @@ func (c *Class) GobDecode(buf []byte) error {
 	if err != nil {
 		return err
 	}
-	err = decoder.Decode(&c.Vendor)
+	err = decoder.Decode(&c.IsVendor)
 	if err != nil {
 		return err
 	}

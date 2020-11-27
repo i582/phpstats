@@ -35,6 +35,19 @@ func (f *Files) CountLines() int64 {
 	return count
 }
 
+func (f *Files) GetFileByPartOfName(name string) (*File, error) {
+	classes, err := f.GetFullFileName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	class, found := f.Get(classes[0])
+	if !found {
+		return nil, fmt.Errorf("file %s not found", name)
+	}
+	return class, nil
+}
+
 func (f *Files) GetFullFileName(name string) ([]string, error) {
 	var res []string
 

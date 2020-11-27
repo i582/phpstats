@@ -14,7 +14,7 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 
 * [What is currently available?](#what-is-currently-available)
   * [Metrics](#metrics)
-  * [Graph output](#graph-output-graphviz-format-and-svg)
+  * [Graphs](#graphs-graphviz-format-and-svg)
   * [Relation](#relation)
   * [Tops](#tops)
 * [Install](#install)
@@ -45,21 +45,19 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 6. `Cyclomatic Complexity`;
 7. `Count of magic numbers in functions and methods`.
 
-### Graph output (Graphviz format and svg)
+### Graphs (Graphviz format and svg)
 
-1. File dependencies, both root and included inside functions;
+1. Class (or interface) dependencies;
 
-2. Class dependencies;
+2. Class (interface) extend and implementation dependencies;
 
-3. Function/method dependencies;
+3. Function or method dependencies;
 
-4. All project namespaces;
+4. Links within a class (or graph for the LCOM 4 metric);
 
-5. Specific namespace and its child namespaces;
+5. Links between files (included in global and in function).
 
-6. LCOM4.
-
-See [examples of graphs.](doc/graphs.md)
+See [building graphs](doc/graphs.md) for details.
 
 ### Relation
 
@@ -139,7 +137,7 @@ To **view the metrics**, use the `info` command, which **shows information** abo
 
 For command information, write `info help`.
 
-### Graph output (Graphviz format and svg)
+### Building Graphs
 
 To **build graphs**, use the `graph` command. The `-o` flag is required and sets the file in which the graph will be placed.
 
@@ -151,6 +149,8 @@ To **build graphs**, use the `graph` command. The `-o` flag is required and sets
 When creating a graph, two files are created, one with the source code of the graph in the `graphviz` format and a file with the graph in `svg` format.
 
 For command information, write `graph help`.
+
+See [building graphs](doc/graphs.md) for details.
 
 ### Relation
 

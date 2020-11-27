@@ -21,19 +21,19 @@ var FieldsCount int64
 
 type Field struct {
 	Name  string
-	Class string
+	Class *Class
 
-	Used map[*Function]struct{}
+	Used *Functions
 
 	Id int64
 }
 
-func NewField(name, class string) *Field {
+func NewField(name string, class *Class) *Field {
 	atomic.AddInt64(&FieldsCount, 1)
 	return &Field{
 		Name:  name,
 		Class: class,
-		Used:  map[*Function]struct{}{},
+		Used:  NewFunctions(),
 		Id:    FieldsCount,
 	}
 }
@@ -43,7 +43,7 @@ func (f *Field) ID() int64 {
 }
 
 func (f *Field) String() string {
-	return f.Class + "::" + f.Name
+	return f.Class.Name + "::" + f.Name
 }
 
 type Fields struct {
@@ -64,7 +64,7 @@ func (c *Fields) Len() int {
 
 func (c *Fields) Add(field *Field) {
 	c.m.Lock()
-	c.Fields[NewFieldKey(field.Name, field.Class)] = field
+	c.Fields[NewFieldKey(field.Name, field.Class.Name)] = field
 	c.m.Unlock()
 }
 
@@ -75,11 +75,17 @@ func (c *Fields) Get(key FieldKey) (*Field, bool) {
 	return field, ok
 }
 
-func (c *Fields) AddMethodAccess(key FieldKey, method *Function) {
-	c.m.Lock()
-	field, ok := c.Fields[key]
-	c.m.Unlock()
-	if ok {
-		field.Used[method] = struct{}{}
+func (c *Fields) AddMethodAccess(key FieldKey, class *Class, method *Function) {
+	field, found := c.Get(key)
+	if !found {
+		c.Add(NewField(key.Name, class))
+		field, _ = c.Get(key)
 	}
+
+	if method.Class != nil {
+		method.Class.AddDeps(field.Class)
+	}
+	method.UsedFields.Add(field)
+
+	field.Used.Add(method)
 }

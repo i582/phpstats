@@ -3,173 +3,354 @@ package grapher
 import (
 	"fmt"
 
-	uml "github.com/i582/phpstats/internal/grapher/unl"
+	"github.com/i582/phpstats/internal/graph"
+	"github.com/i582/phpstats/internal/grapher/templates"
 	"github.com/i582/phpstats/internal/stats/symbols"
+	"github.com/i582/phpstats/internal/stats/walkers"
 	"github.com/i582/phpstats/internal/utils"
 )
 
-func (g *Grapher) ClassDeps(c *symbols.Class, maxRecursion int64) string {
-	var res string
+func (g *Grapher) ClassSuperGlobalsDeps(c *symbols.Class) string {
+	graphName := "GraphFor_" + utils.NameToIdentifier(c.Name)
+	classGraph := &graph.Graph{
+		Name:       graphName,
+		IsSubgraph: false,
+		GraphStyle: graph.Styles{
+			Label:   "Class " + utils.NormalizeSlashes(c.Name) + " super globals constant.",
+			Padding: 2.0,
+		},
+		NodeStyle: graph.NodeStyles{},
+		EdgeStyle: graph.EdgeStyles{},
+	}
 
-	res += graphHeader
+	g.classSuperGlobalsDepsRecursive(classGraph, c)
 
-	main, sub := g.classDepsRecursive(c, 0, maxRecursion, visitedMap{})
+	mainClassNode, found := classGraph.GetNode(utils.NameToIdentifier(c.Name))
+	if found {
+		mainClassNode.Scale(1.4)
+		templates.ColorizeByScale(mainClassNode, 1.4)
+	}
 
-	res += g.subGraphVendorWrapper(sub)
-	res += main
-
-	return g.graphWrapper(res, utils.NameToIdentifier(c.Name))
+	return classGraph.String()
 }
 
-func (g *Grapher) classDepsRecursive(c *symbols.Class, levelRecursion, maxRecursion int64, visited visitedMap) (string, string) {
-	var res string
-	var sub string
+func (g *Grapher) classSuperGlobalsDepsRecursive(classGraph *graph.Graph, c *symbols.Class) {
+	classNode := templates.TemplateClassNode(c)
+	classGraph.AddNode(classNode)
 
-	classUml := uml.GetUmlForClassWithFilter(c, func(m *symbols.Function) bool {
-		return m.Deps().Len() != 0
-	}, func(f *symbols.Field) bool {
-		return len(f.Used) != 0
-	})
-
-	umlGraph := g.outputWithColor("   "+classUml, g.getColorForClass(c), defaultColor)
-
-	if _, ok := visited[c.Name]; !ok {
-		if c.Vendor {
-			sub += umlGraph
-		} else {
-			res += umlGraph
+	for _, constant := range c.UsedConstants.Constants {
+		if !constant.IsEmbedded() {
+			constantNode := templates.TemplateConstantNode(constant)
+			classGraph.AddNode(constantNode)
+			classGraph.AddEdgeByNode(classNode, constantNode, templates.TemplateClassConnectionEdgeStyle())
 		}
-		visited[c.Name] = struct{}{}
+	}
+}
+
+func (g *Grapher) ClassImplementsExtendsDeps(c *symbols.Class, maxRecursion int64) string {
+	graphName := "GraphFor_" + utils.NameToIdentifier(c.Name)
+	classGraph := &graph.Graph{
+		Name:       graphName,
+		IsSubgraph: false,
+		GraphStyle: graph.Styles{
+			Label:   "Class " + utils.NormalizeSlashes(c.Name) + " inheritance graph.",
+			Padding: 2.0,
+		},
+		NodeStyle: graph.NodeStyles{},
+		EdgeStyle: graph.EdgeStyles{},
+	}
+
+	g.classImplementsExtendsDepsRecursive(classGraph, c, 0, maxRecursion, map[*symbols.Class]struct{}{})
+
+	mainClassNode, found := classGraph.GetNode(utils.NameToIdentifier(c.Name))
+	if found {
+		mainClassNode.Scale(1.4)
+		templates.ColorizeByScale(mainClassNode, 1.4)
+	}
+
+	return classGraph.String()
+}
+
+func (g *Grapher) classImplementsExtendsDepsRecursive(classGraph *graph.Graph, c *symbols.Class, levelRecursion, maxRecursion int64, visitedClasses map[*symbols.Class]struct{}) {
+	classNode := templates.TemplateClassNode(c)
+	classGraph.AddNode(classNode)
+
+	if levelRecursion > maxRecursion {
+		return
+	}
+
+	for _, implementClass := range c.Implements.Classes {
+		implementClassNode := templates.TemplateClassNode(implementClass)
+		implementClassNode, _ = classGraph.AddNode(implementClassNode)
+
+		classGraph.AddEdgeByNode(classNode, implementClassNode, templates.TemplateImplementEdgeStyle())
+
+		if _, found := visitedClasses[implementClass]; !found {
+			visitedClasses[implementClass] = struct{}{}
+			g.classImplementsExtendsDepsRecursive(classGraph, implementClass, levelRecursion+1, maxRecursion, visitedClasses)
+		}
+	}
+
+	for _, extendedClass := range c.Extends.Classes {
+		extendedClassNode := templates.TemplateClassNode(extendedClass)
+		extendedClassNode, _ = classGraph.AddNode(extendedClassNode)
+
+		classGraph.AddEdgeByNode(classNode, extendedClassNode, templates.TemplateExtendEdgeStyle())
+
+		if _, found := visitedClasses[extendedClass]; !found {
+			visitedClasses[extendedClass] = struct{}{}
+			g.classImplementsExtendsDepsRecursive(classGraph, extendedClass, levelRecursion+1, maxRecursion, visitedClasses)
+		}
+	}
+
+	for _, implementClass := range c.ImplementsBy.Classes {
+		implementClassNode := templates.TemplateClassNode(implementClass)
+		implementClassNode, _ = classGraph.AddNode(implementClassNode)
+
+		classGraph.AddEdgeByNode(implementClassNode, classNode, templates.TemplateImplementEdgeStyle())
+
+		if _, found := visitedClasses[implementClass]; !found {
+			visitedClasses[implementClass] = struct{}{}
+			g.classImplementsExtendsDepsRecursive(classGraph, implementClass, levelRecursion+1, maxRecursion, visitedClasses)
+		}
+	}
+
+	for _, extendedClass := range c.ExtendsBy.Classes {
+		extendedClassNode := templates.TemplateClassNode(extendedClass)
+		extendedClassNode, _ = classGraph.AddNode(extendedClassNode)
+
+		classGraph.AddEdgeByNode(extendedClassNode, classNode, templates.TemplateExtendEdgeStyle())
+
+		if _, found := visitedClasses[extendedClass]; !found {
+			visitedClasses[extendedClass] = struct{}{}
+			g.classImplementsExtendsDepsRecursive(classGraph, extendedClass, levelRecursion+1, maxRecursion, visitedClasses)
+		}
+	}
+}
+
+func ColorizeClassGraph(classGraph *graph.Graph) {
+	maxConnections := 0
+	minConnections := 10000
+
+	for _, node := range classGraph.Nodes {
+		connections := len(node.Edges)
+
+		if connections < minConnections {
+			minConnections = connections
+		}
+
+		if connections > maxConnections {
+			maxConnections = connections
+		}
+	}
+
+	if maxConnections == 0 {
+		maxConnections = 1
+	}
+
+	maxScale := 1.8
+	minScale := 0.8
+	diffScale := maxScale - minScale
+
+	for _, node := range classGraph.Nodes {
+		scaleForNode := minScale + diffScale*(float64(len(node.Edges))/float64(maxConnections))
+
+		node.Scale(scaleForNode)
+		templates.ColorizeByScale(node, scaleForNode)
+	}
+}
+
+func (g *Grapher) ClassDeps(c *symbols.Class, maxRecursion int64, withGroups bool) string {
+	graphName := "GraphFor_" + utils.NameToIdentifier(c.Name)
+	classGraph := &graph.Graph{
+		Name:       graphName,
+		IsSubgraph: false,
+		GraphStyle: graph.Styles{
+			Label:   "Class " + utils.NormalizeSlashes(c.Name) + " dependencies",
+			Padding: 2.0,
+		},
+		NodeStyle: graph.NodeStyles{},
+		EdgeStyle: graph.EdgeStyles{},
+	}
+
+	g.classDepsRecursive(classGraph, c, 0, maxRecursion, withGroups)
+	ColorizeClassGraph(classGraph)
+
+	return classGraph.String()
+}
+
+func (g *Grapher) classDepsRecursive(classGraph *graph.Graph, c *symbols.Class, levelRecursion, maxRecursion int64, withGroups bool) {
+	classNode := templates.TemplateClassNode(c)
+
+	if withGroups {
+		pack, found := walkers.GlobalCtx.Packages.GetPackage(c.Name)
+		if found {
+			subgraphName := utils.NameToIdentifier(pack.Name)
+			subgraph, found := classGraph.GetSubGraph(subgraphName)
+			if !found {
+				subgraph = classGraph.AddSubGraph(&graph.Graph{
+					Name:       subgraphName,
+					GraphStyle: classGraph.GraphStyle,
+					NodeStyle:  classGraph.NodeStyle,
+					EdgeStyle:  classGraph.EdgeStyle,
+				})
+				subgraph.GraphStyle.Label = "Package " + pack.Name
+				subgraph.GraphStyle.GraphMargin = 75
+				subgraph.GraphStyle.Style = "filled"
+				subgraph.GraphStyle.BorderColor = templates.DefaultSubgraphFillColor
+			}
+
+			subgraph.AddNode(classNode)
+		} else {
+			subgraphName := "GlobalPackage"
+			subgraph, found := classGraph.GetSubGraph(subgraphName)
+			if !found {
+				subgraph = classGraph.AddSubGraph(&graph.Graph{
+					Name:       subgraphName,
+					GraphStyle: classGraph.GraphStyle,
+					NodeStyle:  classGraph.NodeStyle,
+					EdgeStyle:  classGraph.EdgeStyle,
+				})
+				subgraph.GraphStyle.Label = "Global Package"
+				subgraph.GraphStyle.GraphMargin = 75
+				subgraph.GraphStyle.Style = "filled"
+				subgraph.GraphStyle.BorderColor = templates.DefaultSubgraphFillColor
+			}
+
+			subgraph.AddNode(classNode)
+		}
+	} else {
+		classGraph.AddNode(classNode)
 	}
 
 	if levelRecursion > maxRecursion {
-		return res, sub
+		return
 	}
 
-	for _, implement := range c.Implements.Classes {
-		str := fmt.Sprintf("   %s -> %s\n", utils.NameToIdentifier(c.Name), utils.NameToIdentifier(implement.Name))
+	for _, implementClass := range c.Implements.Classes {
+		implementClassNode := templates.TemplateClassNode(implementClass)
+		implementClassNode, _ = classGraph.AddNode(implementClassNode)
 
-		if _, ok := visited[str]; ok {
-			continue
-		}
-		visited[str] = struct{}{}
+		classGraph.AddEdgeByNode(classNode, implementClassNode, templates.TemplateImplementEdgeStyle())
 
-		res += g.outputClassImplement(str)
-
-		mn, sb := g.classDepsRecursive(implement, levelRecursion+1, maxRecursion, visited)
-		res += mn
-		sub += sb
+		g.classDepsRecursive(classGraph, implementClass, levelRecursion+1, maxRecursion, withGroups)
 	}
 
-	for _, field := range c.Fields.Fields {
-		for caller := range field.Used {
-			for _, class := range caller.Deps().Classes {
-				str := fmt.Sprintf("   %s:fields -> %s\n", utils.NameToIdentifier(c.Name), utils.NameToIdentifier(class.Name))
+	for _, extendedClass := range c.Extends.Classes {
+		extendedClassNode := templates.TemplateClassNode(extendedClass)
+		extendedClassNode, _ = classGraph.AddNode(extendedClassNode)
 
-				if _, ok := visited[str]; ok {
-					continue
-				}
-				visited[str] = struct{}{}
+		classGraph.AddEdgeByNode(classNode, extendedClassNode, templates.TemplateExtendEdgeStyle())
 
-				mn, sb := g.classDepsRecursive(class, levelRecursion+1, maxRecursion, visited)
-				res += mn
-				sub += sb
-
-				res += str
-			}
-		}
+		g.classDepsRecursive(classGraph, extendedClass, levelRecursion+1, maxRecursion, withGroups)
 	}
 
-	for _, method := range c.Methods.Funcs {
-		deps := method.Deps()
-		if deps.Len() == 0 {
-			continue
-		}
+	for _, depsClass := range c.Deps.Classes {
+		depsClassNode := templates.TemplateClassNode(depsClass)
+		depsClassNode, _ = classGraph.AddNode(depsClassNode)
 
-		for _, class := range deps.Classes {
-			str := fmt.Sprintf("   %s:methods -> %s\n", utils.NameToIdentifier(c.Name), utils.NameToIdentifier(class.Name))
+		classGraph.AddEdgeByNode(classNode, depsClassNode, templates.TemplateClassConnectionEdgeStyle())
 
-			if _, ok := visited[str]; ok {
-				continue
-			}
-			visited[str] = struct{}{}
-
-			mn, sb := g.classDepsRecursive(class, levelRecursion+1, maxRecursion, visited)
-			res += mn
-			sub += sb
-
-			res += str
-		}
+		g.classDepsRecursive(classGraph, depsClass, levelRecursion+1, maxRecursion, withGroups)
 	}
 
-	return res, sub
 }
 
-func (g *Grapher) outputClassImplement(str string) string {
-	var res string
-	res += "\tedge [style=\"dashed\"];"
-	res += str
-	res += "\tedge [style=\"solid\"];"
-	return res
+func AddedCountLinksInGraphNodes(classGraph *graph.Graph) {
+	for _, node := range classGraph.Nodes {
+		node.Styles.Label += "\\n(links: " + fmt.Sprint(len(node.Edges)) + ")"
+	}
 }
 
 func (g *Grapher) Lcom4(c *symbols.Class) string {
-	var res string
-
-	res += graphHeader
-
-	main := g.lcom4(c)
-
-	res += g.subGraphWrapper(main, "Lack of Cohesion in Methods 4 (LCOM4) graph for "+utils.NormalizeSlashes(c.Name))
-
-	return g.graphWrapper(res, utils.NameToIdentifier(c.Name))
-}
-
-func (g *Grapher) lcom4(c *symbols.Class) string {
-	var res string
-
-	showed := map[string]struct{}{}
-
-	for _, method := range c.Methods.Funcs {
-		methodUml := uml.GetUmlForFunction(method)
-		res += fmt.Sprintf("  %s", methodUml)
+	graphName := "GraphFor_" + utils.NameToIdentifier(c.Name)
+	classGraph := &graph.Graph{
+		Name:       graphName,
+		IsSubgraph: false,
+		GraphStyle: graph.Styles{
+			Label:      "Lack of Cohesion in Methods 4 (LCOM4) graph for " + utils.NormalizeSlashes(c.Name),
+			Padding:    2.5,
+			NodeMargin: 1.5,
+		},
+		NodeStyle: graph.NodeStyles{},
+		EdgeStyle: graph.EdgeStyles{},
 	}
 
+	g.lcom4(classGraph, c)
+
+	AddedCountLinksInGraphNodes(classGraph)
+
+	return classGraph.String()
+}
+
+func (g *Grapher) lcom4(classGraph *graph.Graph, c *symbols.Class) {
 	for _, method := range c.Methods.Funcs {
-		for _, called := range method.Called.Funcs {
-			if _, ok := c.Methods.Get(called.Name); ok && method != called {
-				str := fmt.Sprintf("   %s -> %s\n", utils.NameToIdentifier(method.Name.String()), utils.NameToIdentifier(called.Name.String()))
+		methodNode := templates.TemplateFunctionNode(method)
+		classGraph.AddNode(methodNode)
 
-				if _, ok := showed[str]; ok {
-					continue
-				}
-				showed[str] = struct{}{}
+		methodNode.Styles.FillColor = templates.FillColorLevel3
+		methodNode.Styles.EdgeColor = templates.OutlineColorLevel3
+		methodNode.Scale(1.5)
 
-				res += str
+		for _, calledFunction := range method.Called.Funcs {
+			if calledFunction.Class == c {
+				calledFunctionNode, _ := classGraph.AddNode(templates.TemplateFunctionNode(calledFunction))
+
+				calledFunctionNode.Styles.FillColor = templates.FillColorLevel3
+				calledFunctionNode.Styles.EdgeColor = templates.OutlineColorLevel3
+				calledFunctionNode.Scale(1.5)
+
+				classGraph.AddEdgeByNode(methodNode, calledFunctionNode, graph.EdgeStyles{Color: templates.OutlineColorLevel3})
 			}
 		}
 	}
 
 	for _, field := range c.Fields.Fields {
-		functions := make([]*symbols.Function, 0, len(field.Used))
+		fieldNode, _ := classGraph.AddNode(templates.TemplateFieldNode(field))
 
-		for used := range field.Used {
-			functions = append(functions, used)
-		}
+		for _, function := range field.Used.Funcs {
+			if function.Class == c {
+				functionNode, _ := classGraph.AddNode(templates.TemplateFunctionNode(function))
 
-		for i := 0; i < len(functions)-1; i++ {
-			for j := i + 1; j < len(functions); j++ {
-				str := fmt.Sprintf("   %s -> %s\n", utils.NameToIdentifier(functions[i].Name.String()), utils.NameToIdentifier(functions[j].Name.String()))
+				functionNode.Styles.FillColor = templates.FillColorLevel3
+				functionNode.Styles.EdgeColor = templates.OutlineColorLevel3
+				functionNode.Scale(1.5)
 
-				if _, ok := showed[str]; ok {
-					continue
-				}
-				showed[str] = struct{}{}
-
-				res += str
+				classGraph.AddEdgeByNode(functionNode, fieldNode, graph.EdgeStyles{Color: templates.OutlineColorLevel1, Style: "dashed"})
 			}
 		}
 	}
 
-	return res
+	for _, constant := range c.Constants.Constants {
+		constantNode, _ := classGraph.AddNode(templates.TemplateConstantNode(constant))
+
+		for _, function := range constant.Used.Funcs {
+			if function.Class == c {
+				functionNode, _ := classGraph.AddNode(templates.TemplateFunctionNode(function))
+
+				functionNode.Styles.FillColor = templates.FillColorLevel3
+				functionNode.Styles.EdgeColor = templates.OutlineColorLevel3
+				functionNode.Scale(1.5)
+
+				classGraph.AddEdgeByNode(functionNode, constantNode, graph.EdgeStyles{Color: templates.OutlineColorLevel2, Style: "dotted"})
+			}
+		}
+	}
+
+	for _, node := range classGraph.Nodes {
+		if len(node.Edges) == 0 {
+			subgraph, found := classGraph.GetSubGraph("WithoutConnections")
+			if !found {
+				subgraph = classGraph.AddSubGraph(&graph.Graph{
+					Name:       "WithoutConnections",
+					GraphStyle: classGraph.GraphStyle,
+					NodeStyle:  classGraph.NodeStyle,
+					EdgeStyle:  classGraph.EdgeStyle,
+				})
+				subgraph.GraphStyle.Label = "Symbols without connections"
+			}
+			subgraph.AddNode(node)
+			classGraph.Nodes.DeleteNode(node)
+		}
+	}
 }

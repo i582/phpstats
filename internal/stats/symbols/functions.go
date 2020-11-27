@@ -196,6 +196,19 @@ func (f *Functions) CountMethods() int64 {
 	return count
 }
 
+func (f *Functions) GetClassByPartOfName(name string) (*Function, error) {
+	funcs, err := f.GetFullFuncName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	fun, found := f.Get(funcs[0])
+	if !found {
+		return nil, fmt.Errorf("function %s not found", name)
+	}
+	return fun, nil
+}
+
 func (f *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 	var res []FuncKey
 
@@ -296,6 +309,9 @@ type Function struct {
 	Called   *Functions
 	CalledBy *Functions
 
+	UsedFields    *Fields
+	UsedConstants *Constants
+
 	UsesCount int64
 
 	depsResolved bool
@@ -320,13 +336,15 @@ func (f *Function) ID() int64 {
 func NewFunction(name FuncKey, pos meta.ElementPosition) *Function {
 	atomic.AddInt64(&FunctionCount, 1)
 	return &Function{
-		Name:     name,
-		Called:   NewFunctions(),
-		CalledBy: NewFunctions(),
-		deps:     NewClasses(),
-		depsBy:   NewClasses(),
-		Pos:      pos,
-		Id:       FunctionCount,
+		Name:          name,
+		Called:        NewFunctions(),
+		CalledBy:      NewFunctions(),
+		UsedFields:    NewFields(),
+		UsedConstants: NewConstants(),
+		deps:          NewClasses(),
+		depsBy:        NewClasses(),
+		Pos:           pos,
+		Id:            FunctionCount,
 	}
 }
 

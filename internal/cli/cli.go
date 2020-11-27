@@ -102,11 +102,12 @@ func Run() {
 					DisableCache: disableCache,
 					ProjectPath:  walkers.GlobalCtx.ProjectRoot,
 					Exclude:      nil,
-					Groups:       nil,
+					Packages:     nil,
 					Extensions:   nil,
 				}
 			}
 
+			cfg.AddPackagesToContext(walkers.GlobalCtx.Packages)
 			server.RunServer(port)
 
 			// Normalize flags for NoVerify

@@ -2,6 +2,7 @@ package walkers
 
 import (
 	"bytes"
+	"path/filepath"
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
@@ -62,7 +63,7 @@ func (r *rootChecker) handlePropertyList(n *ir.PropertyListStmt) bool {
 	for _, prop := range n.Properties {
 		prop := prop.(*ir.PropertyStmt)
 
-		curClass.Fields.Add(symbols.NewField(prop.Variable.Name, curClass.Name))
+		curClass.Fields.Add(symbols.NewField(prop.Variable.Name, curClass))
 	}
 	return false
 }
@@ -74,9 +75,10 @@ func (r *rootChecker) handleClassConstList(n *ir.ClassConstListStmt) {
 	}
 
 	for _, c := range n.Consts {
-		constant, ok := GlobalCtx.Constants.Get(*symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass.Name))
-		if !ok {
-			continue
+		constant := symbols.NewConstant(c.(*ir.ConstantStmt).ConstantName.Value, curClass)
+
+		if _, found := GlobalCtx.Constants.Get(*constant); !found {
+			GlobalCtx.Constants.Add(constant)
 		}
 
 		curClass.Constants.Add(constant)
@@ -99,6 +101,10 @@ func (r *rootChecker) handleInterface(n *ir.InterfaceStmt) {
 
 	r.CurFile.AddClass(iface)
 	GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, iface)
+
+	for _, stmt := range n.Stmts {
+		r.handleClassInterfaceMethodsConstants(iface, stmt)
+	}
 }
 
 func (r *rootChecker) handleClass(n *ir.ClassStmt) {
@@ -121,11 +127,16 @@ func (r *rootChecker) handleClass(n *ir.ClassStmt) {
 			implement := implement.(*ir.Name)
 			ifaceName := implement.Value
 
+			ifaceName, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
+				Value: ifaceName,
+			})
+
 			iface, ok := GlobalCtx.Classes.Get(ifaceName)
 			if !ok {
-				return
+				continue
 			}
 
+			class.AddImplements(iface)
 			class.AddDeps(iface)
 			iface.AddDepsBy(class)
 		}
@@ -135,26 +146,61 @@ func (r *rootChecker) handleClass(n *ir.ClassStmt) {
 		className, ok := solver.GetClassName(r.Ctx.ClassParseState(), &ir.Name{
 			Value: n.Extends.ClassName.Value,
 		})
-		if !ok {
-			return
+		if ok {
+			extend, ok := GlobalCtx.Classes.Get(className)
+			if ok {
+				class.AddExtends(extend)
+				class.AddDeps(extend)
+				extend.AddDepsBy(class)
+			}
 		}
-
-		extend, ok := GlobalCtx.Classes.Get(className)
-		if !ok {
-			return
-		}
-
-		class.AddExtends(extend)
-		class.AddDeps(extend)
-		extend.AddDepsBy(class)
 	}
 
 	GlobalCtx.Namespaces.AddClassToNamespace(r.Ctx.ClassParseState().Namespace, class)
-	return
+
+	for _, stmt := range n.Stmts {
+		r.handleClassInterfaceMethodsConstants(class, stmt)
+	}
+}
+
+func (r *rootChecker) handleClassInterfaceMethodsConstants(class *symbols.Class, n ir.Node) {
+	switch n := n.(type) {
+	case *ir.ClassMethodStmt:
+		methodName := n.MethodName.Value
+
+		method, found := GlobalCtx.Functions.Get(symbols.NewMethodKey(methodName, class.Name))
+		if !found {
+			return
+		}
+
+		class.AddMethod(method)
+
+	case *ir.ClassConstListStmt:
+		for _, c := range n.Consts {
+			constantStmt := c.(*ir.ConstantStmt)
+			constantName := constantStmt.ConstantName.Value
+
+			constant, found := GlobalCtx.Constants.Get(symbols.NewConstantKey(constantName, class))
+			if !found {
+				return
+			}
+
+			class.Constants.Add(constant)
+
+			b := &blockChecker{
+				BlockCheckerDefaults: linter.BlockCheckerDefaults{},
+				Ctx:                  &linter.BlockContext{},
+				Root:                 r,
+			}
+
+			constantStmt.Expr.Walk(b)
+		}
+	}
 }
 
 func (r *rootChecker) handleImport(n *ir.ImportExpr) {
-	filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), GlobalCtx.ProjectRoot, n.Expr)
+	curFileDir := filepath.Dir(r.CurFile.Path)
+	filename, ok := utils.ResolveRequirePath(r.Ctx.ClassParseState(), curFileDir, n.Expr)
 	if !ok {
 		return
 	}
