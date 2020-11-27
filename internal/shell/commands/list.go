@@ -54,10 +54,8 @@ func List() *shell.Executor {
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 			} else {
-				for _, fn := range funcs {
-					data := representator.GetStringFunctionRepr(fn)
-					fmt.Println(data)
-				}
+				data := representator.GetTableFunctionsRepr(funcs, offset)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -100,10 +98,8 @@ func List() *shell.Executor {
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 			} else {
-				for _, fn := range funcs {
-					data := representator.GetStringFunctionRepr(fn)
-					fmt.Println(data)
-				}
+				data := representator.GetTableFunctionsRepr(funcs, offset)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -125,17 +121,12 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
-				Name: "-f",
-				Help: "show full information",
-			},
-			&flags.Flag{
 				Name:      "--json",
 				Help:      "output to json file",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			full := c.Flags.Contains("-f")
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
 
@@ -151,15 +142,8 @@ func List() *shell.Executor {
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 			} else {
-				for _, file := range files {
-					var data string
-					if full {
-						data = representator.GetStringFileRepr(file)
-					} else {
-						data = representator.GetShortStringFileRepr(file)
-					}
-					fmt.Println(data)
-				}
+				data := representator.GetTableFilesRepr(files, offset)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -202,17 +186,16 @@ func List() *shell.Executor {
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 			} else {
-				for _, class := range classes {
-					data := representator.GetStringClassRepr(class)
-					fmt.Println(data)
-				}
+				data := representator.GetTableClassesRepr(classes, offset)
+				fmt.Println(data)
 			}
 		},
 	}
 
 	listInterfaceExecutor := &shell.Executor{
-		Name: "interfaces",
-		Help: "shows list of interfaces",
+		Name:    "interfaces",
+		Aliases: []string{"ifaces"},
+		Help:    "shows list of interfaces",
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "-c",
@@ -225,10 +208,6 @@ func List() *shell.Executor {
 				WithValue: true,
 				Help:      "offset in list",
 				Default:   "0",
-			},
-			&flags.Flag{
-				Name: "-f",
-				Help: "show full information",
 			},
 			&flags.Flag{
 				Name:      "--json",
@@ -252,10 +231,8 @@ func List() *shell.Executor {
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 			} else {
-				for _, iface := range ifaces {
-					data := representator.GetStringClassRepr(iface)
-					fmt.Println(data)
-				}
+				data := representator.GetTableClassesRepr(ifaces, offset)
+				fmt.Println(data)
 			}
 		},
 	}
@@ -287,9 +264,8 @@ func List() *shell.Executor {
 				Help: "show full information",
 			},
 			&flags.Flag{
-				Name:      "--json",
-				Help:      "output to json file",
-				WithValue: true,
+				Name: "--table",
+				Help: "show list in table",
 			},
 		),
 		Func: func(c *shell.Context) {
@@ -309,10 +285,8 @@ func List() *shell.Executor {
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 			} else {
-				for _, ns := range nss {
-					data := representator.GetStringNamespaceRepr(ns)
-					fmt.Println(data)
-				}
+				data := representator.GetTableNamespacesRepr(nss, offset)
+				fmt.Println(data)
 			}
 		},
 	}
