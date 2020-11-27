@@ -6,9 +6,13 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"strings"
 
+	"github.com/c-bata/go-prompt"
 	"github.com/gookit/color"
+
+	flags2 "github.com/i582/phpstats/internal/shell/flags"
 )
 
 type Shell struct {
@@ -74,17 +78,166 @@ func NewShell() *Shell {
 		Aliases: []string{"quit"},
 		Help:    "exit the program",
 		Func: func(c *Context) {
-			shell.Active = false
+			os.Exit(0)
 		},
 	})
 
 	return shell
 }
 
-func (s *Shell) Run() {
-	reader := bufio.NewReader(os.Stdin)
+func (e Executors) GetSuggests(commands string) []prompt.Suggest {
+	parts := strings.Fields(commands)
+	if len(parts) == 0 {
+		parts = []string{commands}
+	}
+	if strings.HasSuffix(commands, " ") {
+		parts = append(parts, "")
+	}
 
-	fmt.Println("Entering interactive mode (type \"help\" for commands)")
+	return e.getSuggests(parts)
+}
+
+func (e Executors) getSuggests(commands []string) []prompt.Suggest {
+	var suggests []prompt.Suggest
+	mainCommand := commands[0]
+
+	if len(commands) == 1 {
+		executors := make([]*Executor, 0, len(e))
+		for _, executor := range e {
+			executors = append(executors, executor)
+		}
+		sort.Slice(executors, func(i, j int) bool {
+			return executors[i].Name < executors[j].Name
+		})
+
+		for _, executor := range executors {
+			if strings.HasPrefix(executor.Name, mainCommand) {
+				suggests = append(suggests, prompt.Suggest{
+					Text:        executor.Name,
+					Description: executor.Help,
+				})
+			}
+		}
+
+		return suggests
+	}
+
+	command, found := e[mainCommand]
+	if found {
+		return command.getSuggests(commands[1:])
+	}
+
+	return suggests
+}
+
+func (e Executor) getSuggests(commands []string) []prompt.Suggest {
+	mainCommand := commands[0]
+
+	if len(commands) == 1 {
+		var suggests []prompt.Suggest
+
+		executors := make([]*Executor, 0, len(e.SubExecs))
+		for _, executor := range e.SubExecs {
+			executors = append(executors, executor)
+		}
+		sort.Slice(executors, func(i, j int) bool {
+			return executors[i].Name < executors[j].Name
+		})
+
+		for _, executor := range executors {
+			if strings.HasPrefix(executor.Name, mainCommand) {
+				suggests = append(suggests, prompt.Suggest{
+					Text:        executor.Name,
+					Description: executor.Help,
+				})
+			}
+		}
+
+		if len(executors) == 0 {
+			if e.Flags != nil {
+				flags := make([]*flags2.Flag, 0, len(e.Flags.Flags))
+				for _, flag := range e.Flags.Flags {
+					flags = append(flags, flag)
+				}
+				sort.Slice(flags, func(i, j int) bool {
+					return flags[i].Name < flags[j].Name
+				})
+
+				for _, flag := range flags {
+					if strings.HasPrefix(flag.Name, mainCommand) {
+						suggests = append(suggests, prompt.Suggest{
+							Text:        flag.Name,
+							Description: flag.Help,
+						})
+					}
+				}
+			}
+		}
+
+		return suggests
+	}
+
+	command, found := e.SubExecs[mainCommand]
+	if found {
+		return command.getSuggests(commands[1:])
+	} else {
+		return e.getSuggests(commands[1:])
+	}
+}
+
+func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
+	// return s.Execs.GetSuggests(d.CurrentLine())
+	return nil
+}
+
+func (s *Shell) executor(in string) {
+	line := strings.TrimSpace(in)
+	if line == "" {
+		return
+	}
+
+	tokens := strings.FieldsFunc(line, func(r rune) bool {
+		return r == '=' || r == ' '
+	})
+	if len(tokens) == 0 {
+		return
+	}
+
+	command := tokens[0]
+
+	e, has := s.Execs[command]
+	if !has {
+		s.Error(fmt.Sprintf("command %s not found", command))
+		return
+	}
+
+	e.Execute(&Context{
+		Args:  tokens[1:],
+		Flags: e.Flags,
+		Exec:  e,
+	})
+}
+
+func (s *Shell) ImprovedShell() {
+	p := prompt.New(
+		s.executor,
+		s.completer,
+		prompt.OptionPrefix(">>> "),
+		prompt.OptionSuggestionBGColor(prompt.Yellow),
+		prompt.OptionSuggestionTextColor(prompt.DarkGray),
+		prompt.OptionSelectedSuggestionBGColor(prompt.DarkGray),
+		prompt.OptionSelectedSuggestionTextColor(prompt.White),
+		prompt.OptionPrefixTextColor(prompt.Yellow),
+		prompt.OptionDescriptionBGColor(prompt.DarkGray),
+		prompt.OptionDescriptionTextColor(prompt.White),
+		prompt.OptionSelectedDescriptionBGColor(prompt.DarkGray),
+		prompt.OptionSelectedDescriptionTextColor(prompt.White),
+	)
+	p.Run()
+}
+
+func (s *Shell) OldShell() {
+	reader := bufio.NewReader(os.Stdin)
 
 	for s.Active {
 		color.Yellow.Print(`>>> `)
@@ -119,4 +272,9 @@ func (s *Shell) Run() {
 			Exec:  e,
 		})
 	}
+}
+
+func (s *Shell) Run() {
+	fmt.Println("Entering interactive mode (type \"help\" for commands)")
+	s.ImprovedShell()
 }
