@@ -13,7 +13,8 @@ To create a graph in the internal interactive shell, use the `graph` command, wh
 * [Function or method dependencies](#function-or-method-dependencies)
 * [Links within a class (or graph for the LCOM 4 metric)](#links-within-a-class-or-graph-for-the-lcom-4-metric)
 * [Links between files](#links-between-files)
-* [Namespace graph](#namespace-graph)
+* [Namespace dependencies graph](#namespace-dependencies-graph)
+* [Namespace structure graph](#namespace-structure-graph)
 
 ### Class (or interface) dependencies
 
