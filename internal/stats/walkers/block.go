@@ -313,6 +313,7 @@ func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {
 func (b *blockChecker) handleCalled(calledFunc *symbols.Function) {
 	curFunc, ok := b.Root.getCurrentFunc()
 	if !ok {
+		calledFunc.AddUse()
 		return
 	}
 

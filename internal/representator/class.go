@@ -31,7 +31,7 @@ type ClassData struct {
 	constants *symbols.Constants
 }
 
-func classToData(c *symbols.Class) *ClassData {
+func ClassToData(c *symbols.Class) *ClassData {
 	if c == nil {
 		return nil
 	}
@@ -72,22 +72,12 @@ func classToData(c *symbols.Class) *ClassData {
 	}
 }
 
-func GetShortClassRepr(c *symbols.Class) string {
-	if c == nil {
-		return ""
-	}
-
-	data := classToData(c)
-
-	return fmt.Sprintf("%s %s", data.Type, data.Name)
-}
-
 func GetStringClassRepr(c *symbols.Class) string {
 	if c == nil {
 		return ""
 	}
 
-	data := classToData(c)
+	data := ClassToData(c)
 
 	var res string
 
@@ -105,7 +95,7 @@ func GetStringClassRepr(c *symbols.Class) string {
 }
 
 func GetJsonClassRepr(c *symbols.Class) (string, error) {
-	data := classToData(c)
+	data := ClassToData(c)
 
 	res, err := json.Marshal(data)
 	if err != nil {
@@ -119,7 +109,7 @@ func GetPrettifyJsonClassesRepr(c []*symbols.Class) (string, error) {
 	data := make([]*ClassData, 0, len(c))
 
 	for _, class := range c {
-		data = append(data, classToData(class))
+		data = append(data, ClassToData(class))
 	}
 
 	res, err := json.MarshalIndent(data, "", "\t")
@@ -137,7 +127,7 @@ func GetJsonClassReprWithFlag(c *symbols.Class) (string, error) {
 	}
 	var resp Response
 
-	resp.Data = classToData(c)
+	resp.Data = ClassToData(c)
 	resp.Found = c != nil
 
 	res, err := json.Marshal(resp)

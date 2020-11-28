@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 	"sync"
 )
@@ -66,48 +65,6 @@ func (f *Files) GetFullFileName(name string) ([]string, error) {
 	}
 
 	return res, nil
-}
-
-func (f *Files) GetAll(count int64, offset int64, sorted bool) []*File {
-	var res []*File
-	var index int64
-
-	if offset < 0 {
-		offset = 0
-	}
-
-	for _, fn := range f.Files {
-		if !sorted {
-			if index+offset > count && count != -1 {
-				break
-			}
-		}
-
-		res = append(res, fn)
-		index++
-	}
-
-	if sorted {
-		sort.Slice(res, func(i, j int) bool {
-			if res[i].RequiredBy.Len() == res[j].RequiredBy.Len() {
-				return res[i].Name < res[j].Name
-			}
-
-			return res[i].RequiredBy.Len() > res[j].RequiredBy.Len()
-		})
-
-		if count != -1 {
-			if count+offset < int64(len(res)) {
-				res = res[:count+offset]
-			}
-
-			if offset < int64(len(res)) {
-				res = res[offset:]
-			}
-		}
-	}
-
-	return res
 }
 
 func (f *Files) Add(file *File) {

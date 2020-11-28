@@ -16,7 +16,7 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
   * [Metrics](#metrics)
   * [Graphs](#graphs-graphviz-format-and-svg)
   * [Relation](#relation)
-  * [Tops](#tops)
+  * [Brief project information](#brief-project-information)
 * [Install](#install)
 * [Usage](#usage)
 * [Config](#config)
@@ -61,34 +61,9 @@ See [building graphs](doc/graphs.md) for details.
 
 1. Checking the reachability of a function from another function and outputs the call stacks.
 
-### Tops
-
-#### Classes
-
-- by Lack of cohesion in methods;
-- by Lack of cohesion in methods 4;
-- by Afferent coupling;
-- by Efferent coupling;
-- by Instability;
-- by the number of classes on which it depends;
-- by the number of classes dependent on it.
-
-#### Functions
-
-- by  the number of classes on which it depends;
-- by the number of classes dependent on it;
-- by uses count;
-- by cyclomatic complexity;
-- by count of magic numbers.
-
 ### Brief project information
 
-- Count of classes;
-- Count of methods;
-- Count of constants;
-- Count of functions;
-- Count of files;
-- Count of lines of code.
+See [example of brief command](./doc/brief-command-example.md) for details.
 
 ## Install
 
@@ -168,31 +143,6 @@ To check the reachability of a function from another function, use the `relation
 >>> relation funcs --parent foo --child boo
 # shows the reachability callstacks of a function 'boo' from function 'foo'.
 ```
-
-### Tops
-
-Tops displays **information about the top** functions and classes. The `top` command is used to display the top.
-
-```
->>> top classes
-# shows the top 10 classes.
-```
-
-To show the list in reverse, add the file `-r`. To control the count and offset in the list, use the `-c` and `-o` flags, respectively.
-
-```
->>> top classes -c 100 -o 10 -r
-# shows the top 100 classes from the end, starting from the 10th.
-```
-
-Supported output to a file in `json` format, for this add the `--output` flag and the path to the file to which you want to write the list.
-
-```
->>> top classes --output top-classes.json
-# outputs the top 10 classes to the top-classes.json file.
-```
-
-For command information, write `top help`.
 
 ### Brief project information
 

@@ -54,7 +54,7 @@ func Collect() error {
 	}
 
 	meta.OnIndexingComplete(func() {
-		GlobalCtx.BarLinting = pb.StartNew(GlobalCtx.Files.Len())
+		GlobalCtx.BarLinting = pb.StartNew(int(GlobalCtx.CountFiles))
 	})
 
 	_, _ = cmd.Run(&cmd.MainConfig{

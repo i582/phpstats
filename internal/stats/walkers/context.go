@@ -32,6 +32,8 @@ type globalContext struct {
 	ExcludeRegexp *regexp.Regexp
 	BarLinting    *pb.ProgressBar
 
+	CountFiles int64
+
 	CountCommentLine        int64
 	CountAnonymousFunctions int64
 }
@@ -90,6 +92,10 @@ func (ctx *globalContext) Decode(r io.Reader, filename string) error {
 
 // UpdateMeta recovers data by collecting it from each file.
 func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta, filename string) {
+	for range f.Files.Files {
+		ctx.CountFiles++
+	}
+
 	if ctx.ExcludeRegexp != nil && ctx.ExcludeRegexp.MatchString(filepath.ToSlash(filename)) {
 		return
 	}

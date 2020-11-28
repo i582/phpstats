@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	"sort"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -235,58 +235,6 @@ func NewFunctions() *Functions {
 	}
 }
 
-func (f *Functions) GetAll(onlyMethods, onlyFuncs, all bool, count int64, offset int64, sorted bool, withEmbeddedFuncs bool) []*Function {
-	var res = make([]*Function, 0, len(f.Funcs))
-	var index int64
-
-	if offset < 0 {
-		offset = 0
-	}
-
-	for key, fn := range f.Funcs {
-		if !sorted {
-			if index > count+offset && count != -1 {
-				break
-			}
-		}
-
-		if !withEmbeddedFuncs && fn.IsEmbeddedFunc() {
-			continue
-		}
-
-		if !all {
-			if !key.IsMethod() && onlyMethods {
-				continue
-			}
-
-			if key.IsMethod() && onlyFuncs {
-				continue
-			}
-		}
-
-		res = append(res, fn)
-		index++
-	}
-
-	if sorted {
-		sort.Slice(res, func(i, j int) bool {
-			return res[i].UsesCount > res[j].UsesCount
-		})
-
-		if count != -1 {
-			if count+offset < int64(len(res)) {
-				res = res[:count+offset]
-			}
-
-			if offset < int64(len(res)) {
-				res = res[offset:]
-			}
-		}
-	}
-
-	return res
-}
-
 func (f *Functions) Add(fn *Function) {
 	f.m.Lock()
 	f.Funcs[fn.Name] = fn
@@ -358,6 +306,10 @@ func NewMethod(name FuncKey, pos meta.ElementPosition, class *Class) *Function {
 
 func IsEmbeddedFunc(name string) bool {
 	return strings.Contains(name, "phpstorm-stubs")
+}
+
+func (f *Function) IsVendorFunction() bool {
+	return strings.Contains(f.Pos.Filename, string(filepath.Separator)+"vendor"+string(filepath.Separator))
 }
 
 func (f *Function) IsEmbeddedFunc() bool {
@@ -433,8 +385,10 @@ func (f *Function) AddCalled(fn *Function) {
 }
 
 func (f *Function) AddCalledBy(fn *Function) {
+	if _, found := f.CalledBy.Get(fn.Name); !found {
+		f.AddUse()
+	}
 	f.CalledBy.Add(fn)
-	f.AddUse()
 
 	if f.Class == nil || fn.Class == nil {
 		return

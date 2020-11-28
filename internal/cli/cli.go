@@ -30,7 +30,6 @@ func Run() {
 	MainShell.AddExecutor(commands.Graph())
 	MainShell.AddExecutor(commands.Brief())
 	MainShell.AddExecutor(commands.About())
-	MainShell.AddExecutor(commands.Top())
 	MainShell.AddExecutor(commands.Metrics())
 	MainShell.AddExecutor(commands.Relation())
 
