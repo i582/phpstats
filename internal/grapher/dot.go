@@ -1,6 +1,7 @@
 package grapher
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 )
@@ -35,5 +36,14 @@ func (d *Dot) Execute() error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
-	return err
+
+	if err != nil {
+		return fmt.Errorf(`%v
+  Most likely, the error occurs due to the fact that Graphviz 
+  is not installed or its path to it is not registered in the
+  Path environment variable. 
+  Please check.`, err)
+	}
+
+	return nil
 }

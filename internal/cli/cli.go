@@ -150,6 +150,7 @@ func Run() {
 						return err
 					}
 
+					MainShell.Run()
 					return nil
 				},
 			},
@@ -160,6 +161,4 @@ func Run() {
 	if err != nil {
 		return
 	}
-
-	MainShell.Run()
 }

@@ -297,10 +297,10 @@ func handleGraphOutputWithWeb(c *shell.Context, inBrowser bool, graphData string
 		output.Value = filepath.Join(utils.DefaultGraphsDir(), "graph.svg")
 	}
 
-	handleGraphOutput(c, graphData)
+	outputted := handleGraphOutput(c, graphData)
 	transformSvgGraph(c)
 
-	if inBrowser {
+	if inBrowser && outputted {
 		err := utils.OpenFile("file:///" + c.GetFlagValue("-o"))
 		if err != nil {
 			log.Print("error open graph file:", err)
@@ -333,13 +333,13 @@ func transformSvgGraph(c *shell.Context) {
 	}
 }
 
-func handleGraphOutput(c *shell.Context, graph string) {
+func handleGraphOutput(c *shell.Context, graph string) bool {
 	name := c.GetFlagValue("-o")
 	graphFileName := name + ".gv"
 	graphFile, err := c.ValidateFilePath(graphFileName)
 	if err != nil {
 		c.Error(err)
-		return
+		return false
 	}
 
 	fmt.Fprint(graphFile, graph)
@@ -353,7 +353,7 @@ func handleGraphOutput(c *shell.Context, graph string) {
 	err = dot.Execute()
 	if err != nil {
 		c.Error(err)
-		return
+		return false
 	}
-	return
+	return true
 }

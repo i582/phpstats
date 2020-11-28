@@ -1,6 +1,12 @@
 package representator
 
-func SplitText(text string) string {
+import (
+	"fmt"
+
+	"github.com/gookit/color"
+)
+
+func splitText(text string) string {
 	if len(text) > 80 {
 		text = text[:40] + "\n" + text[40:80] + "\n" + text[80:]
 		return text
@@ -19,4 +25,18 @@ func SplitText(text string) string {
 	}
 
 	return text
+}
+
+func colorOutputIntZeroableValue(data int64) string {
+	if data == 0 {
+		return color.Gray.Sprint(data)
+	}
+	return fmt.Sprint(data)
+}
+
+func colorOutputFloatZeroableValue(data float64) string {
+	if data == 0 {
+		return color.Gray.Sprintf("%.2f", data)
+	}
+	return fmt.Sprintf("%.2f", data)
 }
