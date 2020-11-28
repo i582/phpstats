@@ -434,13 +434,13 @@ func (f *Function) AddCalled(fn *Function) {
 
 func (f *Function) AddCalledBy(fn *Function) {
 	f.CalledBy.Add(fn)
+	f.AddUse()
 
 	if f.Class == nil || fn.Class == nil {
 		return
 	}
 
 	f.Class.AddDepsBy(fn.Class)
-	f.AddUse()
 }
 
 func (f *Function) AddUse() {
