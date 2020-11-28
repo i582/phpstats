@@ -146,3 +146,14 @@ func OpenFile(url string) error {
 	args = append(args, url)
 	return exec.Command(cmd, args...).Start()
 }
+
+func Exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
