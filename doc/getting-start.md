@@ -136,6 +136,8 @@ Also, each of the subcommands accepts the following flags:
 1. `-c` — number of classes in the list;
 2. `-o` — shift of the list from the beginning;
 3. `--json` — path to the file for outputting information in the `json` format.
+4. `--sort` — column number by which sorting will be performed;
+5. `-r` — sort in reverse order.
 
 The `func` subcommand also accepts the following flag:
 

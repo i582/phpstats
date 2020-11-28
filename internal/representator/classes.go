@@ -30,7 +30,7 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 	}
 
 	for index, class := range c {
-		data := classToData(class)
+		data := ClassToData(class)
 
 		var lcom string
 		if data.Lcom == -1 {

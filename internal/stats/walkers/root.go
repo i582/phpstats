@@ -240,6 +240,10 @@ func (r *rootChecker) handleImport(n *ir.ImportExpr) {
 }
 
 func (r *rootChecker) handleNamespace(n *ir.NamespaceStmt) {
+	if n.NamespaceName == nil {
+		return
+	}
+
 	nsName := n.NamespaceName.Value
 
 	GlobalCtx.Namespaces.CreateNamespace(nsName)

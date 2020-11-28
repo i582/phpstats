@@ -33,7 +33,7 @@ func Graph() *shell.Executor {
 				Name:      "-r",
 				WithValue: true,
 				Help:      "recursive level",
-				Default:   "5",
+				Default:   "2",
 			},
 			&flags.Flag{
 				Name: "--root",
@@ -85,7 +85,7 @@ func Graph() *shell.Executor {
 				Name:      "-r",
 				WithValue: true,
 				Help:      "recursive level",
-				Default:   "5",
+				Default:   "2",
 			},
 			&flags.Flag{
 				Name: "--inheritance",
@@ -155,7 +155,7 @@ func Graph() *shell.Executor {
 				Name:      "-r",
 				WithValue: true,
 				Help:      "recursive level",
-				Default:   "5",
+				Default:   "2",
 			},
 			&flags.Flag{
 				Name: "--web",
@@ -229,7 +229,7 @@ func Graph() *shell.Executor {
 				Name:      "-r",
 				WithValue: true,
 				Help:      "recursive level",
-				Default:   "5",
+				Default:   "2",
 			},
 			&flags.Flag{
 				Name: "--web",
@@ -270,7 +270,7 @@ func Graph() *shell.Executor {
 				Name:      "-r",
 				WithValue: true,
 				Help:      "recursive level",
-				Default:   "5",
+				Default:   "2",
 			},
 			&flags.Flag{
 				Name: "--web",

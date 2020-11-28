@@ -6,6 +6,7 @@ import (
 
 	"github.com/i582/cfmt"
 
+	"github.com/i582/phpstats/internal/getter"
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
@@ -30,6 +31,16 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
 				Name: "-e",
 				Help: "show embedded functions",
 			},
@@ -42,11 +53,20 @@ func List() *shell.Executor {
 		Func: func(c *shell.Context) {
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
 
 			withEmbeddedFuncs := c.Flags.Contains("-e")
 			toJson, jsonFile := handleOutputInJson(c)
 
-			funcs := walkers.GlobalCtx.Functions.GetAll(false, true, false, count, offset, true, withEmbeddedFuncs)
+			funcs := getter.GetFunctionsByOptions(walkers.GlobalCtx.Functions, getter.FunctionsGetOptions{
+				OnlyFuncs:         true,
+				Count:             count,
+				Offset:            offset,
+				WithEmbeddedFuncs: withEmbeddedFuncs,
+				SortColumn:        sortColumn,
+				ReverseSort:       reverseSort,
+			})
 
 			if toJson {
 				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
@@ -80,6 +100,16 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
 				Name:      "--json",
 				Help:      "output to json file",
 				WithValue: true,
@@ -88,13 +118,21 @@ func List() *shell.Executor {
 		Func: func(c *shell.Context) {
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
 
 			toJson, jsonFile := handleOutputInJson(c)
 
-			funcs := walkers.GlobalCtx.Functions.GetAll(true, false, false, count, offset, true, false)
+			methods := getter.GetFunctionsByOptions(walkers.GlobalCtx.Functions, getter.FunctionsGetOptions{
+				OnlyMethods: true,
+				Count:       count,
+				Offset:      offset,
+				SortColumn:  sortColumn,
+				ReverseSort: reverseSort,
+			})
 
 			if toJson {
-				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
+				data, err := representator.GetPrettifyJsonFunctionsRepr(methods)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -102,7 +140,7 @@ func List() *shell.Executor {
 				jsonFile.Close()
 				cfmt.Printf("The methods list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
-				data := representator.GetTableFunctionsRepr(funcs, offset)
+				data := representator.GetTableFunctionsRepr(methods, offset)
 				fmt.Println(data)
 			}
 		},
@@ -125,6 +163,16 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
 				Name:      "--json",
 				Help:      "output to json file",
 				WithValue: true,
@@ -133,10 +181,17 @@ func List() *shell.Executor {
 		Func: func(c *shell.Context) {
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
 
 			toJson, jsonFile := handleOutputInJson(c)
 
-			files := walkers.GlobalCtx.Files.GetAll(count, offset, true)
+			files := getter.GetFilesByOptions(walkers.GlobalCtx.Files, getter.FilesGetOptions{
+				Count:       count,
+				Offset:      offset,
+				SortColumn:  sortColumn,
+				ReverseSort: reverseSort,
+			})
 
 			if toJson {
 				data, err := representator.GetPrettifyJsonFilesRepr(files)
@@ -170,6 +225,16 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
 				Name:      "--json",
 				Help:      "output to json file",
 				WithValue: true,
@@ -178,10 +243,18 @@ func List() *shell.Executor {
 		Func: func(c *shell.Context) {
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
 
 			toJson, jsonFile := handleOutputInJson(c)
 
-			classes := walkers.GlobalCtx.Classes.GetAllClasses(count, offset, true)
+			classes := getter.GetClassesByOption(walkers.GlobalCtx.Classes, getter.ClassesGetOptions{
+				OnlyClasses: true,
+				Count:       count,
+				Offset:      offset,
+				SortColumn:  sortColumn,
+				ReverseSort: reverseSort,
+			})
 
 			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(classes)
@@ -216,6 +289,16 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
 				Name:      "--json",
 				Help:      "output to json file",
 				WithValue: true,
@@ -224,10 +307,18 @@ func List() *shell.Executor {
 		Func: func(c *shell.Context) {
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
 
 			toJson, jsonFile := handleOutputInJson(c)
 
-			ifaces := walkers.GlobalCtx.Classes.GetAllInterfaces(count, offset, true)
+			ifaces := getter.GetClassesByOption(walkers.GlobalCtx.Classes, getter.ClassesGetOptions{
+				OnlyInterfaces: true,
+				Count:          count,
+				Offset:         offset,
+				SortColumn:     sortColumn,
+				ReverseSort:    reverseSort,
+			})
 
 			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(ifaces)
@@ -267,6 +358,16 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
 				Name:      "--json",
 				Help:      "output to json file",
 				WithValue: true,
@@ -276,10 +377,18 @@ func List() *shell.Executor {
 			count := c.GetIntFlagValue("-c")
 			offset := c.GetIntFlagValue("-o")
 			level := c.GetIntFlagValue("-l")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
 
 			toJson, jsonFile := handleOutputInJson(c)
 
-			nss := walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level, count, offset)
+			nss := getter.GetNamespacesByOptions(walkers.GlobalCtx.Namespaces, getter.NamespacesGetOptions{
+				Level:       level,
+				Count:       count,
+				Offset:      offset,
+				SortColumn:  sortColumn,
+				ReverseSort: reverseSort,
+			})
 
 			if toJson {
 				data, err := representator.GetPrettifyJsonNamespacesRepr(nss)

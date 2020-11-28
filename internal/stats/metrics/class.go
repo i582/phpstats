@@ -81,6 +81,10 @@ func LackOfCohesionInMethods4(c *symbols.Class) int64 {
 
 		for i := 0; i < len(functions)-1; i++ {
 			for j := i + 1; j < len(functions); j++ {
+				if functions[i].Id == functions[j].Id {
+					continue
+				}
+
 				g.SetEdge(simple.Edge{
 					F: functions[i],
 					T: functions[j],
