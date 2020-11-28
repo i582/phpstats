@@ -127,13 +127,21 @@ The command can also accept flags:
 
 If none of the flags (`--root`, `--block`) is specified, then by default all links will be displayed.
 
-## Namespace graph
+#### Example
 
-Example ([svg](./namespace_graph.svg)):
+For example, to create the graph above, the following command was used:
 
-![](./namespace_graph_preview.png)
+```
+graph file -o graph.svg wp-load.php
+```
 
-Contains the relationships between namespaces and their child namespaces.
+## Namespace dependencies graph
+
+Example ([svg](./namespace_deps_graph.svg)):
+
+![](./namespace_deps_graph_preview.png)
+
+Contains links between namespaces.
 
 To get a graph, use the `graph namespace` command.
 
@@ -145,3 +153,36 @@ The command can also accept flags:
 2. `-r` — the level of nesting that is required (value 0 displays only the closest children, 1 — also displays all the closest children for the closest children, and so on);
 3. `--web` — flag, when set, the graph will be displayed in the browser with the ability to move and scale the graph.
 
+#### Example
+
+For example, to create the graph above, the following command was used:
+
+```
+graph namespace --web \Symfony\Bridge\Doctrine -r 2
+```
+
+## Namespace structure graph
+
+Example ([svg](./namespace_graph.svg)):
+
+![](./namespace_graph_preview.png)
+
+Contains the relationships between namespaces and their child namespaces.
+
+To get a graph, use the `graph namespace-structure` command.
+
+The command takes one argument, the **name of the namespace**.
+
+The command can also accept flags:
+
+1. `-o` — name of the file to which the graph will be saved;
+2. `-r` — the level of nesting that is required (value 0 displays only the closest children, 1 — also displays all the closest children for the closest children, and so on);
+3. `--web` — flag, when set, the graph will be displayed in the browser with the ability to move and scale the graph.
+
+#### Example
+
+For example, to create the graph above, the following command was used:
+
+```
+graph namespace-structure --web \Symfony\Component\PropertyInfo
+```

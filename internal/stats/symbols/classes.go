@@ -235,6 +235,8 @@ type Class struct {
 	Name string
 	File *File
 
+	Namespace *Namespace
+
 	Implements *Classes
 	Extends    *Classes
 
@@ -349,7 +351,7 @@ func (c *Class) Type() string {
 	return "class"
 }
 
-func (c *Class) Namespace() string {
+func (c *Class) NamespaceName() string {
 	parts := strings.Split(c.Name, `\`)
 	if len(parts) == 1 {
 		return c.Name

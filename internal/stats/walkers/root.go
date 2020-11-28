@@ -6,6 +6,7 @@ import (
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/linter"
+	"github.com/VKCOM/noverify/src/meta"
 	"github.com/VKCOM/noverify/src/solver"
 
 	"github.com/i582/phpstats/internal/stats/symbols"
@@ -41,6 +42,8 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.NamespaceStmt:
 		r.handleNamespace(n)
+	case *ir.FunctionStmt:
+		r.handleFunction(n)
 	case *ir.ImportExpr:
 		r.handleImport(n)
 	case *ir.ClassStmt:
@@ -52,6 +55,28 @@ func (r *rootChecker) AfterEnterNode(n ir.Node) {
 	case *ir.PropertyListStmt:
 		r.handlePropertyList(n)
 	}
+}
+
+func (r *rootChecker) handleFunction(n *ir.FunctionStmt) {
+	funcName, ok := solver.GetFuncName(r.Ctx.ClassParseState(), &ir.Name{
+		Value: n.FunctionName.Value,
+	})
+	if !ok {
+		return
+	}
+
+	funcInfo, ok := meta.Info.GetFunction(funcName)
+	if !ok {
+		return
+	}
+
+	fun, ok := GlobalCtx.Functions.Get(symbols.NewFuncKey(funcInfo.Name))
+	if !ok {
+		return
+	}
+
+	r.CurFile.AddFunc(fun)
+	GlobalCtx.Namespaces.AddFunctionToNamespace(r.Ctx.ClassParseState().Namespace, fun)
 }
 
 func (r *rootChecker) handlePropertyList(n *ir.PropertyListStmt) bool {

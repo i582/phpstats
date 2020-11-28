@@ -215,8 +215,8 @@ func Graph() *shell.Executor {
 		},
 	}
 
-	graphNamespaceExecutor := &shell.Executor{
-		Name:      "namespace",
+	graphNamespaceStructureExecutor := &shell.Executor{
+		Name:      "namespace-structure",
 		Help:      "building graph for namespace and childs",
 		WithValue: true,
 		Flags: flags.NewFlags(
@@ -256,6 +256,47 @@ func Graph() *shell.Executor {
 		},
 	}
 
+	graphNamespaceExecutor := &shell.Executor{
+		Name:      "namespace",
+		Help:      "building dependency graph for namespace",
+		WithValue: true,
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Help:      "output file",
+			},
+			&flags.Flag{
+				Name:      "-r",
+				WithValue: true,
+				Help:      "recursive level",
+				Default:   "5",
+			},
+			&flags.Flag{
+				Name: "--web",
+				Help: "show graph in browser",
+			},
+		),
+		CountArgs: 1,
+		Func: func(c *shell.Context) {
+			recursiveLevel := c.GetIntFlagValue("-r")
+			inBrowser := c.Flags.Contains("--web")
+
+			if !validateOutputPath(c, inBrowser) {
+				return
+			}
+
+			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
+			if !ok {
+				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
+				return
+			}
+
+			graphData := g.NamespacesDeps(ns, recursiveLevel)
+			handleGraphOutputWithWeb(c, inBrowser, graphData)
+		},
+	}
+
 	graphExecutor := &shell.Executor{
 		Name: "graph",
 		Help: "building graphs",
@@ -268,6 +309,7 @@ func Graph() *shell.Executor {
 	graphExecutor.AddExecutor(graphClassExecutor)
 	graphExecutor.AddExecutor(graphFuncExecutor)
 	graphExecutor.AddExecutor(graphLcom4Executor)
+	graphExecutor.AddExecutor(graphNamespaceStructureExecutor)
 	graphExecutor.AddExecutor(graphNamespaceExecutor)
 
 	return graphExecutor

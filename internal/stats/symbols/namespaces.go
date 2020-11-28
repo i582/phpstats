@@ -60,6 +60,16 @@ func (n *Namespaces) AddClassToNamespace(nsName string, class *Class) {
 		return
 	}
 	ns.Classes.Add(class)
+	class.Namespace = ns
+}
+
+func (n *Namespaces) AddFunctionToNamespace(nsName string, fun *Function) {
+	ns, ok := n.GetNamespace(nsName)
+	if !ok {
+		return
+	}
+	ns.Functions.Add(fun)
+	fun.Namespace = ns
 }
 
 func (n *Namespaces) createNamespace(nsParts []string, fullName string) (*Namespace, bool) {
@@ -177,8 +187,9 @@ type Namespace struct {
 	Name     string
 	FullName string
 
-	Files   *Files
-	Classes *Classes
+	Files     *Files
+	Classes   *Classes
+	Functions *Functions
 
 	Childs *Namespaces
 
@@ -190,11 +201,12 @@ type Namespace struct {
 
 func NewNamespace(name string, fullName string) *Namespace {
 	return &Namespace{
-		Name:     name,
-		FullName: fullName,
-		Files:    NewFiles(),
-		Classes:  NewClasses(),
-		Childs:   NewNamespaces(),
+		Name:      name,
+		FullName:  fullName,
+		Files:     NewFiles(),
+		Classes:   NewClasses(),
+		Functions: NewFunctions(),
+		Childs:    NewNamespaces(),
 	}
 }
 

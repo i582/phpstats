@@ -31,7 +31,7 @@ func GetTableNamespacesRepr(n []*symbols.Namespace, offset int64) string {
 	for index, namespace := range n {
 		data := namespaceToData(namespace)
 
-		name := data.Name
+		name := data.FullName
 		name = splitText(name)
 
 		r := []*simpletable.Cell{

@@ -48,14 +48,12 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 ### Graphs (Graphviz format and svg)
 
 1. Class (or interface) dependencies;
-
 2. Class (interface) extend and implementation dependencies;
-
 3. Function or method dependencies;
-
 4. Links within a class (or graph for the LCOM 4 metric);
-
-5. Links between files (included in global and in function).
+5. Links between files (included in global and in function);
+6. Namespace dependencies graph;
+7. Namespace structure graph.
 
 See [building graphs](doc/graphs.md) for details.
 
