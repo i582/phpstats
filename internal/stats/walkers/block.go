@@ -264,6 +264,7 @@ func (b *blockChecker) handleFunctionCall(n *ir.FunctionCallExpr) {
 	calledFunc, found := GlobalCtx.Functions.Get(calledFuncKey)
 	if !found {
 		calledFunc = symbols.NewFunction(calledFuncKey, calledFunPos)
+		GlobalCtx.Functions.Add(calledFunc)
 	}
 
 	b.handleCalled(calledFunc)
