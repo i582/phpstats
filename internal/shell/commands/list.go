@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/i582/cfmt"
+
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
@@ -53,6 +55,7 @@ func List() *shell.Executor {
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
+				cfmt.Printf("The functions list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
 				data := representator.GetTableFunctionsRepr(funcs, offset)
 				fmt.Println(data)
@@ -97,6 +100,7 @@ func List() *shell.Executor {
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
+				cfmt.Printf("The methods list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
 				data := representator.GetTableFunctionsRepr(funcs, offset)
 				fmt.Println(data)
@@ -141,6 +145,7 @@ func List() *shell.Executor {
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
+				cfmt.Printf("The files list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
 				data := representator.GetTableFilesRepr(files, offset)
 				fmt.Println(data)
@@ -185,6 +190,7 @@ func List() *shell.Executor {
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
+				cfmt.Printf("The classes list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
 				data := representator.GetTableClassesRepr(classes, offset)
 				fmt.Println(data)
@@ -230,6 +236,7 @@ func List() *shell.Executor {
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
+				cfmt.Printf("The interfaces list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
 				data := representator.GetTableClassesRepr(ifaces, offset)
 				fmt.Println(data)
@@ -260,12 +267,9 @@ func List() *shell.Executor {
 				Default:   "0",
 			},
 			&flags.Flag{
-				Name: "-f",
-				Help: "show full information",
-			},
-			&flags.Flag{
-				Name: "--table",
-				Help: "show list in table",
+				Name:      "--json",
+				Help:      "output to json file",
+				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
@@ -284,6 +288,7 @@ func List() *shell.Executor {
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
+				cfmt.Printf("The namespaces list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
 				data := representator.GetTableNamespacesRepr(nss, offset)
 				fmt.Println(data)

@@ -109,8 +109,16 @@ If you want to work with **dependency graphs**, then you need to install the [Gr
 ## Usage
 
 ```
-$ phpstats collect [--config-path <dir>] [--cache-dir <dir>] [--disable-cache] [--port <value>] [--project-path <dir>] [<analyze-dir>]
+$ phpstats collect         \
+    [--config-path <dir>]  \
+    [--cache-dir <dir>]    \
+    [--disable-cache]      \
+    [--port <value>]       \
+    [--project-path <dir>] \
+    [<analyze-dir>]
 ```
+
+>  All flags and analysis directory are optional.
 
 The `--config-path` flag sets the **path to the configuration file**. See [config](doc/config.md).
 
@@ -125,6 +133,8 @@ The `--port` flag sets the **port for the server**. See the [server](#Server) pa
 The analyzed directory can be omitted if the include field is **specified in the config** (*by default it is* `"./"`).  See [config](doc/config.md).
 
 After collecting information you will be taken to an **interactive shell**, for help, enter `help`.
+
+See [Getting started](doc/getting-start.md) for details.
 
 ### Metrics
 
@@ -150,7 +160,7 @@ When creating a graph, two files are created, one with the source code of the gr
 
 For command information, write `graph help`.
 
-See [building graphs](doc/graphs.md) for details.
+See [Building graphs](doc/graphs.md) for details.
 
 ### Relation
 

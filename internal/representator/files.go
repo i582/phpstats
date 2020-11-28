@@ -1,10 +1,9 @@
 package representator
 
 import (
-	"bytes"
-	"fmt"
-
-	"github.com/olekukonko/tablewriter"
+	"github.com/alexeyco/simpletable"
+	"github.com/gookit/color"
+	"github.com/i582/cfmt"
 
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
@@ -14,24 +13,34 @@ func GetTableFilesRepr(f []*symbols.File, offset int64) string {
 		return ""
 	}
 
-	w := bytes.NewBuffer(nil)
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"#", "Name", "Root\ninclusions", "Block\ninclusions", "Count\nrequired by"})
-	table.SetAutoFormatHeaders(true)
-	table.SetAutoWrapText(true)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_CENTER)
+	table := simpletable.New()
+	table.SetStyle(simpletable.StyleCompactLite)
+	table.Header = &simpletable.Header{
+		Cells: []*simpletable.Cell{
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("#")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Name")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Root}}::green\n{{inclusions}}::green")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Block}}::green\n{{inclusions}}::green")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Count}}::green\n{{required by}}::green")},
+		},
+	}
 
 	for index, file := range f {
 		data := fileToData(file)
 
 		name := data.Name
-		name = SplitText(name)
+		name = splitText(name)
 
-		line := []string{fmt.Sprint(int64(index+1) + offset), name, fmt.Sprint(data.CountRequiredRoot), fmt.Sprint(data.CountRequiredBlock), fmt.Sprint(data.CountRequiredBy)}
-		table.Append(line)
+		r := []*simpletable.Cell{
+			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
+			{Text: name},
+			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountRequiredRoot)},
+			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountRequiredBlock)},
+			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountRequiredBy)},
+		}
+
+		table.Body.Cells = append(table.Body.Cells, r)
 	}
 
-	table.Render()
-	return w.String()
+	return table.String()
 }

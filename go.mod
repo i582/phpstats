@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/VKCOM/noverify v0.2.1-0.20201001205037-12079311fde5
+	github.com/alexeyco/simpletable v0.0.0-20200730140406-5bb24159ccfb
 	github.com/c-bata/go-prompt v0.2.5
 	github.com/cheggaaa/pb/v3 v3.0.5
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect

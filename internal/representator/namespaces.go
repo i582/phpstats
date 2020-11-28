@@ -1,10 +1,9 @@
 package representator
 
 import (
-	"bytes"
-	"fmt"
-
-	"github.com/olekukonko/tablewriter"
+	"github.com/alexeyco/simpletable"
+	"github.com/gookit/color"
+	"github.com/i582/cfmt"
 
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
@@ -14,25 +13,40 @@ func GetTableNamespacesRepr(n []*symbols.Namespace, offset int64) string {
 		return ""
 	}
 
-	w := bytes.NewBuffer(nil)
-	table := tablewriter.NewWriter(w)
-	table.SetHeader([]string{"#", "Name", "Files", "Classes", "Aff\ncoup", "Eff\ncoup", "Instab", "Childs"})
-	table.SetAutoFormatHeaders(true)
-	table.SetAutoWrapText(true)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_CENTER)
+	table := simpletable.New()
+	table.SetStyle(simpletable.StyleCompactLite)
+	table.Header = &simpletable.Header{
+		Cells: []*simpletable.Cell{
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("#")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Name")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Files")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Classes")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Aff}}::green\n{{coup}}::green")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Eff}}::green\n{{coup}}::green")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Instab")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Childs")},
+		},
+	}
 
 	for index, namespace := range n {
 		data := namespaceToData(namespace)
 
-		name := data.FullName
-		name = SplitText(name)
+		name := data.Name
+		name = splitText(name)
 
-		line := []string{fmt.Sprint(int64(index+1) + offset), name, fmt.Sprint(data.Files), fmt.Sprint(data.Classes),
-			fmt.Sprintf("%.2f", data.Aff), fmt.Sprintf("%.2f", data.Eff), fmt.Sprintf("%.2f", data.Instab), fmt.Sprint(data.Childs)}
-		table.Append(line)
+		r := []*simpletable.Cell{
+			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
+			{Text: name},
+			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Files)},
+			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Classes)},
+			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Aff)},
+			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Eff)},
+			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Instab)},
+			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Childs)},
+		}
+
+		table.Body.Cells = append(table.Body.Cells, r)
 	}
 
-	table.Render()
-	return w.String()
+	return table.String()
 }
