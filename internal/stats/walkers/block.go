@@ -30,8 +30,6 @@ func (b *blockChecker) AfterEnterNode(n ir.Node) {
 	switch n := n.(type) {
 	case *ir.Argument:
 		n.Expr.Walk(b)
-	case *ir.FunctionStmt:
-		b.handleFunction(n)
 	case *ir.FunctionCallExpr:
 		b.handleFunctionCall(n)
 	case *ir.MethodCallExpr:
@@ -273,22 +271,6 @@ func (b *blockChecker) handleFunctionCall(n *ir.FunctionCallExpr) {
 	for _, nn := range n.Args {
 		nn.Walk(b)
 	}
-}
-
-func (b *blockChecker) handleFunction(n *ir.FunctionStmt) {
-	funcName := n.FunctionName.Value
-
-	funcInfo, ok := meta.Info.GetFunction(`\` + funcName)
-	if !ok {
-		return
-	}
-
-	fun, ok := GlobalCtx.Functions.Get(symbols.NewFuncKey(funcInfo.Name))
-	if !ok {
-		return
-	}
-
-	b.Root.CurFile.AddFunc(fun)
 }
 
 func (b *blockChecker) handleMethod(name string, classType meta.TypesMap) {

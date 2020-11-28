@@ -306,6 +306,8 @@ type Function struct {
 	Name FuncKey
 	Pos  meta.ElementPosition
 
+	Namespace *Namespace
+
 	Called   *Functions
 	CalledBy *Functions
 
