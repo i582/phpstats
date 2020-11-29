@@ -36,7 +36,7 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 		if data.Lcom == -1 {
 			lcom = color.Gray.Sprint("undef")
 		} else {
-			lcom = colorOutputFloatZeroableValue(data.Lcom)
+			lcom = ColorOutputFloatZeroableValue(data.Lcom)
 		}
 
 		name := data.Name
@@ -45,13 +45,13 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 		r := []*simpletable.Cell{
 			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
 			{Text: name},
-			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Afferent)},
-			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Efferent)},
-			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Instability)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Afferent)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Efferent)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Instability)},
 			{Align: simpletable.AlignRight, Text: lcom},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Lcom4)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountDeps)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountDepsBy)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.Lcom4)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountDeps)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountDepsBy)},
 		}
 
 		table.Body.Cells = append(table.Body.Cells, r)

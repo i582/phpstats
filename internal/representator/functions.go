@@ -38,13 +38,13 @@ func GetTableFunctionsRepr(f []*symbols.Function, offset int64) string {
 		r := []*simpletable.Cell{
 			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
 			{Text: name},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.UsesCount)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountDeps)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountDepsBy)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountCalled)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountCalledBy)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CyclomaticComplexity)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountMagicNumbers)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.UsesCount)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountDeps)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountDepsBy)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountCalled)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountCalledBy)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CyclomaticComplexity)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountMagicNumbers)},
 		}
 
 		table.Body.Cells = append(table.Body.Cells, r)

@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/stats/metrics"
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
@@ -41,19 +42,25 @@ func GetNamespacesByOptions(n *symbols.Namespaces, opt NamespacesGetOptions) []*
 		case 2: // Files
 			namespace1 = float64(namespaces[i].Files.Len())
 			namespace2 = float64(namespaces[j].Files.Len())
-		case 3: // Classes
-			namespace1 = float64(namespaces[i].Classes.Len())
-			namespace2 = float64(namespaces[j].Classes.Len())
-		case 4: // Afferent
+		case 3: // All classes
+			namespace1 = float64(representator.NamespaceToData(namespaces[i]).Classes)
+			namespace2 = float64(representator.NamespaceToData(namespaces[j]).Classes)
+		case 4: // Own classes
+			namespace1 = float64(representator.NamespaceToData(namespaces[i]).OwnClasses)
+			namespace2 = float64(representator.NamespaceToData(namespaces[j]).OwnClasses)
+		case 5: // Afferent
 			namespace1 = namespaces[i].Aff
 			namespace2 = namespaces[j].Aff
-		case 5: // Efferent
+		case 6: // Efferent
 			namespace1 = namespaces[i].Eff
 			namespace2 = namespaces[j].Eff
-		case 6: // Instability
+		case 7: // Instability
 			namespace1 = namespaces[i].Instab
 			namespace2 = namespaces[j].Instab
-		case 7: // Childs
+		case 8: // Abstractness
+			namespace1 = metrics.AbstractnessOfNamespace(namespaces[i])
+			namespace2 = metrics.AbstractnessOfNamespace(namespaces[j])
+		case 9: // Childs
 			namespace1 = float64(namespaces[i].Childs.Len())
 			namespace2 = float64(namespaces[j].Childs.Len())
 		default:

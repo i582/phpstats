@@ -27,16 +27,44 @@ func splitText(text string) string {
 	return text
 }
 
-func colorOutputIntZeroableValue(data int64) string {
+func ColorOutputIntZeroableValue(data int64) string {
 	if data == 0 {
 		return color.Gray.Sprint(data)
 	}
 	return fmt.Sprint(data)
 }
 
-func colorOutputFloatZeroableValue(data float64) string {
+func ColorOutputFloatZeroableValue(data float64) string {
 	if data == 0 {
 		return color.Gray.Sprintf("%.2f", data)
 	}
 	return fmt.Sprintf("%.2f", data)
+}
+
+func ColorOutputFloatZeroablePercentValue(data float64) string {
+	if data == 0 {
+		return color.Gray.Sprintf("(%.2f%%)", data)
+	}
+	return fmt.Sprintf("(%.2f%%)", data)
+}
+
+func ColorWidthOutputIntZeroableValue(data int64, width int64) string {
+	if data == 0 {
+		return color.Gray.Sprintf("%*d", width, data)
+	}
+	return fmt.Sprintf("%*d", width, data)
+}
+
+func ColorWidthOutputFloatZeroableValue(data float64, width int64) string {
+	if data == 0 {
+		return color.Gray.Sprintf("%*.2f", width, data)
+	}
+	return fmt.Sprintf("%*.2f", width, data)
+}
+
+func ColorWidthOutputFloatZeroablePercentValue(data float64, width int64) string {
+	if data == 0 {
+		return color.Gray.Sprintf("(%*.2f%%)", width, data)
+	}
+	return fmt.Sprintf("(%*.2f%%)", width, data)
 }

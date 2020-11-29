@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gookit/color"
+	"github.com/i582/cfmt"
+
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
@@ -55,19 +58,11 @@ func GetStringFileRepr(f *symbols.File) string {
 	var res string
 
 	res += fmt.Sprintf("File %s\n", data.Name)
-	res += fmt.Sprintf("  Path %s\n", data.Path)
+	res += color.Gray.Sprintf("  Path %s\n", data.Path)
 
-	res += fmt.Sprintf("  Include files at the root:      %d\n", data.CountRequiredRoot)
-	for _, f := range data.requiredRoot.Files {
-		res += fmt.Sprintf("\t%-40s (%s)\n", f.Name, f.Path)
-	}
-
-	res += fmt.Sprintf("  Include files in the functions: %d\n", data.CountRequiredBlock)
-	for _, f := range data.requiredBlock.Files {
-		res += fmt.Sprintf("\t%-40s (%s)\n", f.Name, f.Path)
-	}
-
-	res += fmt.Sprintf("  Count of required:              %d\n", data.CountRequiredBy)
+	res += cfmt.Sprintf("  {{Include files at the root}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountRequiredRoot))
+	res += cfmt.Sprintf("  {{Include files in the functions}}::green: %s\n", ColorOutputIntZeroableValue(data.CountRequiredBlock))
+	res += cfmt.Sprintf("  {{Count of required}}::green:              %s\n", ColorOutputIntZeroableValue(data.CountRequiredBy))
 
 	return res
 }

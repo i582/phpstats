@@ -157,3 +157,11 @@ func Exists(path string) (bool, error) {
 	}
 	return true, err
 }
+
+func Percent(x, y int64) float64 {
+	if y == 0 {
+		return 0
+	}
+
+	return (float64(x) / float64(y)) * 100
+}

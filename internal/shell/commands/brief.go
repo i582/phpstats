@@ -3,17 +3,25 @@ package commands
 import (
 	"fmt"
 
+	"github.com/i582/cfmt"
+
+	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats/walkers"
+	"github.com/i582/phpstats/internal/utils"
 )
 
-func percent(x, y int64) float64 {
-	if y == 0 {
-		return 0
-	}
+func colorInt(value int64) string {
+	return representator.ColorWidthOutputIntZeroableValue(value, 8)
+}
 
-	return (float64(x) / float64(y)) * 100
+func colorFloat(value float64) string {
+	return representator.ColorWidthOutputFloatZeroableValue(value, 8)
+}
+
+func colorPercent(value float64) string {
+	return representator.ColorOutputFloatZeroablePercentValue(value)
 }
 
 func Brief() *shell.Executor {
@@ -32,60 +40,60 @@ func Brief() *shell.Executor {
 			maxFunctionCC, minFunctionCC, avgFunctionCC := walkers.GlobalCtx.Functions.MaxMinAvgFunctionsCyclomaticComplexity()
 			maxClassCC, minClassCC, avgClassCC := walkers.GlobalCtx.Classes.MaxMinAvgCyclomaticComplexity()
 
-			fmt.Printf("General project statistics\n\n")
+			cfmt.Printf("General project statistics\n\n")
 
-			fmt.Println("Size")
+			cfmt.Println("Size")
 
-			fmt.Printf("    Lines of Code (LOC):                           %8d\n", countLines)
-			fmt.Printf("    Comment Lines of Code (CLOC):                  %8d (%.2f%%)\n", walkers.GlobalCtx.CountCommentLine, percent(walkers.GlobalCtx.CountCommentLine, countLines))
-			fmt.Printf("    Non-Comment Lines of Code (NCLOC):             %8d (%.2f%%)\n", countLines-walkers.GlobalCtx.CountCommentLine, 100-percent(walkers.GlobalCtx.CountCommentLine, countLines))
-			fmt.Println()
+			cfmt.Printf("    {{Lines of Code (LOC)}}::green:                           %s\n", colorInt(countLines))
+			cfmt.Printf("    {{Comment Lines of Code (CLOC)}}::green:                  %s %s\n", colorInt(walkers.GlobalCtx.CountCommentLine), colorPercent(utils.Percent(walkers.GlobalCtx.CountCommentLine, countLines)))
+			cfmt.Printf("    {{Non-Comment Lines of Code (NCLOC)}}::green:             %s %s\n", colorInt(countLines-walkers.GlobalCtx.CountCommentLine), colorPercent(100-utils.Percent(walkers.GlobalCtx.CountCommentLine, countLines)))
+			cfmt.Println()
 
-			fmt.Println("Metrics")
+			cfmt.Println("Metrics")
 
-			fmt.Printf("    Cyclomatic Complexity\n")
+			cfmt.Printf("    {{Cyclomatic Complexity}}::green\n")
 
-			fmt.Printf("        Average Complexity per Class:              %8.2f\n", avgClassCC)
-			fmt.Printf("            Maximum Class Complexity:              %8.2f\n", maxClassCC)
-			fmt.Printf("            Minimum Class Complexity:              %8.2f\n", minClassCC)
+			cfmt.Printf("        {{Average Complexity per Class}}::green:              %s\n", colorFloat(avgClassCC))
+			cfmt.Printf("            {{Maximum Class Complexity}}::green:              %s\n", colorFloat(maxClassCC))
+			cfmt.Printf("            {{Minimum Class Complexity}}::green:              %s\n", colorFloat(minClassCC))
 
-			fmt.Printf("        Average Complexity per Method:             %8.2f\n", avgMethodCC)
-			fmt.Printf("            Maximum Method Complexity:             %8.2f\n", maxMethodCC)
-			fmt.Printf("            Minimum Method Complexity:             %8.2f\n", minMethodCC)
+			cfmt.Printf("        {{Average Complexity per Method}}::green:             %s\n", colorFloat(avgMethodCC))
+			cfmt.Printf("            {{Maximum Method Complexity}}::green:             %s\n", colorFloat(maxMethodCC))
+			cfmt.Printf("            {{Minimum Method Complexity}}::green:             %s\n", colorFloat(minMethodCC))
 
-			fmt.Printf("        Average Complexity per Functions:          %8.2f\n", avgFunctionCC)
-			fmt.Printf("            Maximum Functions Complexity:          %8.2f\n", maxFunctionCC)
-			fmt.Printf("            Minimum Functions Complexity:          %8.2f\n", minFunctionCC)
-			fmt.Println()
+			cfmt.Printf("        {{Average Complexity per Functions}}::green:          %s\n", colorFloat(avgFunctionCC))
+			cfmt.Printf("            {{Maximum Functions Complexity}}::green:          %s\n", colorFloat(maxFunctionCC))
+			cfmt.Printf("            {{Minimum Functions Complexity}}::green:          %s\n", colorFloat(minFunctionCC))
+			cfmt.Println()
 
-			fmt.Printf("    Count of Magic Numbers\n")
+			cfmt.Printf("    {{Count of Magic Numbers}}::green\n")
 
-			fmt.Printf("        Average Class Count:                       %8d\n", avgClassCMN)
-			fmt.Printf("            Maximum Class Count:                   %8d\n", maxClassCMN)
-			fmt.Printf("            Minimum Class Count:                   %8d\n", minClassCMN)
+			cfmt.Printf("        {{Average Class Count}}::green:                       %s\n", colorInt(avgClassCMN))
+			cfmt.Printf("            {{Maximum Class Count}}::green:                   %s\n", colorInt(maxClassCMN))
+			cfmt.Printf("            {{Minimum Class Count}}::green:                   %s\n", colorInt(minClassCMN))
 
-			fmt.Printf("        Average Method Count:                      %8d\n", avgMethodCMN)
-			fmt.Printf("            Maximum Method Count:                  %8d\n", maxMethodCMN)
-			fmt.Printf("            Minimum Method Count:                  %8d\n", minMethodCMN)
+			cfmt.Printf("        {{Average Method Count}}::green:                      %s\n", colorInt(avgMethodCMN))
+			cfmt.Printf("            {{Maximum Method Count}}::green:                  %s\n", colorInt(maxMethodCMN))
+			cfmt.Printf("            {{Minimum Method Count}}::green:                  %s\n", colorInt(minMethodCMN))
 
-			fmt.Printf("        Average Functions Count:                   %8d\n", avgFunctionCMN)
-			fmt.Printf("            Maximum Method Count:                  %8d\n", maxFunctionCMN)
-			fmt.Printf("            Minimum Method Count:                  %8d\n", minFunctionCMN)
-			fmt.Println()
+			cfmt.Printf("        {{Average Functions Count}}::green:                   %s\n", colorInt(avgFunctionCMN))
+			cfmt.Printf("            {{Maximum Method Count}}::green:                  %s\n", colorInt(maxFunctionCMN))
+			cfmt.Printf("            {{Minimum Method Count}}::green:                  %s\n", colorInt(minFunctionCMN))
+			cfmt.Println()
 
-			fmt.Println("Structure")
+			cfmt.Println("Structure")
 
-			fmt.Printf("    Files:                                         %8d\n", walkers.GlobalCtx.Files.Len())
-			fmt.Printf("    Namespaces:                                    %8d\n", walkers.GlobalCtx.Namespaces.Count())
-			fmt.Printf("    Interfaces:                                    %8d\n", walkers.GlobalCtx.Classes.CountIfaces())
-			fmt.Printf("    Classes                                        %8d\n", int64(walkers.GlobalCtx.Classes.Len())-walkers.GlobalCtx.Classes.CountIfaces())
-			fmt.Printf("        Abstract Classes:                          %8d (%.2f%%)\n", walkers.GlobalCtx.Classes.CountAbstractClasses(), percent(walkers.GlobalCtx.Classes.CountAbstractClasses(), int64(walkers.GlobalCtx.Classes.Len())))
-			fmt.Printf("        Concrete Classes:                          %8d (%.2f%%)\n", walkers.GlobalCtx.Classes.CountClasses(), 100-percent(walkers.GlobalCtx.Classes.CountAbstractClasses(), int64(walkers.GlobalCtx.Classes.Len())))
-			fmt.Printf("    Methods:                                       %8d\n", walkers.GlobalCtx.Functions.CountMethods())
-			fmt.Printf("    Constants:                                     %8d\n", walkers.GlobalCtx.Constants.Len())
-			fmt.Printf("    Functions:\n")
-			fmt.Printf("        Named Functions:                           %8d (%.2f%%)\n", walkers.GlobalCtx.Functions.CountFunctions(), percent(walkers.GlobalCtx.Functions.CountFunctions(), walkers.GlobalCtx.Functions.CountFunctions()+walkers.GlobalCtx.CountAnonymousFunctions))
-			fmt.Printf("        Anonymous Functions:                       %8d (%.2f%%)\n", walkers.GlobalCtx.CountAnonymousFunctions, percent(walkers.GlobalCtx.CountAnonymousFunctions, walkers.GlobalCtx.Functions.CountFunctions()+walkers.GlobalCtx.CountAnonymousFunctions))
+			cfmt.Printf("    {{Files}}::green:                                         %s\n", colorInt(int64(walkers.GlobalCtx.Files.Len())))
+			cfmt.Printf("    {{Namespaces}}::green:                                    %s\n", colorInt(walkers.GlobalCtx.Namespaces.Count()))
+			cfmt.Printf("    {{Interfaces}}::green:                                    %s\n", colorInt(walkers.GlobalCtx.Classes.CountIfaces()))
+			cfmt.Printf("    {{Classes}}::green                                        %s\n", colorInt(int64(walkers.GlobalCtx.Classes.Len())-walkers.GlobalCtx.Classes.CountIfaces()))
+			cfmt.Printf("        {{Abstract Classes}}::green:                          %s %s\n", colorInt(walkers.GlobalCtx.Classes.CountAbstractClasses()), colorPercent(utils.Percent(walkers.GlobalCtx.Classes.CountAbstractClasses(), int64(walkers.GlobalCtx.Classes.Len()))))
+			cfmt.Printf("        {{Concrete Classes}}::green:                          %s %s\n", colorInt(walkers.GlobalCtx.Classes.CountClasses()), colorPercent(100-utils.Percent(walkers.GlobalCtx.Classes.CountAbstractClasses(), int64(walkers.GlobalCtx.Classes.Len()))))
+			cfmt.Printf("    {{Methods}}::green:                                       %s\n", colorInt(walkers.GlobalCtx.Functions.CountMethods()))
+			cfmt.Printf("    {{Constants}}::green:                                     %s\n", colorInt(int64(walkers.GlobalCtx.Constants.Len())))
+			cfmt.Printf("    {{Functions}}::green:\n")
+			cfmt.Printf("        {{Named Functions}}::green:                           %s %s\n", colorInt(walkers.GlobalCtx.Functions.CountFunctions()), colorPercent(utils.Percent(walkers.GlobalCtx.Functions.CountFunctions(), walkers.GlobalCtx.Functions.CountFunctions()+walkers.GlobalCtx.CountAnonymousFunctions)))
+			cfmt.Printf("        {{Anonymous Functions}}::green:                       %s %s\n", colorInt(walkers.GlobalCtx.CountAnonymousFunctions), colorPercent(utils.Percent(walkers.GlobalCtx.CountAnonymousFunctions, walkers.GlobalCtx.Functions.CountFunctions()+walkers.GlobalCtx.CountAnonymousFunctions)))
 
 			fmt.Println()
 		},

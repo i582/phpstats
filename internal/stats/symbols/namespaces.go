@@ -222,6 +222,22 @@ func (n *Namespace) CountChildNamespaces() int64 {
 	return count
 }
 
+func (n *Namespace) CountAbstractAndAllClasses() (int64, int64) {
+	var countAbstract int64
+	var countAll int64
+
+	for _, namespace := range n.Childs.Namespaces {
+		countAbstractForNamespace, countAllForNamespace := namespace.CountAbstractAndAllClasses()
+		countAbstract += countAbstractForNamespace
+		countAll += countAllForNamespace
+	}
+
+	countAbstract += n.Classes.CountAbstractClasses()
+	countAll += int64(n.Classes.Len())
+
+	return countAbstract, countAll
+}
+
 func joinNsName(parts []string) string {
 	return `\` + strings.Join(parts, `\`)
 }
