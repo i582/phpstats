@@ -58,7 +58,7 @@ Lack of Cohesion in Methods 4 (LCOM4):
 	  - a calls b, or b calls a.
 
 	After determining the related methods, we draw a graph linking the related methods 
-	(Use the 'graph lcom4'' command to build the graph.) to each other. 
+	(use the 'graph lcom4' command to build the graph) to each other. 
 	LCOM4 equals the number of connected groups of methods.
 
 	  - LCOM4=1  indicates a cohesive class, which is the "good" class.
