@@ -33,3 +33,25 @@ func AfferentEfferentStabilityOfNamespace(n *symbols.Namespace) (aff, eff, stab 
 
 	return afferent, efferent, instability
 }
+
+// AbstractnessOfNamespace calculates abstractness metrics for the passed namespace.
+func AbstractnessOfNamespace(n *symbols.Namespace) float64 {
+	abstractClasses, allClasses := abstractnessOfNamespace(n)
+
+	for _, namespace := range n.Childs.Namespaces {
+		abstractClassesForChildNamespace, allClassesForChildNamespace := abstractnessOfNamespace(namespace)
+		abstractClasses += abstractClassesForChildNamespace
+		allClasses += allClassesForChildNamespace
+	}
+
+	if allClasses == 0 {
+		allClasses = 1
+	}
+
+	return abstractClasses / allClasses
+}
+
+func abstractnessOfNamespace(n *symbols.Namespace) (abstract float64, all float64) {
+	abstractClasses := n.Classes.CountAbstractClasses()
+	return float64(abstractClasses), float64(n.Classes.Len())
+}

@@ -20,16 +20,18 @@ func GetTableNamespacesRepr(n []*symbols.Namespace, offset int64) string {
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("#")},
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Name")},
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Files")},
-			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Classes")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{All}}::green\n{{classes}}::green")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Own}}::green\n{{classes}}::green")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Aff}}::green\n{{coup}}::green")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Eff}}::green\n{{coup}}::green")},
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Instab")},
+			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Abstract")},
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Childs")},
 		},
 	}
 
 	for index, namespace := range n {
-		data := namespaceToData(namespace)
+		data := NamespaceToData(namespace)
 
 		name := data.FullName
 		name = splitText(name)
@@ -37,12 +39,14 @@ func GetTableNamespacesRepr(n []*symbols.Namespace, offset int64) string {
 		r := []*simpletable.Cell{
 			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
 			{Text: name},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Files)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Classes)},
-			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Aff)},
-			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Eff)},
-			{Align: simpletable.AlignRight, Text: colorOutputFloatZeroableValue(data.Instab)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.Childs)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.Files)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.Classes)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.OwnClasses)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Afferent)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Efferent)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Instability)},
+			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Abstractness)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.Childs)},
 		}
 
 		table.Body.Cells = append(table.Body.Cells, r)

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/i582/cfmt"
+
 	"github.com/i582/phpstats/internal/stats/symbols"
 )
 
@@ -72,15 +74,15 @@ func GetStringFunctionRepr(f *symbols.Function) string {
 
 	res += fmt.Sprintf("%s %s\n", data.Type, data.Name)
 	if data.Class != "" {
-		res += fmt.Sprintf("  Class:                 %s\n", data.Class)
+		res += cfmt.Sprintf("  {{Class}}::green:                 %s\n", data.Class)
 	}
-	res += fmt.Sprintf("  Number of uses:        %d\n", data.UsesCount)
-	res += fmt.Sprintf("  Depends of classes:    %d\n", data.CountDeps)
-	res += fmt.Sprintf("  Classes depends:       %d\n", data.CountDepsBy)
-	res += fmt.Sprintf("  Called functions:      %d\n", data.CountCalled)
-	res += fmt.Sprintf("  Called by functions:   %d\n", data.CountCalledBy)
-	res += fmt.Sprintf("  Cyclomatic complexity: %d (>15 hard to understand, >30 extremply complex)\n", data.CyclomaticComplexity)
-	res += fmt.Sprintf("  Count magic numbers:   %d\n", data.CountMagicNumbers)
+	res += cfmt.Sprintf("  {{Number of uses}}::green:        %s\n", ColorOutputIntZeroableValue(data.UsesCount))
+	res += cfmt.Sprintf("  {{Depends of classes}}::green:    %s\n", ColorOutputIntZeroableValue(data.CountDeps))
+	res += cfmt.Sprintf("  {{Classes depends}}::green:       %s\n", ColorOutputIntZeroableValue(data.CountDepsBy))
+	res += cfmt.Sprintf("  {{Called functions}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountCalled))
+	res += cfmt.Sprintf("  {{Called by functions}}::green:   %s\n", ColorOutputIntZeroableValue(data.CountCalledBy))
+	res += cfmt.Sprintf("  {{Cyclomatic complexity}}::green: %s {{(>15 hard to understand, >30 extremely complex)}}::gray\n", ColorOutputIntZeroableValue(data.CyclomaticComplexity))
+	res += cfmt.Sprintf("  {{Count magic numbers}}::green:   %s\n", ColorOutputIntZeroableValue(data.CountMagicNumbers))
 
 	return res
 }

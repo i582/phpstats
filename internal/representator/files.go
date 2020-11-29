@@ -34,9 +34,9 @@ func GetTableFilesRepr(f []*symbols.File, offset int64) string {
 		r := []*simpletable.Cell{
 			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
 			{Text: name},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountRequiredRoot)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountRequiredBlock)},
-			{Align: simpletable.AlignRight, Text: colorOutputIntZeroableValue(data.CountRequiredBy)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountRequiredRoot)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountRequiredBlock)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountRequiredBy)},
 		}
 
 		table.Body.Cells = append(table.Body.Cells, r)

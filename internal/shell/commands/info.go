@@ -3,6 +3,8 @@ package commands
 import (
 	"fmt"
 
+	"github.com/gookit/color"
+
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
@@ -18,7 +20,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show info about %s class\n\n", c.Args[0])
+			color.Gray.Printf("Show info about %s class\n\n", c.Args[0])
 
 			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {
@@ -39,7 +41,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show info about %s function\n\n", c.Args[0])
+			color.Gray.Printf("Show info about %s function\n\n", c.Args[0])
 
 			fn, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(c.Args[0])
 			if err != nil {
@@ -59,7 +61,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show info about %s file\n\n", c.Args[0])
+			color.Gray.Printf("Show info about %s file\n\n", c.Args[0])
 
 			file, err := walkers.GlobalCtx.Files.GetFileByPartOfName(c.Args[0])
 			if err != nil {
@@ -79,7 +81,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show info about %s namespace\n\n", c.Args[0])
+			color.Gray.Printf("Show info about %s namespace\n\n", c.Args[0])
 
 			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
 			if !ok {
