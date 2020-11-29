@@ -30,6 +30,15 @@ Instability (I):
 	The range for this metric is 0 to 1, with I=0 indicating a completely stable 
 	package and I=1 indicating a completely unstable package.
 
+Abstractness (A):
+	The ratio of the number of abstract classes in a group to the total number of classes.
+	A = nA / nAll.
+	nA   - the number of abstract classes in a group.
+	nAll - the total number of classes.
+
+	0 = the category is completely concrete.
+	1 = the category is completely abstract.
+
 Lack of Cohesion in Methods (LCOM):
 	The result of subtracting from one the sum of the number of methods (CM_i) 
 	that refer to a certain class field (i) for all fields, divided by the number 

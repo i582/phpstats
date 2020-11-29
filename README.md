@@ -40,10 +40,11 @@ This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://gi
 3. `Instability`:
    - for the classes;
    - for namespaces;
-4. `Lack of Cohesion in Methods`;
-5. `Lack of Cohesion in Methods 4`;
-6. `Cyclomatic Complexity`;
-7. `Count of magic numbers in functions and methods`.
+4. `Abstractness`;
+5. `Lack of Cohesion in Methods`;
+6. `Lack of Cohesion in Methods 4`;
+7. `Cyclomatic Complexity`;
+8. `Count of magic numbers in functions and methods`.
 
 ### Graphs (Graphviz format and svg)
 
@@ -111,7 +112,7 @@ See [Getting started](doc/getting-start.md) for details.
 
 ### Metrics
 
-To **view the metrics**, use the `info` command, which **shows information** about classes, functions and files by their names. The **search is not strict**, so it is not necessary to enter the full name.
+To **view the metrics**, use the `info` command, which **shows information** about classes, functions, namespaces or files by their names. The **search is not strict**, so it is not necessary to enter the full name.
 
 ```
 >>> info class ClassName
