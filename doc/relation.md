@@ -1,6 +1,6 @@
 # Relationships between symbols
 
-**phpstats** allows you to understand what connections are between classes and methods. For example, how are the two classes related, whether they use each other's methods and which ones.
+**phpstats** allows you to see relationship between classes and methods. For example, how are the two classes related, whether they use each other's methods and which ones.
 
 To get a relation, use the `relation all` command.
 
