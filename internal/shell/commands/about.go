@@ -13,9 +13,9 @@ func About() *shell.Executor {
 		Help:  "shows information about phpstats",
 		Flags: flags.NewFlags(),
 		Func: func(c *shell.Context) {
-			fmt.Print(`About PHPStats v0.0.3
+			fmt.Print(`About PHPStats v0.4.0
 
-PHPStats is a utility for collecting project statistics and building 
+PHPStats is a tool for collecting project statistics and building 
 dependency graphs for PHP, that allows you to find places in the code 
 that can be improved.
 
