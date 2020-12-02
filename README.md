@@ -60,7 +60,9 @@ See [building graphs](doc/graphs.md) for details.
 
 ### Relation
 
-1. Checking the reachability of a function from another function and outputs the call stacks.
+Relationships between classes and functions.
+
+See [Relationships between symbols](doc/relation.md) for details.
 
 ### Brief project information
 
@@ -138,12 +140,7 @@ See [Building graphs](doc/graphs.md) for details.
 
 ### Relation
 
-To check the reachability of a function from another function, use the `relation` command.
-
-```
->>> relation funcs --parent foo --child boo
-# shows the reachability callstacks of a function 'boo' from function 'foo'.
-```
+See [Relationships between symbols](doc/relation.md) for details.
 
 ### Brief project information
 
@@ -153,6 +150,8 @@ Use the `brief` command to **show brief information about the project**.
 >>> brief
 # shows brief information.
 ```
+
+See [example of brief command](./doc/brief-command-example.md) for details.
 
 ### Brief metrics information
 

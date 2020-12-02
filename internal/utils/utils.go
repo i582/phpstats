@@ -165,3 +165,11 @@ func Percent(x, y int64) float64 {
 
 	return (float64(x) / float64(y)) * 100
 }
+
+// Unquote returns unquoted version of s, if there are any quotes.
+func Unquote(s string) string {
+	if len(s) >= 2 && (s[0] == '\'' || s[0] == '"') {
+		return s[1 : len(s)-1]
+	}
+	return s
+}

@@ -10,11 +10,10 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/gookit/color v1.3.2
-	github.com/i582/cfmt v1.0.6
+	github.com/i582/cfmt v1.0.7
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/olekukonko/tablewriter v0.0.4
 	github.com/quasilyte/regex/syntax v0.0.0-20200805063351-8f842688393c // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/exp v0.0.0-20201008143054-e3b2a7f2fdc7 // indirect

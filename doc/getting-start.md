@@ -202,36 +202,13 @@ Will output information to the file `classes.json`:
 
 The `graph` command is used to create dependency graphs for classes, files, functions, and namespaces.
 
-See [building graphs](./graphs.md) for details.
+See [Building graphs](./graphs.md) for details.
 
 #### `relation`
 
-The `relation` command is used to get information about the relationship between functions (currently only the reachability of one function from another).
+The `relation` command is used to collect statistics on relationships between classes and functions.
 
-The command accepts the following subcommands:
-
-1. `funcs` — the reachability of one function from another.
-
-The `funcs` subcommand accepts the following flags:
-
-1. `--parent` — function from which the reachability of another function will be checked.;
-2. `--child` — function to find reachability..
-
-##### Example
-
-```
->>> relation funcs --parent \AD::ADMethod --child \AC::ACMethod
-```
-
-Display information about the reachability of the `\AC::ACMethod` method from the `\AD::ADMethod` method:
-
-```
->>> relation funcs --parent \AD::ADMethod --child \AC::ACMethod
-Reachability: true
-
-Callstacks:
-[\AD::ADMethod -> \AA::AAMethod -> \AC::ACMethod]
-```
+See [Relationships between symbols](./relation.md) for details.
 
 #### `brief`
 
@@ -396,4 +373,4 @@ Also, in addition to the commands above, there are commands for interacting with
 
 ### Afterword
 
-What's next? If you haven't looked at how to [build graphs](./graphs.md) yet, then it's time to see.
+What's next? If you haven't yet looked how to [build graphs](./graphs.md) or how to find [relationships between symbols](./relation.md), then it's time to see.

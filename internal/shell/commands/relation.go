@@ -2,67 +2,102 @@ package commands
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/i582/phpstats/internal/relations"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
-	"github.com/i582/phpstats/internal/stats/symbols"
 	"github.com/i582/phpstats/internal/stats/walkers"
 )
 
 func Relation() *shell.Executor {
-	relationFuncsExecutor := &shell.Executor{
-		Name:    "funcs",
-		Aliases: []string{"methods"},
-		Help:    "shows the relationship between two specific functions or methods",
+	relationAllExecutor := &shell.Executor{
+		Name: "all",
+		Help: "shows the relationship between specific classes and functions",
 		Flags: flags.NewFlags(
 			&flags.Flag{
-				Name:      "--parent",
-				Help:      "parent function",
+				Name:      "--classes",
+				Help:      "comma-separated list of classes without spaces for which you want to find a relationship with other classes or functions",
 				WithValue: true,
 			},
 			&flags.Flag{
-				Name:      "--child",
-				Help:      "children function",
+				Name:      "--funcs",
+				Help:      "comma-separated list of functions without spaces for which you want to find a relationship with other classes or functions",
 				WithValue: true,
 			},
 		),
 		Func: func(c *shell.Context) {
-			parentName := c.GetFlagValue("--parent")
-			childName := c.GetFlagValue("--child")
-
-			parentFun, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(parentName)
-			if err != nil {
-				c.Error(err)
-				return
+			classes := strings.Split(c.GetFlagValue("--classes"), ",")
+			if c.GetFlagValue("--classes") == "" {
+				classes = nil
+			}
+			for i := range classes {
+				classes[i] = strings.TrimSpace(classes[i])
 			}
 
-			childFun, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(childName)
-			if err != nil {
-				c.Error(err)
-				return
+			funcs := strings.Split(c.GetFlagValue("--funcs"), ",")
+			if c.GetFlagValue("--funcs") == "" {
+				funcs = nil
+			}
+			for i := range funcs {
+				funcs[i] = strings.TrimSpace(funcs[i])
 			}
 
-			_, callstacks := CalledInCallstack(parentFun, childFun, nil, map[*symbols.Function]struct{}{})
-
-			fmt.Print("Reachability: ")
-
-			if len(callstacks) == 0 {
-				fmt.Println("false")
-				return
-			}
-
-			fmt.Print("true\n\n")
-			fmt.Println("Callstacks:")
-
-			for _, callstack := range callstacks {
-				fmt.Print("[")
-				for i, f := range callstack {
-					fmt.Print(f.Name)
-					if i != len(callstack)-1 {
-						fmt.Print(" -> ")
+			for i := 0; i < len(classes); i++ {
+				for j := i + 1; j < len(classes); j++ {
+					targetClass, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(classes[i])
+					if err != nil {
+						c.Error(err)
+						return
 					}
+
+					relatedClass, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(classes[j])
+					if err != nil {
+						c.Error(err)
+						return
+					}
+
+					rel := relations.GetClass2ClassRelation(targetClass, relatedClass)
+					fmt.Println(rel)
 				}
-				fmt.Println("]")
+			}
+
+			for i := 0; i < len(funcs); i++ {
+				for j := i + 1; j < len(funcs); j++ {
+					targetFunction, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(funcs[i])
+					if err != nil {
+						c.Error(err)
+						return
+					}
+
+					relatedFunction, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(funcs[j])
+					if err != nil {
+						c.Error(err)
+						return
+					}
+
+					rel := relations.GetFunc2FuncRelation(targetFunction, relatedFunction)
+					fmt.Println(rel)
+				}
+			}
+
+			for i := 0; i < len(classes); i++ {
+				for j := 0; j < len(funcs); j++ {
+					targetClass, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(classes[i])
+					if err != nil {
+						c.Error(err)
+						return
+					}
+
+					relatedFunction, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(funcs[j])
+					if err != nil {
+						c.Error(err)
+						return
+					}
+
+					rel := relations.GetClass2FuncRelation(targetClass, relatedFunction)
+					fmt.Println(rel)
+				}
 			}
 		},
 	}
@@ -76,67 +111,7 @@ func Relation() *shell.Executor {
 		},
 	}
 
-	relationExecutor.AddExecutor(relationFuncsExecutor)
+	relationExecutor.AddExecutor(relationAllExecutor)
 
 	return relationExecutor
-}
-
-func CalledInCallstack(parent, child *symbols.Function, callstack []*symbols.Function, visited map[*symbols.Function]struct{}) (bool, [][]*symbols.Function) {
-	if parent.Called.Len() == 0 {
-		return false, nil
-	}
-
-	if callstack == nil {
-		callstack = []*symbols.Function{parent}
-	}
-
-	if parent == child {
-		return true, [][]*symbols.Function{callstack}
-	}
-
-	var callstacks [][]*symbols.Function
-
-	for _, called := range parent.Called.Funcs {
-		newCallstack := copyCallstack(callstack)
-		newVisited := copyVisited(visited)
-
-		newCallstack = append(newCallstack, called)
-
-		if _, ok := newVisited[called]; ok {
-			continue
-		}
-		if called == parent {
-			continue
-		}
-
-		newVisited[called] = struct{}{}
-
-		if called == child {
-			callstacks = append(callstacks, newCallstack)
-			continue
-		}
-
-		call, callstack := CalledInCallstack(called, child, newCallstack, newVisited)
-		if call {
-			callstacks = append(callstacks, callstack...)
-		}
-	}
-
-	return len(callstacks) != 0, callstacks
-}
-
-func copyCallstack(callstack []*symbols.Function) []*symbols.Function {
-	tmp := make([]*symbols.Function, len(callstack))
-	copy(tmp, callstack)
-	return tmp
-}
-
-func copyVisited(visited map[*symbols.Function]struct{}) map[*symbols.Function]struct{} {
-	targetMap := make(map[*symbols.Function]struct{})
-
-	for key, value := range visited {
-		targetMap[key] = value
-	}
-
-	return targetMap
 }
