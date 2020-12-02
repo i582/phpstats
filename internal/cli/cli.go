@@ -87,23 +87,15 @@ func Run() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					if len(os.Args) == 1 {
-						commands.About().Execute(&shell.Context{})
-						fmt.Printf("\nUsage\n\t$ phpstats collect [--config-path <dir>] [--disable-cache] [--port <value>] [--project-path <dir>] [--cache-dir <dir>] <analyze-dir>\n\n")
-						return fmt.Errorf("empty")
-					}
-
 					cfg, errOpen, errDecode := config.OpenConfig(configPath)
+					if errDecode != nil {
+						return fmt.Errorf("config: %v", errDecode)
+					}
+					if errOpen != nil {
+						color.Yellow.Printf("Warning: config file '%s' not open (the default configuration is used)\n", configPath)
 
-					switch {
-					case errDecode != nil:
-						color.Red.Printf("Config error: %v", errDecode)
-						return errDecode
-					case errOpen == nil && cfg != nil && cfg.CacheDir == "":
-						cfg.CacheDir = utils.DefaultCacheDir()
-					case errOpen == nil && cfg.CacheDir != "":
-					default:
 						cfg = &config.Config{
+							ProjectName:  "Untitled",
 							Port:         port,
 							CacheDir:     cacheDir,
 							DisableCache: disableCache,
@@ -114,6 +106,11 @@ func Run() {
 						}
 					}
 
+					if cfg.CacheDir == "" {
+						cfg.CacheDir = utils.DefaultCacheDir()
+					}
+
+					walkers.GlobalCtx.ProjectName = cfg.ProjectName
 					cfg.AddPackagesToContext(walkers.GlobalCtx.Packages)
 					server.RunServer(port)
 
@@ -132,21 +129,20 @@ func Run() {
 					os.Args = append(os.Args, analyzeDirs...)
 
 					if c.NArg() > 1 {
-						log.Fatalf(color.Red.Sprintf("Error: too many arguments"))
+						return fmt.Errorf("too many arguments")
 					}
 
 					if cfg.Exclude != nil {
 						excludeRegexp, err := regexp.Compile(strings.Join(cfg.Exclude, "|"))
 						if err != nil {
-							log.Fatalf(color.Red.Sprintf("Error converting exclude to regexp: %v", err))
-							return err
+							return fmt.Errorf("converting exclude to regexp: %v", err)
 						}
 						walkers.GlobalCtx.ExcludeRegexp = excludeRegexp
 					}
 
 					err := walkers.Collect()
 					if err != nil {
-						return err
+						return fmt.Errorf("collect: %v", err)
 					}
 
 					MainShell.Run()
@@ -158,6 +154,6 @@ func Run() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		return
+		log.Fatalf(color.Red.Sprintf("Error: %v", err))
 	}
 }

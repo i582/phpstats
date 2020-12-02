@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	ProjectName  string    `yaml:"project-name"`
 	Include      []string  `yaml:"include"`
 	Exclude      []string  `yaml:"exclude"`
 	Port         int64     `yaml:"port"`
@@ -26,7 +27,7 @@ type Package struct {
 	Namespaces []string `yaml:"namespaces"`
 }
 
-func OpenConfig(path string) (*Config, error, error) {
+func OpenConfig(path string) (cfg *Config, errOpen error, errDecode error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err, nil

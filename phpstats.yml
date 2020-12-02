@@ -1,3 +1,6 @@
+# Project name
+project-name: "phpstats-template"
+
 # Directories and files for analysis relative to the configuration files directory.
 # By default, it is "."
 include:

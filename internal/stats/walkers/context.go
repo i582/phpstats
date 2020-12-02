@@ -29,6 +29,7 @@ type globalContext struct {
 	Packages *config.Packages
 
 	ProjectRoot   string
+	ProjectName   string
 	ExcludeRegexp *regexp.Regexp
 	BarLinting    *pb.ProgressBar
 

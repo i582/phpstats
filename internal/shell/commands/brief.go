@@ -40,7 +40,7 @@ func Brief() *shell.Executor {
 			maxFunctionCC, minFunctionCC, avgFunctionCC := walkers.GlobalCtx.Functions.MaxMinAvgFunctionsCyclomaticComplexity()
 			maxClassCC, minClassCC, avgClassCC := walkers.GlobalCtx.Classes.MaxMinAvgCyclomaticComplexity()
 
-			cfmt.Printf("General project statistics\n\n")
+			cfmt.Printf("General '%s' project statistics\n\n", walkers.GlobalCtx.ProjectName)
 
 			cfmt.Println("Size")
 
