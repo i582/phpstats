@@ -17,12 +17,12 @@ func Relation() *shell.Executor {
 		Flags: flags.NewFlags(
 			&flags.Flag{
 				Name:      "--classes",
-				Help:      "target class",
+				Help:      "comma-separated list of classes without spaces for which you want to find a relationship with other classes or functions",
 				WithValue: true,
 			},
 			&flags.Flag{
 				Name:      "--funcs",
-				Help:      "target class",
+				Help:      "comma-separated list of functions without spaces for which you want to find a relationship with other classes or functions",
 				WithValue: true,
 			},
 		),
