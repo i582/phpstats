@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type Flag struct {
@@ -130,7 +132,7 @@ func ParseFlags(args []string, allowed *Flags) (flags *Flags, argsWithoutFlags [
 
 			flag := &Flag{
 				Name:  name,
-				Value: val,
+				Value: utils.Unquote(val),
 			}
 
 			flags.Flags[name] = flag

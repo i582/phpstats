@@ -187,3 +187,5 @@ For example, to create the graph above, the following command was used:
 ```
 graph namespace-structure --web \Symfony\Component\PropertyInfo
 ```
+
+[Next (Relationships between symbols) →](./relation.md)
