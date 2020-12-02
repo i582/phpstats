@@ -16,11 +16,6 @@ func Relation() *shell.Executor {
 		Help: "shows the relationship between specific classes and functions",
 		Flags: flags.NewFlags(
 			&flags.Flag{
-				Name:      "--target",
-				Help:      "target class",
-				WithValue: true,
-			},
-			&flags.Flag{
 				Name:      "--related",
 				Help:      "related class",
 				WithValue: true,
