@@ -60,7 +60,9 @@ See [building graphs](doc/graphs.md) for details.
 
 ### Relation
 
-1. Checking the reachability of a function from another function and outputs the call stacks.
+Relationships between classes and functions.
+
+See [Relationships between symbols](doc/relation.md) for details.
 
 ### Brief project information
 
