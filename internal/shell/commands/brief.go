@@ -86,6 +86,7 @@ func Brief() *shell.Executor {
 			cfmt.Printf("    {{Files}}::green:                                         %s\n", colorInt(int64(walkers.GlobalCtx.Files.Len())))
 			cfmt.Printf("    {{Namespaces}}::green:                                    %s\n", colorInt(walkers.GlobalCtx.Namespaces.Count()))
 			cfmt.Printf("    {{Interfaces}}::green:                                    %s\n", colorInt(walkers.GlobalCtx.Classes.CountIfaces()))
+			cfmt.Printf("    {{Traits}}::green:                                        %s\n", colorInt(walkers.GlobalCtx.Classes.CountTraits()))
 			cfmt.Printf("    {{Classes}}::green                                        %s\n", colorInt(int64(walkers.GlobalCtx.Classes.Len())-walkers.GlobalCtx.Classes.CountIfaces()))
 			cfmt.Printf("        {{Abstract Classes}}::green:                          %s %s\n", colorInt(walkers.GlobalCtx.Classes.CountAbstractClasses()), colorPercent(utils.Percent(walkers.GlobalCtx.Classes.CountAbstractClasses(), int64(walkers.GlobalCtx.Classes.Len()))))
 			cfmt.Printf("        {{Concrete Classes}}::green:                          %s %s\n", colorInt(walkers.GlobalCtx.Classes.CountClasses()), colorPercent(100-utils.Percent(walkers.GlobalCtx.Classes.CountAbstractClasses(), int64(walkers.GlobalCtx.Classes.Len()))))

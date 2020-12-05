@@ -54,6 +54,16 @@ func (c *Classes) CountIfaces() int64 {
 	return count
 }
 
+func (c *Classes) CountTraits() int64 {
+	var count int64
+	for _, class := range c.Classes {
+		if class.IsTrait {
+			count++
+		}
+	}
+	return count
+}
+
 func (c *Classes) MaxMinAvgCyclomaticComplexity() (max, min, avg float64) {
 	const maxValue = 10000000
 	var count float64
