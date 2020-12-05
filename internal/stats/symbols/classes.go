@@ -116,17 +116,52 @@ func (c *Classes) MaxMinAvgCountMagicNumbers() (max, min, avg int64) {
 	return max, min, avg
 }
 
-func (c *Classes) GetClassByPartOfName(name string) (*Class, error) {
-	classes, err := c.GetFullClassName(name)
+func (c *Classes) GetInterfaceByPartOfName(name string) (*Class, error) {
+	ifaceNames, err := c.GetFullClassName(name)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("interface %s not found", name)
 	}
 
-	class, found := c.Get(classes[0])
-	if !found {
+	var hasOneClass bool
+
+	for _, ifaceName := range ifaceNames {
+		iface, found := c.Get(ifaceName)
+		if found && iface.IsInterface {
+			return iface, nil
+		}
+		hasOneClass = true
+	}
+
+	if hasOneClass {
+		return nil, fmt.Errorf("interface %s was not found, but a class with the same name was found, \n"+
+			"use the 'info class %s' command to get information about class", name, name)
+	}
+
+	return nil, fmt.Errorf("interface %s not found", name)
+}
+
+func (c *Classes) GetClassByPartOfName(name string) (*Class, error) {
+	classNames, err := c.GetFullClassName(name)
+	if err != nil {
 		return nil, fmt.Errorf("class %s not found", name)
 	}
-	return class, nil
+
+	var hasOneInterface bool
+
+	for _, className := range classNames {
+		class, found := c.Get(className)
+		if found && !class.IsInterface {
+			return class, nil
+		}
+		hasOneInterface = true
+	}
+
+	if hasOneInterface {
+		return nil, fmt.Errorf("class %s was not found, but a interface with the same name was found, \n"+
+			"use the 'info iface %s' command to get information about interface", name, name)
+	}
+
+	return nil, fmt.Errorf("class %s not found", name)
 }
 
 func (c *Classes) GetFullClassName(name string) ([]string, error) {

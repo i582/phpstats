@@ -14,15 +14,35 @@ import (
 func Info() *shell.Executor {
 	classInfoExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "show info about a specific class or interface",
+		Help:      "show info about a specific class",
 		WithValue: true,
-		Aliases:   []string{"interface"},
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
 			color.Gray.Printf("Show info about %s class\n\n", c.Args[0])
 
 			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
+			if err != nil {
+				c.Error(err)
+				return
+			}
+
+			data := representator.GetStringClassRepr(class)
+			fmt.Println(data)
+		},
+	}
+
+	ifaceInfoExecutor := &shell.Executor{
+		Name:      "interface",
+		Help:      "show info about a specific interface",
+		WithValue: true,
+		Aliases:   []string{"iface"},
+		Flags:     flags.NewFlags(),
+		CountArgs: 1,
+		Func: func(c *shell.Context) {
+			color.Gray.Printf("Show info about %s interface\n\n", c.Args[0])
+
+			class, err := walkers.GlobalCtx.Classes.GetInterfaceByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -103,6 +123,7 @@ func Info() *shell.Executor {
 	}
 
 	infoExecutor.AddExecutor(classInfoExecutor)
+	infoExecutor.AddExecutor(ifaceInfoExecutor)
 	infoExecutor.AddExecutor(funcInfoExecutor)
 	infoExecutor.AddExecutor(fileInfoExecutor)
 	infoExecutor.AddExecutor(namespaceInfoExecutor)
