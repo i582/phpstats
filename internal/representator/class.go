@@ -41,12 +41,12 @@ func ClassToData(c *symbols.Class) *ClassData {
 	var tp string
 	if c.IsInterface {
 		tp = "Interface"
+	} else if c.IsAbstract {
+		tp = "Abstract"
+	} else if c.IsTrait {
+		tp = "Trait"
 	} else {
-		if c.IsAbstract {
-			tp = "Abstract"
-		} else {
-			tp = "Class"
-		}
+		tp = "Class"
 	}
 
 	aff, eff, instab := metrics.AfferentEfferentInstabilityOfClass(c)

@@ -335,6 +335,69 @@ func List() *shell.Executor {
 		},
 	}
 
+	listTraitsExecutor := &shell.Executor{
+		Name: "traits",
+		Help: "shows list of traits",
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "-c",
+				WithValue: true,
+				Help:      "count in list",
+				Default:   "10",
+			},
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Help:      "offset in list",
+				Default:   "0",
+			},
+			&flags.Flag{
+				Name:      "--sort",
+				WithValue: true,
+				Help:      "column number by which sorting will be performed",
+				Default:   "2",
+			},
+			&flags.Flag{
+				Name: "-r",
+				Help: "reverse sort",
+			},
+			&flags.Flag{
+				Name:      "--json",
+				Help:      "output to json file",
+				WithValue: true,
+			},
+		),
+		Func: func(c *shell.Context) {
+			count := c.GetIntFlagValue("-c")
+			offset := c.GetIntFlagValue("-o")
+			sortColumn := c.GetIntFlagValue("--sort")
+			reverseSort := c.Flags.Contains("-r")
+
+			toJson, jsonFile := handleOutputInJson(c)
+
+			classes := getter.GetClassesByOption(walkers.GlobalCtx.Classes, getter.ClassesGetOptions{
+				OnlyTraits:  true,
+				Count:       count,
+				Offset:      offset,
+				SortColumn:  sortColumn,
+				ReverseSort: reverseSort,
+			})
+
+			if toJson {
+				data, err := representator.GetPrettifyJsonClassesRepr(classes)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Fprintln(jsonFile, data)
+				jsonFile.Close()
+				cfmt.Printf("The traits list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
+			} else {
+				data := representator.GetTableClassesRepr(classes, offset)
+				fmt.Println(data)
+			}
+		},
+	}
+
 	listNamespacesByLevelExecutor := &shell.Executor{
 		Name: "namespaces",
 		Help: "shows list of namespaces on specific level",
@@ -418,6 +481,7 @@ func List() *shell.Executor {
 	listExecutor.AddExecutor(listFilesExecutor)
 	listExecutor.AddExecutor(listClassesExecutor)
 	listExecutor.AddExecutor(listInterfaceExecutor)
+	listExecutor.AddExecutor(listTraitsExecutor)
 	listExecutor.AddExecutor(listNamespacesByLevelExecutor)
 
 	return listExecutor

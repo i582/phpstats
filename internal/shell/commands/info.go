@@ -53,6 +53,26 @@ func Info() *shell.Executor {
 		},
 	}
 
+	traitInfoExecutor := &shell.Executor{
+		Name:      "trait",
+		Help:      "show info about a specific trait",
+		WithValue: true,
+		Flags:     flags.NewFlags(),
+		CountArgs: 1,
+		Func: func(c *shell.Context) {
+			color.Gray.Printf("Show info about %s trait\n\n", c.Args[0])
+
+			trait, err := walkers.GlobalCtx.Classes.GetTraitByPartOfName(c.Args[0])
+			if err != nil {
+				c.Error(err)
+				return
+			}
+
+			data := representator.GetStringClassRepr(trait)
+			fmt.Println(data)
+		},
+	}
+
 	funcInfoExecutor := &shell.Executor{
 		Name:      "func",
 		Help:      "shows info about a specific function or method",
@@ -124,6 +144,7 @@ func Info() *shell.Executor {
 
 	infoExecutor.AddExecutor(classInfoExecutor)
 	infoExecutor.AddExecutor(ifaceInfoExecutor)
+	infoExecutor.AddExecutor(traitInfoExecutor)
 	infoExecutor.AddExecutor(funcInfoExecutor)
 	infoExecutor.AddExecutor(fileInfoExecutor)
 	infoExecutor.AddExecutor(namespaceInfoExecutor)

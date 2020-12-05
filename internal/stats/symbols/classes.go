@@ -116,25 +116,68 @@ func (c *Classes) MaxMinAvgCountMagicNumbers() (max, min, avg int64) {
 	return max, min, avg
 }
 
+func getErrorForGetter(searched, replace, name string) error {
+	return fmt.Errorf("%s %s was not found, but a %s with the same name was found, \n"+
+		"use the 'info %s %s' command to get information about %s", searched, name, replace, replace, name, replace)
+}
+
 func (c *Classes) GetInterfaceByPartOfName(name string) (*Class, error) {
 	ifaceNames, err := c.GetFullClassName(name)
 	if err != nil {
 		return nil, fmt.Errorf("interface %s not found", name)
 	}
 
-	var hasOneClass bool
+	var hasAtLeastOneClass bool
+	var hasAtLeastOneTrait bool
 
 	for _, ifaceName := range ifaceNames {
 		iface, found := c.Get(ifaceName)
 		if found && iface.IsInterface {
 			return iface, nil
 		}
-		hasOneClass = true
+		if iface.IsTrait {
+			hasAtLeastOneTrait = true
+		} else {
+			hasAtLeastOneClass = true
+		}
 	}
 
-	if hasOneClass {
-		return nil, fmt.Errorf("interface %s was not found, but a class with the same name was found, \n"+
-			"use the 'info class %s' command to get information about class", name, name)
+	if hasAtLeastOneClass {
+		return nil, getErrorForGetter("interface", "class", name)
+	}
+	if hasAtLeastOneTrait {
+		return nil, getErrorForGetter("interface", "trait", name)
+	}
+
+	return nil, fmt.Errorf("interface %s not found", name)
+}
+
+func (c *Classes) GetTraitByPartOfName(name string) (*Class, error) {
+	traitNames, err := c.GetFullClassName(name)
+	if err != nil {
+		return nil, fmt.Errorf("trait %s not found", name)
+	}
+
+	var hasAtLeastOneClass bool
+	var hasAtLeastOneInterface bool
+
+	for _, traitName := range traitNames {
+		trait, found := c.Get(traitName)
+		if found && trait.IsTrait {
+			return trait, nil
+		}
+		if trait.IsInterface {
+			hasAtLeastOneInterface = true
+		} else {
+			hasAtLeastOneClass = true
+		}
+	}
+
+	if hasAtLeastOneClass {
+		return nil, getErrorForGetter("trait", "class", name)
+	}
+	if hasAtLeastOneInterface {
+		return nil, getErrorForGetter("trait", "interface", name)
 	}
 
 	return nil, fmt.Errorf("interface %s not found", name)
@@ -146,19 +189,26 @@ func (c *Classes) GetClassByPartOfName(name string) (*Class, error) {
 		return nil, fmt.Errorf("class %s not found", name)
 	}
 
-	var hasOneInterface bool
+	var hasAtLeastOneInterface bool
+	var hasAtLeastOneTrait bool
 
 	for _, className := range classNames {
 		class, found := c.Get(className)
-		if found && !class.IsInterface {
+		if found && !class.IsInterface && !class.IsTrait {
 			return class, nil
 		}
-		hasOneInterface = true
+		if class.IsInterface {
+			hasAtLeastOneInterface = true
+		} else if class.IsTrait {
+			hasAtLeastOneTrait = true
+		}
 	}
 
-	if hasOneInterface {
-		return nil, fmt.Errorf("class %s was not found, but a interface with the same name was found, \n"+
-			"use the 'info iface %s' command to get information about interface", name, name)
+	if hasAtLeastOneInterface {
+		return nil, getErrorForGetter("class", "interface", name)
+	}
+	if hasAtLeastOneTrait {
+		return nil, getErrorForGetter("class", "trait", name)
 	}
 
 	return nil, fmt.Errorf("class %s not found", name)
@@ -363,6 +413,10 @@ func (c *Class) GobEncode() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = encoder.Encode(c.IsTrait)
+	if err != nil {
+		return nil, err
+	}
 	err = encoder.Encode(c.IsVendor)
 	if err != nil {
 		return nil, err
@@ -387,6 +441,10 @@ func (c *Class) GobDecode(buf []byte) error {
 		return err
 	}
 	err = decoder.Decode(&c.IsInterface)
+	if err != nil {
+		return err
+	}
+	err = decoder.Decode(&c.IsTrait)
 	if err != nil {
 		return err
 	}

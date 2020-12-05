@@ -11,6 +11,7 @@ import (
 type ClassesGetOptions struct {
 	OnlyInterfaces bool
 	OnlyClasses    bool
+	OnlyTraits     bool
 	Count          int64
 	Offset         int64
 	SortColumn     int64
@@ -25,7 +26,7 @@ func GetClassesByOption(c *symbols.Classes, opt ClassesGetOptions) []*symbols.Cl
 	}
 
 	var all bool
-	if !opt.OnlyClasses && !opt.OnlyInterfaces {
+	if !opt.OnlyClasses && !opt.OnlyInterfaces && !opt.OnlyTraits {
 		all = true
 	}
 
@@ -39,7 +40,15 @@ func GetClassesByOption(c *symbols.Classes, opt ClassesGetOptions) []*symbols.Cl
 				continue
 			}
 
-			if !class.IsInterface && opt.OnlyInterfaces {
+			if !class.IsTrait && opt.OnlyTraits {
+				continue
+			}
+
+			if class.IsInterface && !opt.OnlyInterfaces {
+				continue
+			}
+
+			if class.IsTrait && !opt.OnlyTraits {
 				continue
 			}
 		}
