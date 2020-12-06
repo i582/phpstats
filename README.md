@@ -10,7 +10,7 @@ It tries to be fast, at the moment—about **150k lines of code per second** on 
 
 The tool is built on top of [NoVerify](https://github.com/VKCOM/noverify) and written in [Go](https://golang.org/).
 
-You can find the **documentation** for the project [here](https://i582.github.io/phpstats-docs/).
+**Documentation** for the project [here](https://i582.github.io/phpstats-docs/).
 
 ## Table of Contents
 
