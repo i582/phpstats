@@ -27,7 +27,17 @@ func (c *Classes) Len() int {
 func (c *Classes) CountClasses() int64 {
 	var count int64
 	for _, class := range c.Classes {
-		if !class.IsInterface && !class.IsAbstract {
+		if !class.IsInterface && !class.IsTrait {
+			count++
+		}
+	}
+	return count
+}
+
+func (c *Classes) CountConcreteClasses() int64 {
+	var count int64
+	for _, class := range c.Classes {
+		if !class.IsInterface && !class.IsAbstract && !class.IsTrait {
 			count++
 		}
 	}
@@ -219,6 +229,22 @@ func (c *Classes) GetClassByPartOfName(name string) (*Class, error) {
 	}
 	if hasAtLeastOneTrait {
 		return nil, getErrorForGetter("class", "trait", name)
+	}
+
+	return nil, fmt.Errorf("class %s not found", name)
+}
+
+func (c *Classes) GetAnyTypeClassByPartOfName(name string) (*Class, error) {
+	classNames, err := c.GetFullClassName(name)
+	if err != nil {
+		return nil, fmt.Errorf("class %s not found", name)
+	}
+
+	for _, className := range classNames {
+		class, found := c.Get(className)
+		if found {
+			return class, nil
+		}
 	}
 
 	return nil, fmt.Errorf("class %s not found", name)

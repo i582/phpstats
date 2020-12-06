@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -213,7 +214,7 @@ func (f *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 	var res []FuncKey
 
 	for _, fn := range f.Funcs {
-		if fn.Name.String() == name {
+		if fn.Name.String() == `\`+name {
 			return []FuncKey{fn.Name}, nil
 		}
 
@@ -221,6 +222,17 @@ func (f *Functions) GetFullFuncName(name string) ([]FuncKey, error) {
 			res = append(res, fn.Name)
 		}
 	}
+
+	sort.Slice(res, func(i, j int) bool {
+		iString := res[i].String()
+		jString := res[j].String()
+
+		if len(iString) == len(jString) {
+			return iString < jString
+		}
+
+		return len(iString) < len(jString)
+	})
 
 	if len(res) == 0 {
 		return res, fmt.Errorf("function %s not found", name)

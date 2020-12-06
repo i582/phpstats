@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/i582/phpstats/internal/graph"
 	"github.com/i582/phpstats/internal/grapher"
+	"github.com/i582/phpstats/internal/relations"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
 	"github.com/i582/phpstats/internal/stats/walkers"
@@ -19,6 +21,85 @@ import (
 var g = grapher.NewGrapher()
 
 func Graph() *shell.Executor {
+	graphFuncReachabilityExecutor := &shell.Executor{
+		Name: "func-reachability",
+		Help: "shows the reachability between specific functions",
+		Flags: flags.NewFlags(
+			&flags.Flag{
+				Name:      "--parent",
+				Help:      "name of the function from which the reachability will be checked",
+				WithValue: true,
+			},
+			&flags.Flag{
+				Name:      "--child",
+				Help:      "name of the function for which reachability will be checked",
+				WithValue: true,
+			},
+			&flags.Flag{
+				Name:      "--exclude",
+				Help:      "comma-separated list of functions to be excluded from found paths",
+				WithValue: true,
+			},
+			&flags.Flag{
+				Name:      "--depth",
+				WithValue: true,
+				Help:      "max search depth",
+				Default:   "10",
+			},
+			&flags.Flag{
+				Name:      "-o",
+				WithValue: true,
+				Help:      "output file",
+			},
+			&flags.Flag{
+				Name: "--web",
+				Help: "show graph in browser",
+			},
+		),
+		Func: func(c *shell.Context) {
+			inBrowser := c.Flags.Contains("--web")
+
+			if !validateOutputPath(c, inBrowser) {
+				return
+			}
+
+			maxDepth := c.GetIntFlagValue("--depth")
+			parentFunctionName := c.GetFlagValue("--parent")
+			childFunctionName := c.GetFlagValue("--child")
+			excludedFunctionsSlice := strings.Split(c.GetFlagValue("--exclude"), ",")
+			excludedFunctions := relations.ReachabilityExcludedMap{}
+
+			if c.GetFlagValue("--exclude") != "" {
+				for _, excludedFunctionName := range excludedFunctionsSlice {
+					excludedFunction, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(excludedFunctionName)
+					if err != nil {
+						c.Error(err)
+						return
+					}
+					excludedFunctions[excludedFunction] = excludedFunction
+				}
+			}
+
+			parentFunction, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(parentFunctionName)
+			if err != nil {
+				c.Error(err)
+				return
+			}
+
+			childFunction, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(childFunctionName)
+			if err != nil {
+				c.Error(err)
+				return
+			}
+
+			rel := relations.GetReachabilityFunction(parentFunction, childFunction, excludedFunctions, maxDepth)
+
+			graphData := g.FunctionReachability(rel)
+			handleGraphOutputWithWeb(c, inBrowser, graphData)
+		},
+		// graph func-reachability --web --parent RankScores::needScoresFeed --child id --depth 5 --exclude debugServerLog,debugGetLogin
+	}
+
 	graphFileExecutor := &shell.Executor{
 		Name:      "file",
 		Help:      "building dependency graph for file",
@@ -118,7 +199,7 @@ func Graph() *shell.Executor {
 				return
 			}
 
-			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
+			class, err := walkers.GlobalCtx.Classes.GetAnyTypeClassByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
@@ -305,6 +386,7 @@ func Graph() *shell.Executor {
 		},
 	}
 
+	graphExecutor.AddExecutor(graphFuncReachabilityExecutor)
 	graphExecutor.AddExecutor(graphFileExecutor)
 	graphExecutor.AddExecutor(graphClassExecutor)
 	graphExecutor.AddExecutor(graphFuncExecutor)

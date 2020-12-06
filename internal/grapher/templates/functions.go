@@ -8,7 +8,13 @@ import (
 
 func TemplateFunctionNode(c *symbols.Function) *graph.Node {
 	name := utils.NameToIdentifier(c.Name.String())
-	label := c.Name.Name
+
+	var label string
+	if c.IsMethod() {
+		label = utils.NormalizeSlashes(c.Name.ClassName) + "\\n" + utils.NormalizeSlashes(c.Name.Name)
+	} else {
+		label = utils.NormalizeSlashes(c.Name.Name)
+	}
 
 	return &graph.Node{
 		Name: name,

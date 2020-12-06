@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/i582/cfmt"
 
@@ -46,7 +45,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -71,12 +70,13 @@ func List() *shell.Executor {
 			if toJson {
 				data, err := representator.GetPrettifyJsonFunctionsRepr(funcs)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 				cfmt.Printf("The functions list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d functions out of %d starting from %d\n\n", len(funcs), walkers.GlobalCtx.Functions.CountFunctions(), offset+1)
 				data := representator.GetTableFunctionsRepr(funcs, offset)
 				fmt.Println(data)
 			}
@@ -111,7 +111,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -134,12 +134,13 @@ func List() *shell.Executor {
 			if toJson {
 				data, err := representator.GetPrettifyJsonFunctionsRepr(methods)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 				cfmt.Printf("The methods list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d methods out of %d starting from %d\n\n", len(methods), walkers.GlobalCtx.Functions.CountMethods(), offset+1)
 				data := representator.GetTableFunctionsRepr(methods, offset)
 				fmt.Println(data)
 			}
@@ -174,7 +175,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -196,12 +197,13 @@ func List() *shell.Executor {
 			if toJson {
 				data, err := representator.GetPrettifyJsonFilesRepr(files)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 				cfmt.Printf("The files list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d files out of %d starting from %d\n\n", len(files), walkers.GlobalCtx.Files.Len(), offset+1)
 				data := representator.GetTableFilesRepr(files, offset)
 				fmt.Println(data)
 			}
@@ -236,7 +238,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -259,12 +261,13 @@ func List() *shell.Executor {
 			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(classes)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 				cfmt.Printf("The classes list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d classes out of %d starting from %d\n\n", len(classes), walkers.GlobalCtx.Classes.CountClasses(), offset+1)
 				data := representator.GetTableClassesRepr(classes, offset)
 				fmt.Println(data)
 			}
@@ -300,7 +303,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -323,12 +326,13 @@ func List() *shell.Executor {
 			if toJson {
 				data, err := representator.GetPrettifyJsonClassesRepr(ifaces)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 				cfmt.Printf("The interfaces list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d interfaces out of %d starting from %d\n\n", len(ifaces), walkers.GlobalCtx.Classes.CountIfaces(), offset+1)
 				data := representator.GetTableClassesRepr(ifaces, offset)
 				fmt.Println(data)
 			}
@@ -363,7 +367,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -375,7 +379,7 @@ func List() *shell.Executor {
 
 			toJson, jsonFile := handleOutputInJson(c)
 
-			classes := getter.GetClassesByOption(walkers.GlobalCtx.Classes, getter.ClassesGetOptions{
+			traits := getter.GetClassesByOption(walkers.GlobalCtx.Classes, getter.ClassesGetOptions{
 				OnlyTraits:  true,
 				Count:       count,
 				Offset:      offset,
@@ -384,15 +388,16 @@ func List() *shell.Executor {
 			})
 
 			if toJson {
-				data, err := representator.GetPrettifyJsonClassesRepr(classes)
+				data, err := representator.GetPrettifyJsonClassesRepr(traits)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()
 				cfmt.Printf("The traits list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
-				data := representator.GetTableClassesRepr(classes, offset)
+				fmt.Printf("Showing %d traits out of %d starting from %d\n\n", len(traits), walkers.GlobalCtx.Classes.CountTraits(), offset+1)
+				data := representator.GetTableClassesRepr(traits, offset)
 				fmt.Println(data)
 			}
 		},
@@ -432,7 +437,7 @@ func List() *shell.Executor {
 			},
 			&flags.Flag{
 				Name:      "--json",
-				Help:      "output to json file",
+				Help:      "path to the file where the data will be saved in json format",
 				WithValue: true,
 			},
 		),
@@ -456,7 +461,7 @@ func List() *shell.Executor {
 			if toJson {
 				data, err := representator.GetPrettifyJsonNamespacesRepr(nss)
 				if err != nil {
-					log.Fatal(err)
+					c.Error(fmt.Errorf("writing list to file: %v", err))
 				}
 				fmt.Fprintln(jsonFile, data)
 				jsonFile.Close()

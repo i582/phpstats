@@ -52,6 +52,16 @@ func (n *Node) Scale(val float64) {
 	n.Styles.FontSize = fontSize
 }
 
+func (n *Node) ForceScale(val float64) {
+	fontSize := n.Styles.FontSize
+	if fontSize == 0 {
+		fontSize = 12
+	}
+
+	fontSize = int64(float64(12) * val)
+	n.Styles.FontSize = fontSize
+}
+
 func (n *Node) addEdge(edge *Edge) {
 	if n.Edges == nil {
 		n.Edges = make(Edges)

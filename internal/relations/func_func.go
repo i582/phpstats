@@ -6,6 +6,7 @@ import (
 	"github.com/i582/cfmt"
 
 	"github.com/i582/phpstats/internal/stats/symbols"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type Func2FuncRelation struct {
@@ -47,19 +48,14 @@ func (r *Func2FuncRelation) String() string {
 
 	res += cfmt.Sprintf("    Is function {{%s}}::yellow reachable from function {{%s}}::green:   %t\n", r.RelatedFunction.Name, r.TargetFunction.Name, r.RelatedReachableFromTarget)
 	if r.RelatedReachableFromTarget {
-		res += cfmt.Sprintf("    The function is reachable by the following calls:\n")
-		for _, path := range r.RelatedReachableFromTargetPaths {
-			res += "        " + stringCallstack(path)
-		}
-		res += fmt.Sprintln()
+		res += cfmt.Sprintf("       To get the graph, enter command\n       {{graph func-reachability --web --parent %s --child %s --depth 10}}::blue\n", r.TargetFunction.Name, r.RelatedFunction.Name)
+		res += cfmt.Sprintf("       To get text output of paths, enter the command\n       {{relation func-reachability --parent %s --child %s --show --depth 10}}::blue\n\n", r.TargetFunction.Name, r.RelatedFunction.Name)
 	}
 
 	res += cfmt.Sprintf("    Is function {{%s}}::green reachable from function {{%s}}::yellow:   %t\n", r.TargetFunction.Name, r.RelatedFunction.Name, r.TargetReachableFromRelated)
 	if r.TargetReachableFromRelated {
-		res += cfmt.Sprintf("    The function is reachable by the following calls:\n")
-		for _, path := range r.TargetReachableFromRelatedPaths {
-			res += "        " + stringCallstack(path)
-		}
+		res += cfmt.Sprintf("       To get the graph, enter command\n       {{graph func-reachability --web --parent %s --child %s --depth 10}}::blue\n", r.RelatedFunction.Name, r.TargetFunction.Name)
+		res += cfmt.Sprintf("       To get text output of paths, enter the command\n       {{relation func-reachability --parent %s --child %s --show --depth 10}}::blue\n\n", r.RelatedFunction.Name, r.TargetFunction.Name)
 	}
 
 	return res
@@ -67,13 +63,14 @@ func (r *Func2FuncRelation) String() string {
 
 func stringCallstack(callstack []*symbols.Function) string {
 	var res string
-	res += fmt.Sprint("[")
+	res += fmt.Sprintf("[(%d calls)\n    ", len(callstack)-1)
 	for i, f := range callstack {
 		res += fmt.Sprint(f.Name)
 		if i != len(callstack)-1 {
-			res += fmt.Sprint(" -> ")
+			res += fmt.Sprintf("\n    %s -> ", utils.GenIndent(i))
 		}
 	}
+
 	res += fmt.Sprintln("]")
 	return res
 }
@@ -102,13 +99,13 @@ func GetFunc2FuncRelation(targetFunction *symbols.Function, relatedFunction *sym
 		}
 	}
 
-	rel.RelatedReachableFromTarget, rel.RelatedReachableFromTargetPaths = calledInCallstack(targetFunction, relatedFunction, nil, map[*symbols.Function]struct{}{})
-	rel.TargetReachableFromRelated, rel.TargetReachableFromRelatedPaths = calledInCallstack(relatedFunction, targetFunction, nil, map[*symbols.Function]struct{}{})
+	rel.RelatedReachableFromTarget, rel.RelatedReachableFromTargetPaths = calledInCallstack(targetFunction, relatedFunction, nil, map[*symbols.Function]struct{}{}, 0, 10)
+	rel.TargetReachableFromRelated, rel.TargetReachableFromRelatedPaths = calledInCallstack(relatedFunction, targetFunction, nil, map[*symbols.Function]struct{}{}, 0, 10)
 
 	return rel
 }
 
-func calledInCallstack(parent, child *symbols.Function, callstack []*symbols.Function, visited map[*symbols.Function]struct{}) (bool, [][]*symbols.Function) {
+func calledInCallstack(parent, child *symbols.Function, callstack []*symbols.Function, visited map[*symbols.Function]struct{}, currentLevel, maxLevel int64) (bool, [][]*symbols.Function) {
 	if parent.Called.Len() == 0 {
 		return false, nil
 	}
@@ -119,6 +116,10 @@ func calledInCallstack(parent, child *symbols.Function, callstack []*symbols.Fun
 
 	if parent == child {
 		return true, [][]*symbols.Function{callstack}
+	}
+
+	if currentLevel >= maxLevel {
+		return false, [][]*symbols.Function{}
 	}
 
 	var callstacks [][]*symbols.Function
@@ -143,7 +144,7 @@ func calledInCallstack(parent, child *symbols.Function, callstack []*symbols.Fun
 			continue
 		}
 
-		call, callstack := calledInCallstack(called, child, newCallstack, newVisited)
+		call, callstack := calledInCallstack(called, child, newCallstack, newVisited, currentLevel+1, maxLevel)
 		if call {
 			callstacks = append(callstacks, callstack...)
 		}
