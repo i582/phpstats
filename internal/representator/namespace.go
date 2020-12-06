@@ -17,15 +17,15 @@ type NamespaceData struct {
 
 	Files           int64 `json:"files"`
 	Classes         int64 `json:"classes"`
-	AbstractClasses int64 `json:"abstract-classes"`
+	AbstractClasses int64 `json:"abstractClasses"`
 
-	OwnClasses int64 `json:"own-classes"`
+	OwnClasses int64 `json:"ownClasses"`
 
-	Afferent    float64 `json:"aff"`
-	Efferent    float64 `json:"eff"`
-	Instability float64 `json:"instab"`
+	Afferent    float64 `json:"afferentCouplings"`
+	Efferent    float64 `json:"efferentCouplings"`
+	Instability float64 `json:"instability"`
 
-	Abstractness float64
+	Abstractness float64 `json:"abstractness"`
 
 	Childs int64 `json:"childs"`
 }

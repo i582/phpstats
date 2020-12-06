@@ -35,7 +35,7 @@ func NewClass2FuncRelation() *Class2FuncRelation {
 func (r *Class2FuncRelation) String() string {
 	var res string
 
-	res += cfmt.Sprintf("Class {{%s}}::green connection with function {{%s}}::yellow.\n\n", r.TargetClass.Name, r.RelatedFunction.Name)
+	res += cfmt.Sprintf("Class {{%s}}::green connection with function {{%s}}::yellow\n\n", r.TargetClass.Name, r.RelatedFunction.Name)
 
 	res += cfmt.Sprintf("    Class {{%s}}::green contains function {{%s}}::yellow:   %t\n", r.TargetClass.Name, r.RelatedFunction.Name, r.BelongsToClass)
 

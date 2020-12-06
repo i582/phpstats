@@ -7,13 +7,17 @@ import (
 
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/stats/walkers"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 // RunServer starts the server on the given port.
 func RunServer(port int64) {
 	if port == 0 {
-		port = 8080
+		port = 3005
 	}
+
+	fs := http.FileServer(http.Dir(utils.DefaultGraphsDir()))
+	http.Handle("/graphs/", http.StripPrefix("/graphs/", fs))
 
 	http.HandleFunc("/info/class", infoClassHandler)
 	http.HandleFunc("/info/func", infoFunctionHandler)

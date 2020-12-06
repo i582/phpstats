@@ -13,8 +13,8 @@ import (
 type ReachabilityExcludedMap map[*symbols.Function]*symbols.Function
 
 type ReachabilityFunctionJsonResult struct {
-	ParentFunction    string     `json:"parent_functions"`
-	ChildFunction     string     `json:"child_functions"`
+	ParentFunction    string     `json:"parentFunctions"`
+	ChildFunction     string     `json:"childFunctions"`
 	ExcludedFunctions []string   `json:"excluded"`
 	Count             int64      `json:"count"`
 	Offset            int64      `json:"offset"`

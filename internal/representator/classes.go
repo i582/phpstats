@@ -21,12 +21,12 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Name")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Aff}}::green\n{{coup}}::green")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Eff}}::green\n{{coup}}::green")},
-			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("Instab")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Instab}}::green\n{{ility}}::green")},
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("LCOM")},
-			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("LCOM 4")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{LCOM}}::green\n{{4}}::green")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Class}}::green\n{{deps}}::green")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Classes}}::green\n{{depends}}::green")},
-			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Count fully}}::green\n{{typed methods}}::green")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Fully}}::green\n{{typed}}::green\n{{methods}}::green")},
 		},
 	}
 
@@ -46,8 +46,8 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 		r := []*simpletable.Cell{
 			{Align: simpletable.AlignRight, Text: color.Gray.Sprint(int64(index+1) + offset)},
 			{Text: name},
-			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Afferent)},
-			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Efferent)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(int64(data.Afferent))},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(int64(data.Efferent))},
 			{Align: simpletable.AlignRight, Text: ColorOutputFloatZeroableValue(data.Instability)},
 			{Align: simpletable.AlignRight, Text: lcom},
 			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.Lcom4)},

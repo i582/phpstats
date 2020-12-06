@@ -53,7 +53,7 @@ func NewClass2ClassRelation() *Class2ClassRelation {
 func (r *Class2ClassRelation) String() string {
 	var res string
 
-	res += cfmt.Sprintf("Class {{%s}}::green connection with class {{%s}}::yellow.\n\n", r.TargetClass.Name, r.RelatedClass.Name)
+	res += cfmt.Sprintf("Class {{%s}}::green connection with class {{%s}}::yellow\n\n", r.TargetClass.Name, r.RelatedClass.Name)
 
 	res += cfmt.Sprintf("    Class {{%s}}::green extends class {{%s}}::yellow:         %t\n", r.TargetClass.Name, r.RelatedClass.Name, r.IsTargetExtends)
 	res += cfmt.Sprintf("    Class {{%s}}::green implements interface {{%s}}::yellow:  %t\n", r.TargetClass.Name, r.RelatedClass.Name, r.IsTargetImplements)
