@@ -75,7 +75,6 @@ func GetStringFunctionRepr(f *symbols.Function) string {
 
 	var res string
 
-	res += fmt.Sprintf("%s %s\n", data.Type, data.Name)
 	if data.Class != "" {
 		res += cfmt.Sprintf("  {{Class}}::green:                 %s\n", data.Class)
 	}

@@ -57,8 +57,7 @@ func GetStringFileRepr(f *symbols.File) string {
 
 	var res string
 
-	res += fmt.Sprintf("File %s\n", data.Name)
-	res += color.Gray.Sprintf("  Path %s\n", data.Path)
+	res += color.Gray.Sprintf("  Path: %s\n", data.Path)
 
 	res += cfmt.Sprintf("  {{Include files at the root}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountRequiredRoot))
 	res += cfmt.Sprintf("  {{Include files in the functions}}::green: %s\n", ColorOutputIntZeroableValue(data.CountRequiredBlock))

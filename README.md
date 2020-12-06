@@ -1,201 +1,119 @@
-![](doc/logo_1.png)
+![](doc/logo.png)
 
 ![Build Status](https://github.com/i582/phpstats/workflows/Go/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/i582/phpstats)](https://goreportcard.com/report/github.com/i582/phpstats) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/i582/phpstats/master/LICENSE) ![](https://img.shields.io/badge/-%3C%3E%20with%20%E2%9D%A4-red)
 
 # phpstats
 
-`phpstats` is a tool for **collecting project statistics** and **building dependency graphs** for PHP, that allows you to find places in the code that can be **improved**.
+**PhpStats** is a tool that *collects statistics* for the code of your project and, based on these statistics, *calculates various qualitative metrics* of the code, *builds the necessary graphs*, and also *finds the relationships between symbols* in the system. 
 
-It tries to **be fast**, ~150k LOC/s (*lines of code per second*) on Core i5 with SSD with ~3500Mb/s for reading.
+It tries to be fast, at the moment—about **150k lines of code per second** on a MacBook Pro 2019 with Core i5.
 
-This tool is written in [Go](https://golang.org/) and uses [NoVerify](https://github.com/VKCOM/noverify).
+The tool is built on top of [NoVerify](https://github.com/VKCOM/noverify) and written in [Go](https://golang.org/).
+
+**Documentation** for the project [here](https://i582.github.io/phpstats-docs/).
 
 ## Table of Contents
 
-* [What is currently available?](#what-is-currently-available)
-  * [Metrics](#metrics)
-  * [Graphs](#graphs-graphviz-format-and-svg)
-  * [Relation](#relation)
-  * [Brief project information](#brief-project-information)
-* [Install](#install)
-* [Usage](#usage)
-* [Config](#config)
-* [Server](#server)
-* [Contact](#contact)
+* [What is supported?](#what-is-supported)
+  * [Metrics](#code-metrics)
+  * [Graphs](#dependency-graphs)
+  * [Relations](#relations-between-symbols)
+  * [Reachability](#reachability-of-functions)
+  * [Brief project information](#brief-information-about-the-project)
+* [About the project](#about-the-project)
+* [Contacts](#contacts)
 * [Contributing](#contributing)
 * [License](#license)
 
 ![](doc/screen.svg)
 
-## What is currently available?
+## What is supported?
 
-### Metrics
+**PhpStats** currently represents five areas:
 
-1. `Afferent couplings`:
-   - for classes;
-   - for namespaces;
-2. `Efferent couplings`:
-   - for classes;
-   - for namespaces;
-3. `Instability`:
-   - for the classes;
-   - for namespaces;
-4. `Abstractness`;
-5. `Lack of Cohesion in Methods`;
-6. `Lack of Cohesion in Methods 4`;
-7. `Cyclomatic Complexity`;
-8. `Count of magic numbers in functions and methods`.
+1. Collecting code **metrics**;
+2. Building **dependency graphs**;
+3. Analysis of **relationships between symbols**;
+4. Gathering **brief information** about the project;
+5. Analysis of the **reachability** of a function.
 
-### Graphs (Graphviz format and svg)
+It also allows you to **view lists** of *classes, interfaces, functions, methods, files and namespaces* in a **tabular form** with the **ability to sort by metrics**.
+
+*Let's look at each point separately.*
+
+### Code metrics
+
+**PhpStats** currently calculates the following metrics:
+
+1. Afferent couplings:
+2. Efferent couplings:
+3. Instability:
+4. Abstractness;
+5. Lack of Cohesion in Methods;
+6. Lack of Cohesion in Methods 4 (*or the number of connected components of the class*);
+7. Cyclomatic Complexity;
+8. Count of magic numbers in functions and methods;
+9. Count fully typed methods.
+
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/metrics/) for details.
+
+### Dependency graphs
+
+**PhpStats** is currently building the following dependency graphs:
 
 1. Class (or interface) dependencies;
-2. Class (interface) extend and implementation dependencies;
+2. Class (interface) extend or implementation dependencies;
 3. Function or method dependencies;
-4. Links within a class (or graph for the LCOM 4 metric);
-5. Links between files (included in global and in function);
+4. Links within a class (*or graph for the LCOM 4 metric*);
+5. Links between files (*included in global and in functions*);
 6. Namespace dependencies graph;
-7. Namespace structure graph.
+7. Namespace structure graph;
+8. Function reachability graph.
 
-See [building graphs](doc/graphs.md) for details.
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/graphs/) for details.
 
-### Relation
+### Relations between symbols
 
-Relationships between classes and functions.
+**PhpStats** is currently analyzing the following relations:
 
-See [Relationships between symbols](doc/relation.md) for details.
+1. **For class-class relations:**
+   1. Whether one class is **extends** another and vice versa;
+   2. Whether the class **implements** the interface or vice versa;
+   3. What methods, fields and constants are **used by one class used by another** and in which methods this happens.
 
-### Brief project information
+2. **For class-function relations:**
+   1. Function **belong** to class;
+   2. The class is **used inside** the function;
+   3. **Used class** members in functions;
+   4. The function is **used in the class** (*+ all methods where this function is used*).
 
-See [example of brief command](./doc/brief-command-example.md) for details.
+3. **For function-function relations:**
+   1. Functions **belong to the same class**;
+   2. Does the **first function use the second** and vice versa;
+   3. Whether the **first function is reachable from the second through calls** and vice versa (*+ call stacks to reach the function*).
 
-## Install
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/relations/) for details.
 
-If you don't have the Go toolkit installed, then go to the official [site](https://golang.org/) and install it to continue.
+### Reachability of functions
 
-After installation, run the following command in terminal.
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/function_reachability/) for details.
 
-```
-go get -u -v github.com/i582/phpstats
-```
+### Brief information about the project
 
-After that you can use by writing `~/go/bin/phpstats` in the terminal.
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/brief-information/) for details.
 
-If you want to work with **dependency graphs**, then you need to install the [Graphviz](https://graphviz.org/download/) utility to visualize graphs.
+## About the project
 
-## Usage
+**PhpStats** is © 2020-2020 by Petr Makhnev.
 
-```
-$ phpstats collect         \
-    [--config-path <dir>]  \
-    [--cache-dir <dir>]    \
-    [--disable-cache]      \
-    [--port <value>]       \
-    [--project-path <dir>] \
-    [<analyze-dir>]
-```
+### Contacts
 
->  All flags and analysis directory are optional.
+Have any questions—welcome in telegram: [@petr_makhnev](https://t.me/petr_makhnev).
 
-The `--config-path` flag sets the **path to the configuration file**. See [config](doc/config.md).
-
-The `--cache-dir` flag sets a **custom cache directory**.
-
-The `--disable-cache` flag **disables caching**.
-
-The `--project-path` flag sets the directory relative to which **paths to files will be resolved when importing**. If the flag is not set, the directory is set to the value of the current analyzed directory.
-
-The `--port` flag sets the **port for the server**. See the [server](#Server) part.
-
-The analyzed directory can be omitted if the include field is **specified in the config** (*by default it is* `"./"`).  See [config](doc/config.md).
-
-After collecting information you will be taken to an **interactive shell**, for help, enter `help`.
-
-See [Getting started](doc/getting-start.md) for details.
-
-### Metrics
-
-To **view the metrics**, use the `info` command, which **shows information** about classes, functions, namespaces or files by their names. The **search is not strict**, so it is not necessary to enter the full name.
-
-```
->>> info class ClassName
-# show information about ClassName class.
-```
-
-For command information, write `info help`.
-
-### Building Graphs
-
-To **build graphs**, use the `graph` command. The `-o` flag is required and sets the file in which the graph will be placed.
-
-```
->>> graph class -o graph.svg ClassName
-# outputs the graph for the ClassName class dependencies to the graph.svg file.
-```
-
-When creating a graph, two files are created, one with the source code of the graph in the `graphviz` format and a file with the graph in `svg` format.
-
-For command information, write `graph help`.
-
-See [Building graphs](doc/graphs.md) for details.
-
-### Relation
-
-See [Relationships between symbols](doc/relation.md) for details.
-
-### Brief project information
-
-Use the `brief` command to **show brief information about the project**.
-
-```
->>> brief
-# shows brief information.
-```
-
-See [example of brief command](./doc/brief-command-example.md) for details.
-
-### Brief metrics information
-
-Use the `metrics` command to see a summary of the metrics being collected.
-
-```
->>> metrics		
-# shows brief information about of the colected metrics.		
-```
-
-## Config
-
-The config allows **more flexible** and **convenient** control over the launch of the analyzer.
-
-More details can be found on the [config page](doc/config.md).
-
-## Server
-
-> Server and API are under development.
-
-A local server (port 8080 by default) is used to **interact with the analyzer from other programs**. The server, **by default**, is started every time an analysis is started.
-
-### API
-
-> All API responses are in `json` format.
-
-`/info/class?name=value` — getting information about the class by its name (the name does not have to be completely the same, the search is not strict).
-
-`/info/func?name=value` — getting information about a function by its name.
-
-`/info/namespace?name=value` — getting information about a namespace by its name.
-
-`/exit` — shutdown of the server.
-
-`/analyzeStats` — getting the current analysis state.
-
-## Contact
-
- For any questions — tg: `@petr_makhnev`.
-
-## Contributing
+### Contributing
 
 Feel free to contribute to this project. I am always glad to new people.
 
-## License
+### License
 
-This project is under the **MIT License**. See the [LICENSE](https://github.com/i582/phpstats/blob/master/LICENSE) file for the full license text.
+PhpStats is distributed by an [MIT license](https://github.com/i582/phpstats/tree/master/LICENSE).
