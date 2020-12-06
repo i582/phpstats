@@ -18,6 +18,7 @@ You can find the **documentation** for the project [here](https://i582.github.io
   * [Metrics](#code-metrics)
   * [Graphs](#dependency-graphs)
   * [Relations](#relations-between-symbols)
+  * [Reachability](#reachability-of-functions)
   * [Brief project information](#brief-information-about-the-project)
 * [About the project](#about-the-project)
 * [Contacts](#contacts)
@@ -28,7 +29,7 @@ You can find the **documentation** for the project [here](https://i582.github.io
 
 ## What is supported?
 
-PhpStats currently represents five areas:
+**PhpStats** currently represents five areas:
 
 1. Collecting code **metrics**;
 2. Building **dependency graphs**;
@@ -42,7 +43,7 @@ It also allows you to **view lists** of *classes, interfaces, functions, methods
 
 ### Code metrics
 
-PhpStats currently calculates the following metrics:
+**PhpStats** currently calculates the following metrics:
 
 1. Afferent couplings:
 2. Efferent couplings:
@@ -54,12 +55,14 @@ PhpStats currently calculates the following metrics:
 8. Count of magic numbers in functions and methods;
 9. Count fully typed methods.
 
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/metrics/) for details.
+
 ### Dependency graphs
 
-PhpStats is currently building the following dependency graphs:
+**PhpStats** is currently building the following dependency graphs:
 
 1. Class (or interface) dependencies;
-2. Class (interface) extend and implementation dependencies;
+2. Class (interface) extend or implementation dependencies;
 3. Function or method dependencies;
 4. Links within a class (*or graph for the LCOM 4 metric*);
 5. Links between files (*included in global and in functions*);
@@ -67,11 +70,11 @@ PhpStats is currently building the following dependency graphs:
 7. Namespace structure graph;
 8. Function reachability graph.
 
-[Graphviz](https://graphviz.org/download/) is used to build graphs.
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/graphs/) for details.
 
 ### Relations between symbols
 
-PhpStats is currently analyzing the following relations:
+**PhpStats** is currently analyzing the following relations:
 
 1. **For class-class relations:**
    1. Whether one class is **extends** another and vice versa;
@@ -89,59 +92,19 @@ PhpStats is currently analyzing the following relations:
    2. Does the **first function use the second** and vice versa;
    3. Whether the **first function is reachable from the second through calls** and vice versa (*+ call stacks to reach the function*).
 
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/relations/) for details.
+
+### Reachability of functions
+
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/function_reachability/) for details.
+
 ### Brief information about the project
 
-PhpStats is currently collecting various **brief** information about the project presented below:
-
-```
-General Test project statistics
-
-Size
-    Lines of Code (LOC):                             611240
-    Comment Lines of Code (CLOC):                    109340 (17.89%)
-    Non-Comment Lines of Code (NCLOC):               501900 (82.11%)
-
-Metrics
-    Cyclomatic Complexity
-        Average Complexity per Class:                  5.55
-            Maximum Class Complexity:              29954.00
-            Minimum Class Complexity:                  0.00
-        Average Complexity per Method:                 1.01
-            Maximum Method Complexity:               142.00
-            Minimum Method Complexity:                 0.00
-        Average Complexity per Functions:              0.00
-            Maximum Functions Complexity:              6.00
-            Minimum Functions Complexity:              0.00
-
-    Count of Magic Numbers
-        Average Class Count:                              0
-            Maximum Class Count:                       5055
-            Minimum Class Count:                          2
-        Average Method Count:                             0
-            Maximum Method Count:                        50
-            Minimum Method Count:                         0
-        Average Functions Count:                          0
-            Maximum Method Count:                         2
-            Minimum Method Count:                         0
-
-Structure
-    Files:                                             5323
-    Namespaces:                                        1680
-    Interfaces:                                         423
-    Traits                                               10
-    Classes                                            4974
-        Abstract Classes:                               218 (4.04%)
-        Concrete Classes:                              4756 (95.96%)
-    Methods:                                          29738
-    Constants:                                         1152
-    Functions:
-        Named Functions:                                 66 (3.32%)
-        Anonymous Functions:                           1921 (96.68%)
-```
+See the documentation [part](https://i582.github.io/phpstats-docs/docs/capabilities/brief-information/) for details.
 
 ## About the project
 
-PhpStats is © 2020-2020 by Petr Makhnev.
+**PhpStats** is © 2020-2020 by Petr Makhnev.
 
 ### Contacts
 
