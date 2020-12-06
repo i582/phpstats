@@ -74,8 +74,6 @@ func GetStringNamespaceRepr(n *symbols.Namespace) string {
 
 	var res string
 
-	res += fmt.Sprintf("Namespace %s\n", data.FullName)
-
 	res += cfmt.Sprintf("  {{Files}}::green:        %s\n", ColorOutputIntZeroableValue(data.Files))
 	res += cfmt.Sprintf("  {{Classes}}::green:      %s\n", ColorOutputIntZeroableValue(data.Classes))
 	res += cfmt.Sprintf("    {{Abstract}}::green:   %s %s\n", ColorOutputIntZeroableValue(data.AbstractClasses), ColorOutputFloatZeroablePercentValue(utils.Percent(data.AbstractClasses, data.Classes)))
