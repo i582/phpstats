@@ -26,6 +26,7 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 			{Align: simpletable.AlignCenter, Text: color.Green.Sprint("LCOM 4")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Class}}::green\n{{deps}}::green")},
 			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Classes}}::green\n{{depends}}::green")},
+			{Align: simpletable.AlignCenter, Text: cfmt.Sprint("{{Count fully}}::green\n{{typed methods}}::green")},
 		},
 	}
 
@@ -52,6 +53,7 @@ func GetTableClassesRepr(c []*symbols.Class, offset int64) string {
 			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.Lcom4)},
 			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountDeps)},
 			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountDepsBy)},
+			{Align: simpletable.AlignRight, Text: ColorOutputIntZeroableValue(data.CountFullyTypedMethods) + color.Gray.Sprintf("(%d)", data.methods.Len())},
 		}
 
 		table.Body.Cells = append(table.Body.Cells, r)

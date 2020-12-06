@@ -25,6 +25,8 @@ type FunctionData struct {
 
 	CyclomaticComplexity int64 `json:"cc"`
 	CountMagicNumbers    int64 `json:"cmn"`
+
+	FullyTypes bool `json:"fully_typed"`
 }
 
 func funcToData(f *symbols.Function) *FunctionData {
@@ -50,6 +52,7 @@ func funcToData(f *symbols.Function) *FunctionData {
 		CountDepsBy:          f.CountDepsBy(),
 		CyclomaticComplexity: f.CyclomaticComplexity,
 		CountMagicNumbers:    f.CountMagicNumbers,
+		FullyTypes:           f.FullyTyped,
 	}
 }
 
@@ -83,6 +86,7 @@ func GetStringFunctionRepr(f *symbols.Function) string {
 	res += cfmt.Sprintf("  {{Called by functions}}::green:   %s\n", ColorOutputIntZeroableValue(data.CountCalledBy))
 	res += cfmt.Sprintf("  {{Cyclomatic complexity}}::green: %s {{(>15 hard to understand, >30 extremely complex)}}::gray\n", ColorOutputIntZeroableValue(data.CyclomaticComplexity))
 	res += cfmt.Sprintf("  {{Count magic numbers}}::green:   %s\n", ColorOutputIntZeroableValue(data.CountMagicNumbers))
+	res += cfmt.Sprintf("  {{Fully typed}}::green:           %s\n", ColorOutputBoolZeroableValue(data.FullyTypes))
 
 	return res
 }

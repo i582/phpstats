@@ -25,6 +25,8 @@ type ClassData struct {
 	CountDeps   int64 `json:"countDeps"`
 	CountDepsBy int64 `json:"countDepsBy"`
 
+	CountFullyTypedMethods int64
+
 	implements *symbols.Classes
 	extends    *symbols.Classes
 
@@ -52,6 +54,7 @@ func ClassToData(c *symbols.Class) *ClassData {
 	aff, eff, instab := metrics.AfferentEfferentInstabilityOfClass(c)
 	lcom, _ := metrics.LackOfCohesionInMethods(c)
 	lcom4 := metrics.LackOfCohesionInMethods4(c)
+	countFullyTypedFunctions := c.CountFullyTypedMethods()
 
 	return &ClassData{
 		Name:        c.Name,
@@ -64,6 +67,8 @@ func ClassToData(c *symbols.Class) *ClassData {
 		Lcom4:       lcom4,
 		CountDeps:   int64(c.Deps.Len()),
 		CountDepsBy: int64(c.DepsBy.Len()),
+
+		CountFullyTypedMethods: countFullyTypedFunctions,
 
 		implements: c.Implements,
 		extends:    c.Extends,

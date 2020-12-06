@@ -429,6 +429,16 @@ func (c *Class) ClassName() string {
 	return parts[len(parts)-1]
 }
 
+func (c *Class) CountFullyTypedMethods() int64 {
+	var count int64
+	for _, method := range c.Methods.Funcs {
+		if method.FullyTyped {
+			count++
+		}
+	}
+	return count
+}
+
 // GobEncode is a custom gob marshaller
 func (c *Class) GobEncode() ([]byte, error) {
 	w := new(bytes.Buffer)

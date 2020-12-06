@@ -3,12 +3,17 @@
 class F {
   public I $IProp;
 
-  public function FMethod(J $data) {
+  public function FMethod(J $data): int {
     $g = new G; // ok
     $g->gProp; // ok
     H::$hProp; // ok
     $data->jProp; // ok
     $this->IProp->iProp; // ok
+    return 0;
+  }
+
+  public function FMethod2(): int {
+    return 0;
   }
 }
 

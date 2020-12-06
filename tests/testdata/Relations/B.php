@@ -5,8 +5,9 @@ class TargetClassA {
 
   public int $field = 10;
 
-  public static function targetMethod1() {
+  public static function targetMethod1(): int {
     TargetClassB::targetMethod();
+    return 0;
   }
 
   public static function targetMethod2() {
@@ -16,7 +17,7 @@ class TargetClassA {
 
 class TargetClassB {
   public static function targetMethod() {
-    TargetClassA::targetMethod();
+    TargetClassA::targetMethod1();
     $tga = new TargetClassA();
     $tga->field;
     TargetClassA::CONSTANT;

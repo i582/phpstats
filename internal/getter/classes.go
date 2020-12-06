@@ -6,6 +6,7 @@ import (
 
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/stats/symbols"
+	"github.com/i582/phpstats/internal/utils"
 )
 
 type ClassesGetOptions struct {
@@ -59,6 +60,9 @@ func GetClassesByOption(c *symbols.Classes, opt ClassesGetOptions) []*symbols.Cl
 	sort.Slice(classes, func(i, j int) bool {
 		var class1 float64
 		var class2 float64
+
+		var addition func() bool = nil
+
 		switch opt.SortColumn {
 		case 0, 1: // Name
 			fun1 := strings.ToLower(classes[i].ClassName())
@@ -89,12 +93,23 @@ func GetClassesByOption(c *symbols.Classes, opt ClassesGetOptions) []*symbols.Cl
 		case 8: // CountDepsBy
 			class1 = float64(representator.ClassToData(classes[i]).CountDepsBy)
 			class2 = float64(representator.ClassToData(classes[j]).CountDepsBy)
+		case 9: //  Count fully typed methods
+			class1 = utils.Percent(representator.ClassToData(classes[i]).CountFullyTypedMethods, int64(classes[i].Methods.Len()))
+			class2 = utils.Percent(representator.ClassToData(classes[j]).CountFullyTypedMethods, int64(classes[j].Methods.Len()))
+
+			addition = func() bool {
+				return classes[i].Methods.Len() > classes[j].Methods.Len()
+			}
 		default:
 			return i < j
 		}
 
 		if opt.ReverseSort {
 			class1, class2 = class2, class1
+		}
+
+		if class1 == class2 && addition != nil {
+			return addition()
 		}
 
 		return class1 > class2
