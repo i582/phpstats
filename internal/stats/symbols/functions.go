@@ -118,7 +118,7 @@ func (f *Functions) maxMinAvgCyclomaticComplexity(onlyMethods, onlyFunctions boo
 
 	if onlyMethods && f.CountMethods() != 0 {
 		avg = count / float64(f.CountMethods())
-	} else if onlyFunctions && f.CountFunctions() != 0 {
+	} else if onlyFunctions && f.CountFunctions(false) != 0 {
 		avg = count / float64(f.CountMethods())
 	} else if f.Len() != 0 {
 		avg = count / float64(f.Len())
@@ -168,8 +168,8 @@ func (f *Functions) maxMinAvgCountMagicNumbers(onlyMethods, onlyFunctions bool) 
 
 	if onlyMethods && f.CountMethods() != 0 {
 		avg = count / f.CountMethods()
-	} else if onlyFunctions && f.CountFunctions() != 0 {
-		avg = count / f.CountFunctions()
+	} else if onlyFunctions && f.CountFunctions(false) != 0 {
+		avg = count / f.CountFunctions(false)
 	} else if f.Len() != 0 {
 		avg = count / int64(f.Len())
 	}
@@ -177,10 +177,18 @@ func (f *Functions) maxMinAvgCountMagicNumbers(onlyMethods, onlyFunctions bool) 
 	return max, min, avg
 }
 
-func (f *Functions) CountFunctions() int64 {
+func (f *Functions) CountFunctions(withEmbedded bool) int64 {
 	var count int64
 	for _, fn := range f.Funcs {
-		if !fn.IsMethod() && !fn.IsEmbeddedFunc() {
+		if withEmbedded && fn.IsEmbeddedFunc() {
+			count++
+			continue
+		}
+		if !withEmbedded && fn.IsEmbeddedFunc() {
+			continue
+		}
+
+		if !fn.IsMethod() {
 			count++
 		}
 	}

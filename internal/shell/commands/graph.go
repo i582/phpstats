@@ -97,7 +97,6 @@ func Graph() *shell.Executor {
 			graphData := g.FunctionReachability(rel)
 			handleGraphOutputWithWeb(c, inBrowser, graphData)
 		},
-		// graph func-reachability --web --parent RankScores::needScoresFeed --child id --depth 5 --exclude debugServerLog,debugGetLogin
 	}
 
 	graphFileExecutor := &shell.Executor{
@@ -172,15 +171,6 @@ func Graph() *shell.Executor {
 				Name: "--inheritance",
 				Help: "show the inheritance graph",
 			},
-			// TODO:
-			// &flags.Flag{
-			// 	Name: "--superglobals",
-			// 	Help: "show the superglobals deps",
-			// },
-			// &flags.Flag{
-			// 	Name: "-g",
-			// 	Help: "show classes in groups",
-			// },
 			&flags.Flag{
 				Name: "--web",
 				Help: "show graph in browser",
@@ -425,7 +415,7 @@ func handleGraphOutputWithWeb(c *shell.Context, inBrowser bool, graphData string
 	transformSvgGraph(c)
 
 	if inBrowser && outputted {
-		err := utils.OpenFile("file:///" + c.GetFlagValue("-o"))
+		err := utils.OpenFile("http://localhost:3005/graphs/graph.svg")
 		if err != nil {
 			log.Print("error open graph file:", err)
 		}

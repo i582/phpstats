@@ -23,10 +23,10 @@ type FunctionData struct {
 	CountDeps   int64 `json:"countDeps"`
 	CountDepsBy int64 `json:"countDepsBy"`
 
-	CyclomaticComplexity int64 `json:"cc"`
-	CountMagicNumbers    int64 `json:"cmn"`
+	CyclomaticComplexity int64 `json:"cyclomaticComplexity"`
+	CountMagicNumbers    int64 `json:"countMagicNumbers"`
 
-	FullyTyped bool `json:"fully_typed"`
+	FullyTyped bool `json:"fullyTyped"`
 }
 
 func funcToData(f *symbols.Function) *FunctionData {

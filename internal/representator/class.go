@@ -2,7 +2,6 @@ package representator
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/i582/cfmt"
 
@@ -88,15 +87,14 @@ func GetStringClassRepr(c *symbols.Class) string {
 
 	var res string
 
-	res += fmt.Sprintf("%s %s\n", data.Type, data.Name)
-	res += cfmt.Sprintf("  {{Afferent coupling}}::green:             %s\n", ColorOutputFloatZeroableValue(data.Afferent))
-	res += cfmt.Sprintf("  {{Efferent coupling}}::green:             %s\n", ColorOutputFloatZeroableValue(data.Efferent))
-	res += cfmt.Sprintf("  {{Instability}}::green:                   %s\n", ColorOutputFloatZeroableValue(data.Instability))
-	res += cfmt.Sprintf("  {{Lack of Cohesion in Methods}}::green:   %s\n", ColorOutputFloatZeroableValue(data.Lcom))
-	res += cfmt.Sprintf("  {{Lack of Cohesion in Methods 4}}::green: %s\n", ColorOutputIntZeroableValue(data.Lcom4))
-	res += cfmt.Sprintf("  {{Count class dependencies}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountDeps))
-	res += cfmt.Sprintf("  {{Count dependent classes}}::green:       %s\n", ColorOutputIntZeroableValue(data.CountDepsBy))
-	res += cfmt.Sprintf("  {{Count fully typed methods}}::green:     %s{{(%d)}}::gray\n", ColorOutputIntZeroableValue(data.CountFullyTypedMethods), data.methods.Len())
+	res += cfmt.Sprintf("   {{Afferent coupling}}::green:             %s\n", ColorOutputFloatZeroableValue(data.Afferent))
+	res += cfmt.Sprintf("   {{Efferent coupling}}::green:             %s\n", ColorOutputFloatZeroableValue(data.Efferent))
+	res += cfmt.Sprintf("   {{Instability}}::green:                   %s\n", ColorOutputFloatZeroableValue(data.Instability))
+	res += cfmt.Sprintf("   {{Lack of Cohesion in Methods}}::green:   %s\n", ColorOutputFloatZeroableValue(data.Lcom))
+	res += cfmt.Sprintf("   {{Lack of Cohesion in Methods 4}}::green: %s\n", ColorOutputIntZeroableValue(data.Lcom4))
+	res += cfmt.Sprintf("   {{Count class dependencies}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountDeps))
+	res += cfmt.Sprintf("   {{Count dependent classes}}::green:       %s\n", ColorOutputIntZeroableValue(data.CountDepsBy))
+	res += cfmt.Sprintf("   {{Count fully typed methods}}::green:     %s{{(%d)}}::gray\n", ColorOutputIntZeroableValue(data.CountFullyTypedMethods), data.methods.Len())
 
 	return res
 }

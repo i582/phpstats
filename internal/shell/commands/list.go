@@ -76,7 +76,7 @@ func List() *shell.Executor {
 				jsonFile.Close()
 				cfmt.Printf("The functions list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
-				fmt.Printf("Showing %d functions out of %d starting from %d\n\n", len(funcs), walkers.GlobalCtx.Functions.CountFunctions(), offset+1)
+				fmt.Printf("Showing %d functions out of %d starting from %d\n\n", len(funcs), walkers.GlobalCtx.Functions.CountFunctions(withEmbeddedFuncs), offset+1)
 				data := representator.GetTableFunctionsRepr(funcs, offset)
 				fmt.Println(data)
 			}
@@ -467,6 +467,7 @@ func List() *shell.Executor {
 				jsonFile.Close()
 				cfmt.Printf("The namespaces list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d namespaces (level %d) out of %d starting from %d\n\n", len(nss), level, len(walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level, 100000, 0)), offset+1)
 				data := representator.GetTableNamespacesRepr(nss, offset)
 				fmt.Println(data)
 			}

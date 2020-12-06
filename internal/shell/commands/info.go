@@ -17,13 +17,12 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show information about %s class\n\n", c.Args[0])
-
 			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
+			fmt.Printf("Show information about %s class\n\n", class.Name)
 
 			data := representator.GetStringClassRepr(class)
 			fmt.Println(data)
@@ -38,15 +37,14 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show information about %s interface\n\n", c.Args[0])
-
-			class, err := walkers.GlobalCtx.Classes.GetInterfaceByPartOfName(c.Args[0])
+			iface, err := walkers.GlobalCtx.Classes.GetInterfaceByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
+			fmt.Printf("Show information about %s interface\n\n", iface.Name)
 
-			data := representator.GetStringClassRepr(class)
+			data := representator.GetStringClassRepr(iface)
 			fmt.Println(data)
 		},
 	}
@@ -58,13 +56,12 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show information about %s trait\n\n", c.Args[0])
-
 			trait, err := walkers.GlobalCtx.Classes.GetTraitByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
+			fmt.Printf("Show information about %s trait\n\n", trait.Name)
 
 			data := representator.GetStringClassRepr(trait)
 			fmt.Println(data)
@@ -79,13 +76,12 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show information about %s function\n\n", c.Args[0])
-
 			fn, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
+			fmt.Printf("Show information about %s function\n\n", fn.Name.String())
 
 			data := representator.GetStringFunctionRepr(fn)
 			fmt.Println(data)
@@ -99,13 +95,12 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show information about %s file\n\n", c.Args[0])
-
 			file, err := walkers.GlobalCtx.Files.GetFileByPartOfName(c.Args[0])
 			if err != nil {
 				c.Error(err)
 				return
 			}
+			fmt.Printf("Show information about %s file\n\n", file.Name)
 
 			data := representator.GetStringFileRepr(file)
 			fmt.Println(data)
@@ -119,13 +114,12 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			fmt.Printf("Show information about %s namespace\n\n", c.Args[0])
-
 			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
 			if !ok {
 				c.Error(fmt.Errorf("namespace %s not found", c.Args[0]))
 				return
 			}
+			fmt.Printf("Show information about %s namespace\n\n", ns.Name)
 
 			data := representator.GetStringNamespaceRepr(ns)
 			fmt.Println(data)

@@ -60,7 +60,7 @@ func Run() {
 					&cli.Int64Flag{
 						Name:        "port",
 						Usage:       "port used by the server.",
-						Value:       8080,
+						Value:       3005,
 						Destination: &port,
 					},
 					&cli.StringFlag{

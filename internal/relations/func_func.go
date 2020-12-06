@@ -33,7 +33,7 @@ func NewFunc2FuncRelation() *Func2FuncRelation {
 func (r *Func2FuncRelation) String() string {
 	var res string
 
-	res += cfmt.Sprintf("Function {{%s}}::green connection with function {{%s}}::yellow.\n\n", r.TargetFunction.Name, r.RelatedFunction.Name)
+	res += cfmt.Sprintf("Function {{%s}}::green connection with function {{%s}}::yellow\n\n", r.TargetFunction.Name, r.RelatedFunction.Name)
 
 	res += fmt.Sprintf("    Functions belong to the same class:%*s      %t", len(r.RelatedFunction.Name.String()+r.TargetFunction.Name.String()), "", r.BelongsToSameClass)
 
@@ -48,14 +48,14 @@ func (r *Func2FuncRelation) String() string {
 
 	res += cfmt.Sprintf("    Is function {{%s}}::yellow reachable from function {{%s}}::green:   %t\n", r.RelatedFunction.Name, r.TargetFunction.Name, r.RelatedReachableFromTarget)
 	if r.RelatedReachableFromTarget {
-		res += cfmt.Sprintf("       To get the graph, enter command\n       {{graph func-reachability --web --parent %s --child %s --depth 10}}::blue\n", r.TargetFunction.Name, r.RelatedFunction.Name)
-		res += cfmt.Sprintf("       To get text output of paths, enter the command\n       {{relation func-reachability --parent %s --child %s --show --depth 10}}::blue\n\n", r.TargetFunction.Name, r.RelatedFunction.Name)
+		res += cfmt.Sprintf("       To get the graph, enter command\n       {{ graph func-reachability --web --parent %s --child %s --depth 10 }}::blue\n", r.TargetFunction.Name, r.RelatedFunction.Name)
+		res += cfmt.Sprintf("       To get text output of paths, enter the command\n       {{ relation func-reachability --parent %s --child %s --show --depth 10 }}::blue\n\n", r.TargetFunction.Name, r.RelatedFunction.Name)
 	}
 
 	res += cfmt.Sprintf("    Is function {{%s}}::green reachable from function {{%s}}::yellow:   %t\n", r.TargetFunction.Name, r.RelatedFunction.Name, r.TargetReachableFromRelated)
 	if r.TargetReachableFromRelated {
-		res += cfmt.Sprintf("       To get the graph, enter command\n       {{graph func-reachability --web --parent %s --child %s --depth 10}}::blue\n", r.RelatedFunction.Name, r.TargetFunction.Name)
-		res += cfmt.Sprintf("       To get text output of paths, enter the command\n       {{relation func-reachability --parent %s --child %s --show --depth 10}}::blue\n\n", r.RelatedFunction.Name, r.TargetFunction.Name)
+		res += cfmt.Sprintf("       To get the graph, enter command\n       {{ graph func-reachability --web --parent %s --child %s --depth 10 }}::blue\n", r.RelatedFunction.Name, r.TargetFunction.Name)
+		res += cfmt.Sprintf("       To get text output of paths, enter the command\n       {{ relation func-reachability --parent %s --child %s --show --depth 10 }}::blue\n\n", r.RelatedFunction.Name, r.TargetFunction.Name)
 	}
 
 	return res

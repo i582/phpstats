@@ -14,9 +14,9 @@ type FileData struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
 
-	CountRequiredRoot  int64
-	CountRequiredBlock int64
-	CountRequiredBy    int64
+	CountRequiredRoot  int64 `json:"countRequiredInRoot"`
+	CountRequiredBlock int64 `json:"countRequiredInBlock"`
+	CountRequiredBy    int64 `json:"countRequiredBy"`
 
 	requiredRoot  *symbols.Files
 	requiredBlock *symbols.Files
