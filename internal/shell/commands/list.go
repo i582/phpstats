@@ -467,6 +467,7 @@ func List() *shell.Executor {
 				jsonFile.Close()
 				cfmt.Printf("The namespaces list was {{successfully}}::green saved to file {{'%s'}}::blue\n", jsonFile.Name())
 			} else {
+				fmt.Printf("Showing %d namespaces (level %d) out of %d starting from %d\n\n", len(nss), level, len(walkers.GlobalCtx.Namespaces.GetNamespacesWithSpecificLevel(level, 100000, 0)), offset+1)
 				data := representator.GetTableNamespacesRepr(nss, offset)
 				fmt.Println(data)
 			}
