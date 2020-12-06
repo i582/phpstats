@@ -90,10 +90,34 @@ func (r *rootIndexer) handleFunction(n *ir.FunctionStmt) {
 		Stmts: n.Stmts,
 	})
 
+	hasParamsTypeHints := r.hasParamsTypeHints(n.Params)
+	hasReturnTypeHint := r.hasReturnTypeHint(n.ReturnType)
+
 	fn := symbols.NewFunction(symbols.NewFuncKey(funcName), pos)
 	fn.CyclomaticComplexity = cc
 	fn.CountMagicNumbers = cmn
+	fn.FullyTyped = hasReturnTypeHint && hasParamsTypeHints
 	r.Meta.Funcs.Add(fn)
+}
+
+func (r *rootIndexer) hasParamsTypeHints(params []ir.Node) bool {
+	for _, param := range params {
+		paramNode, ok := param.(*ir.Parameter)
+		if !ok {
+			continue
+		}
+
+		hasTypeHint := paramNode.VariableType != nil
+		if !hasTypeHint {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (r *rootIndexer) hasReturnTypeHint(returnTypeNode ir.Node) bool {
+	return returnTypeNode != nil
 }
 
 func (r *rootIndexer) handleTrait(n *ir.TraitStmt) {
@@ -192,9 +216,13 @@ func (r *rootIndexer) handleClassInterfaceMethodsConstants(class *symbols.Class,
 			cmn = r.calculateCountMagicNumbers(n)
 		}
 
+		hasParamsTypeHints := r.hasParamsTypeHints(n.Params)
+		hasReturnTypeHint := r.hasReturnTypeHint(n.ReturnType)
+
 		fn := symbols.NewFunction(symbols.NewMethodKey(methodName, class.Name), pos)
 		fn.CyclomaticComplexity = cc
 		fn.CountMagicNumbers = cmn
+		fn.FullyTyped = hasReturnTypeHint && hasParamsTypeHints
 		r.Meta.Funcs.Add(fn)
 
 	case *ir.ClassConstListStmt:

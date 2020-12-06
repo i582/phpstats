@@ -3,8 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"github.com/gookit/color"
-
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
@@ -14,12 +12,12 @@ import (
 func Info() *shell.Executor {
 	classInfoExecutor := &shell.Executor{
 		Name:      "class",
-		Help:      "show info about a specific class",
+		Help:      "shows info about a specific class",
 		WithValue: true,
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show info about %s class\n\n", c.Args[0])
+			fmt.Printf("Show information about %s class\n\n", c.Args[0])
 
 			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {
@@ -34,13 +32,13 @@ func Info() *shell.Executor {
 
 	ifaceInfoExecutor := &shell.Executor{
 		Name:      "interface",
-		Help:      "show info about a specific interface",
+		Help:      "shows info about a specific interface",
 		WithValue: true,
 		Aliases:   []string{"iface"},
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show info about %s interface\n\n", c.Args[0])
+			fmt.Printf("Show information about %s interface\n\n", c.Args[0])
 
 			class, err := walkers.GlobalCtx.Classes.GetInterfaceByPartOfName(c.Args[0])
 			if err != nil {
@@ -55,12 +53,12 @@ func Info() *shell.Executor {
 
 	traitInfoExecutor := &shell.Executor{
 		Name:      "trait",
-		Help:      "show info about a specific trait",
+		Help:      "shows info about a specific trait",
 		WithValue: true,
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show info about %s trait\n\n", c.Args[0])
+			fmt.Printf("Show information about %s trait\n\n", c.Args[0])
 
 			trait, err := walkers.GlobalCtx.Classes.GetTraitByPartOfName(c.Args[0])
 			if err != nil {
@@ -81,7 +79,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show info about %s function\n\n", c.Args[0])
+			fmt.Printf("Show information about %s function\n\n", c.Args[0])
 
 			fn, err := walkers.GlobalCtx.Functions.GetFunctionByPartOfName(c.Args[0])
 			if err != nil {
@@ -101,7 +99,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show info about %s file\n\n", c.Args[0])
+			fmt.Printf("Show information about %s file\n\n", c.Args[0])
 
 			file, err := walkers.GlobalCtx.Files.GetFileByPartOfName(c.Args[0])
 			if err != nil {
@@ -121,7 +119,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show info about %s namespace\n\n", c.Args[0])
+			fmt.Printf("Show information about %s namespace\n\n", c.Args[0])
 
 			ns, ok := walkers.GlobalCtx.Namespaces.GetNamespace(c.Args[0])
 			if !ok {

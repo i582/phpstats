@@ -25,6 +25,8 @@ type ClassData struct {
 	CountDeps   int64 `json:"countDeps"`
 	CountDepsBy int64 `json:"countDepsBy"`
 
+	CountFullyTypedMethods int64 `json:"countFullyTypedMethods"`
+
 	implements *symbols.Classes
 	extends    *symbols.Classes
 
@@ -52,6 +54,7 @@ func ClassToData(c *symbols.Class) *ClassData {
 	aff, eff, instab := metrics.AfferentEfferentInstabilityOfClass(c)
 	lcom, _ := metrics.LackOfCohesionInMethods(c)
 	lcom4 := metrics.LackOfCohesionInMethods4(c)
+	countFullyTypedFunctions := c.CountFullyTypedMethods()
 
 	return &ClassData{
 		Name:        c.Name,
@@ -64,6 +67,8 @@ func ClassToData(c *symbols.Class) *ClassData {
 		Lcom4:       lcom4,
 		CountDeps:   int64(c.Deps.Len()),
 		CountDepsBy: int64(c.DepsBy.Len()),
+
+		CountFullyTypedMethods: countFullyTypedFunctions,
 
 		implements: c.Implements,
 		extends:    c.Extends,
@@ -91,6 +96,7 @@ func GetStringClassRepr(c *symbols.Class) string {
 	res += cfmt.Sprintf("  {{Lack of Cohesion in Methods 4}}::green: %s\n", ColorOutputIntZeroableValue(data.Lcom4))
 	res += cfmt.Sprintf("  {{Count class dependencies}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountDeps))
 	res += cfmt.Sprintf("  {{Count dependent classes}}::green:       %s\n", ColorOutputIntZeroableValue(data.CountDepsBy))
+	res += cfmt.Sprintf("  {{Count fully typed methods}}::green:     %s{{(%d)}}::gray\n", ColorOutputIntZeroableValue(data.CountFullyTypedMethods), data.methods.Len())
 
 	return res
 }

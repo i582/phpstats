@@ -3,12 +3,13 @@
 class AF {
   public AJ $aj;
 
-  public function AFMethod(AI $data) {
+  public function AFMethod(AI $data): int {
     $ag = new AG;
     $ag->agProp;
     AH::$ahProp;
     $data->aiProp;
     $this->aj->ajProp;
+    return 0;
   }
 }
 

@@ -27,6 +27,13 @@ func splitText(text string) string {
 	return text
 }
 
+func ColorOutputBoolZeroableValue(data bool) string {
+	if !data {
+		return color.Gray.Sprintf("%t", data)
+	}
+	return fmt.Sprintf("%t", data)
+}
+
 func ColorOutputIntZeroableValue(data int64) string {
 	if data == 0 {
 		return color.Gray.Sprint(data)

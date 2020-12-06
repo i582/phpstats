@@ -147,6 +147,7 @@ func (ctx *globalContext) UpdateMeta(f *filemeta.FileMeta, filename string) {
 
 		fun.CyclomaticComplexity = fn.CyclomaticComplexity
 		fun.CountMagicNumbers = fn.CountMagicNumbers
+		fun.FullyTyped = fn.FullyTyped
 
 		ctx.Functions.Add(fun)
 	}

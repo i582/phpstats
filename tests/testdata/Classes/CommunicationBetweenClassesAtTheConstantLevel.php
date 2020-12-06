@@ -3,8 +3,9 @@
 class K {
   const K_CONST = 0;
 
-  public function KMethod() {
+  public function KMethod(): int {
     N::N_CONST; // ok
+    return 0;
   }
 }
 

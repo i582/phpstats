@@ -58,7 +58,9 @@ func LackOfCohesionInMethods4(c *symbols.Class) int64 {
 	g := simple.NewUndirectedGraph()
 
 	for _, method := range c.Methods.Funcs {
-		g.AddNode(method)
+		if g.Node(method.Id) == nil {
+			g.AddNode(method)
+		}
 	}
 
 	for _, method := range c.Methods.Funcs {
