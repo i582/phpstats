@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	ProjectName  string    `yaml:"project-name"`
+	ProjectName  string    `yaml:"projectName"`
 	Include      []string  `yaml:"include"`
 	Exclude      []string  `yaml:"exclude"`
 	Port         int64     `yaml:"port"`

@@ -14,7 +14,7 @@ import (
 )
 
 var configTemplate = `# Project name
-project-name: "%s"
+projectName: "%s"
 
 # Directories and files for analysis relative to the configuration files directory.
 # By default, it is "."
