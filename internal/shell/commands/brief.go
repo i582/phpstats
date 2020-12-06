@@ -93,8 +93,8 @@ func Brief() *shell.Executor {
 			cfmt.Printf("    {{Methods}}::green:                                       %s\n", colorInt(walkers.GlobalCtx.Functions.CountMethods()))
 			cfmt.Printf("    {{Constants}}::green:                                     %s\n", colorInt(int64(walkers.GlobalCtx.Constants.Len())))
 			cfmt.Printf("    {{Functions}}::green:\n")
-			cfmt.Printf("        {{Named Functions}}::green:                           %s %s\n", colorInt(walkers.GlobalCtx.Functions.CountFunctions()), colorPercent(utils.Percent(walkers.GlobalCtx.Functions.CountFunctions(), walkers.GlobalCtx.Functions.CountFunctions()+walkers.GlobalCtx.CountAnonymousFunctions)))
-			cfmt.Printf("        {{Anonymous Functions}}::green:                       %s %s\n", colorInt(walkers.GlobalCtx.CountAnonymousFunctions), colorPercent(utils.Percent(walkers.GlobalCtx.CountAnonymousFunctions, walkers.GlobalCtx.Functions.CountFunctions()+walkers.GlobalCtx.CountAnonymousFunctions)))
+			cfmt.Printf("        {{Named Functions}}::green:                           %s %s\n", colorInt(walkers.GlobalCtx.Functions.CountFunctions(false)), colorPercent(utils.Percent(walkers.GlobalCtx.Functions.CountFunctions(false), walkers.GlobalCtx.Functions.CountFunctions(false)+walkers.GlobalCtx.CountAnonymousFunctions)))
+			cfmt.Printf("        {{Anonymous Functions}}::green:                       %s %s\n", colorInt(walkers.GlobalCtx.CountAnonymousFunctions), colorPercent(utils.Percent(walkers.GlobalCtx.CountAnonymousFunctions, walkers.GlobalCtx.Functions.CountFunctions(false)+walkers.GlobalCtx.CountAnonymousFunctions)))
 
 			fmt.Println()
 		},
