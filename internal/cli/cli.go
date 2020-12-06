@@ -40,7 +40,7 @@ func Run() {
 
 	app := &cli.App{
 		Name:        "phpstats",
-		Version:     "v0.0.3",
+		Version:     "v0.4.0",
 		Usage:       "Tool for collecting statistics and building dependency graphs for PHP",
 		Description: "Tool for collecting statistics and building dependency graphs for PHP",
 		Commands: []*cli.Command{

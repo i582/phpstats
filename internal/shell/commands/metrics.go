@@ -85,6 +85,10 @@ Count of magic numbers (CMN):
 	always obvious what the author meant by it. The more magic numbers, the more difficult 
 	it is to refactor the given code.
 
+Count fully typed methods (CFTM):
+	The number of methods in the class for which there is a type hint for each parameter, 
+	as well as the return type.
+
 PHPStats (c) 2020
 `)
 		},
