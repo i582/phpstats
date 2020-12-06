@@ -3,8 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"github.com/gookit/color"
-
 	"github.com/i582/phpstats/internal/representator"
 	"github.com/i582/phpstats/internal/shell"
 	"github.com/i582/phpstats/internal/shell/flags"
@@ -19,7 +17,7 @@ func Info() *shell.Executor {
 		Flags:     flags.NewFlags(),
 		CountArgs: 1,
 		Func: func(c *shell.Context) {
-			color.Gray.Printf("Show information about %s class\n\n", c.Args[0])
+			fmt.Printf("Show information about %s class\n\n", c.Args[0])
 
 			class, err := walkers.GlobalCtx.Classes.GetClassByPartOfName(c.Args[0])
 			if err != nil {

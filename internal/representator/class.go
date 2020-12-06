@@ -25,7 +25,7 @@ type ClassData struct {
 	CountDeps   int64 `json:"countDeps"`
 	CountDepsBy int64 `json:"countDepsBy"`
 
-	CountFullyTypedMethods int64
+	CountFullyTypedMethods int64 `json:"countFullyTypedMethods"`
 
 	implements *symbols.Classes
 	extends    *symbols.Classes
@@ -96,6 +96,7 @@ func GetStringClassRepr(c *symbols.Class) string {
 	res += cfmt.Sprintf("  {{Lack of Cohesion in Methods 4}}::green: %s\n", ColorOutputIntZeroableValue(data.Lcom4))
 	res += cfmt.Sprintf("  {{Count class dependencies}}::green:      %s\n", ColorOutputIntZeroableValue(data.CountDeps))
 	res += cfmt.Sprintf("  {{Count dependent classes}}::green:       %s\n", ColorOutputIntZeroableValue(data.CountDepsBy))
+	res += cfmt.Sprintf("  {{Count fully typed methods}}::green:     %s{{(%d)}}::gray\n", ColorOutputIntZeroableValue(data.CountFullyTypedMethods), data.methods.Len())
 
 	return res
 }
