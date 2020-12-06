@@ -58,29 +58,37 @@ func (r *Class2ClassRelation) String() string {
 	res += cfmt.Sprintf("    Class {{%s}}::green extends class {{%s}}::yellow:         %t\n", r.TargetClass.Name, r.RelatedClass.Name, r.IsTargetExtends)
 	res += cfmt.Sprintf("    Class {{%s}}::green implements interface {{%s}}::yellow:  %t\n", r.TargetClass.Name, r.RelatedClass.Name, r.IsTargetImplements)
 
-	for _, method := range r.UsedRelatedMethods.Funcs {
-		res += cfmt.Sprintf("    Class {{%s}}::green uses method {{%s}}::yellow in method {{%s}}::green.\n", r.TargetClass.Name, method.Name, r.WhereRelatedUsedMethods[method].Name)
-	}
-	for _, field := range r.UsedRelatedFields.Fields {
-		res += cfmt.Sprintf("    Class {{%s}}::green uses field {{%s}}::yellow in method {{%s}}::green.\n", r.TargetClass.Name, field, r.WhereRelatedUsedFields[field].Name)
-	}
-	for _, constant := range r.UsedRelatedConstants.Constants {
-		res += cfmt.Sprintf("    Class {{%s}}::green uses constant {{%s}}::yellow in method {{%s}}::green.\n", r.TargetClass.Name, constant, r.WhereRelatedUsedConstants[constant].Name)
+	if r.UsedRelatedMethods.Len() != 0 || r.UsedRelatedFields.Len() != 0 || r.UsedRelatedConstants.Len() != 0 {
+		res += cfmt.Sprintf("    Class {{%s}}::green uses\n", r.TargetClass.Name)
+
+		for _, method := range r.UsedRelatedMethods.Funcs {
+			res += cfmt.Sprintf("         method   {{%s}}::yellow\n            in method {{%s}}::green.\n", method.Name, r.WhereRelatedUsedMethods[method].Name)
+		}
+		for _, field := range r.UsedRelatedFields.Fields {
+			res += cfmt.Sprintf("         field    {{%s}}::yellow\n            in method {{%s}}::green.\n", field, r.WhereRelatedUsedFields[field].Name)
+		}
+		for _, constant := range r.UsedRelatedConstants.Constants {
+			res += cfmt.Sprintf("         constant {{%s}}::yellow\n            in method {{%s}}::green.\n", constant, r.WhereRelatedUsedConstants[constant].Name)
+		}
 	}
 
 	res += cfmt.Sprintln()
 
-	res += cfmt.Sprintf("    Class {{%s}}::green extends class {{%s}}::yellow:         %t\n", r.RelatedClass.Name, r.TargetClass.Name, r.IsRelatedExtends)
-	res += cfmt.Sprintf("    Class {{%s}}::green implements interface {{%s}}::yellow:  %t\n", r.RelatedClass.Name, r.TargetClass.Name, r.IsRelatedImplements)
+	res += cfmt.Sprintf("    Class {{%s}}::yellow extends class {{%s}}::green:         %t\n", r.RelatedClass.Name, r.TargetClass.Name, r.IsRelatedExtends)
+	res += cfmt.Sprintf("    Class {{%s}}::yellow implements interface {{%s}}::green:  %t\n", r.RelatedClass.Name, r.TargetClass.Name, r.IsRelatedImplements)
 
-	for _, method := range r.UsedTargetMethods.Funcs {
-		res += cfmt.Sprintf("    Class {{%s}}::green uses method {{%s}}::yellow in method {{%s}}::green.\n", r.RelatedClass.Name, method.Name, r.WhereTargetUsedMethods[method].Name)
-	}
-	for _, field := range r.UsedTargetFields.Fields {
-		res += cfmt.Sprintf("    Class {{%s}}::green uses field {{%s}}::yellow in method {{%s}}::green.\n", r.RelatedClass.Name, field, r.WhereTargetUsedFields[field].Name)
-	}
-	for _, constant := range r.UsedTargetConstants.Constants {
-		res += cfmt.Sprintf("    Class {{%s}}::green uses constant {{%s}}::yellow in method {{%s}}::green.\n", r.RelatedClass.Name, constant, r.WhereTargetUsedConstants[constant].Name)
+	if r.UsedTargetMethods.Len() != 0 || r.UsedTargetFields.Len() != 0 || r.UsedTargetConstants.Len() != 0 {
+		res += cfmt.Sprintf("    Class {{%s}}::yellow uses\n", r.RelatedClass.Name)
+
+		for _, method := range r.UsedTargetMethods.Funcs {
+			res += cfmt.Sprintf("         method   {{%s}}::green\n            in method {{%s}}::yellow.\n", method.Name, r.WhereTargetUsedMethods[method].Name)
+		}
+		for _, field := range r.UsedTargetFields.Fields {
+			res += cfmt.Sprintf("         field    {{%s}}::green\n            in method {{%s}}::yellow.\n", field, r.WhereTargetUsedFields[field].Name)
+		}
+		for _, constant := range r.UsedTargetConstants.Constants {
+			res += cfmt.Sprintf("         constant {{%s}}::green\n            in method {{%s}}::yellow.\n", constant, r.WhereTargetUsedConstants[constant].Name)
+		}
 	}
 
 	return res
