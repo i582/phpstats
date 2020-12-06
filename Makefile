@@ -8,7 +8,7 @@ install:
 
 check:
 	@echo "running tests..."
-	@go test -count 1 -coverprofile=coverage.txt -covermode=atomic -race -v ./test/...
+	@go test -count 1 -coverprofile=coverage.txt -covermode=atomic -race -v ./tests/...
 	@echo "everything is OK"
 
 .PHONY: check
